@@ -1,0 +1,3 @@
+[submodule "vendor/cmdline"]
+	path = vendor/cmdline
+	url = https://github.com/tanakh/cmdline.git
