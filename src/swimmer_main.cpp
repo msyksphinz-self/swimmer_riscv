@@ -153,8 +153,6 @@ int main (int argc, char *argv[])
 
   uint64_t max_sim_inst = cmd_line.get<uint64_t>("max");
 
-  display_info (debug_fp);
-
   FormatOperand ();
 
   if (is_cmd_hexfile || is_cmd_binfile) {
