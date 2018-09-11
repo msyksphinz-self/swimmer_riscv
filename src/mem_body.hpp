@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <memory>
 
@@ -47,7 +47,7 @@ class MemoryBlock;
 class Memory
 {
  private:
-  std::map <Addr_t, std::shared_ptr<MemoryBlock>> m_memory_vec;  // memory table
+  std::unordered_map <Addr_t, std::shared_ptr<MemoryBlock>> m_memory_vec;  // memory table
   static const Addr_t BaseMask = static_cast<Addr_t>(~0x00000FFFULL);
 
  protected:

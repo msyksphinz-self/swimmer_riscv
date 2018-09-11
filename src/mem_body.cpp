@@ -28,7 +28,7 @@
 #include <cmath>
 #include <sstream>
 #include <iomanip>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <memory>
 #include <stdio.h>
@@ -92,7 +92,7 @@ MemResult Memory::StoreMemory (Addr_t addr, Byte_t *data)
 
 MemResult Memory::SearchMemTable (Addr_t addr, size_t acc_size, Byte_t *data)
 {
-  std::map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
+  std::unordered_map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
   Addr_t baseaddr = addr & BaseMask;
 
   if ((it = m_memory_vec.find (baseaddr)) != m_memory_vec.end()) {
@@ -112,7 +112,7 @@ MemResult Memory::SearchMemTable (Addr_t addr, size_t acc_size, Byte_t *data)
 
 MemResult Memory::SearchMemTable (Addr_t addr, Byte_t *data)
 {
-  std::map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
+  std::unordered_map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
   Addr_t baseaddr = addr & BaseMask;
 
   if ((it = m_memory_vec.find (baseaddr)) != m_memory_vec.end()) {
@@ -130,7 +130,7 @@ MemResult Memory::InsertMemTable (Addr_t addr, Word_t data)
 {
   // at first, traverse memory table and check memory region is already registered or not
 
-  std::map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
+  std::unordered_map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
   Addr_t baseaddr = addr & BaseMask;
 
   if ((it = m_memory_vec.find (baseaddr)) != m_memory_vec.end()) {
@@ -151,7 +151,7 @@ MemResult Memory::InsertMemTable (Addr_t addr, size_t acc_size, Byte_t *data)
 {
   // at first, traverse memory table and check memory region is already registered or not
 
-  std::map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
+  std::unordered_map<Addr_t, std::shared_ptr<MemoryBlock>>::iterator it;
   Addr_t baseaddr = addr & BaseMask;
 
   if ((it = m_memory_vec.find (baseaddr)) != m_memory_vec.end()) {
