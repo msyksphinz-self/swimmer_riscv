@@ -3,7 +3,7 @@
 pattern_name=$1
 log_name=$2
 
-riscv_swimmer="../riscvswimmer"
+riscv_swimmer="../swimmer_riscv"
 swimmer_opts="--init_pc 0x80000000 --debug --stop-host --max 50000"
 # swimmer_opts="--init_pc 0x80000000"
 
