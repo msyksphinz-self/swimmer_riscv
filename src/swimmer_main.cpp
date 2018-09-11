@@ -85,7 +85,7 @@ int main (int argc, char *argv[])
 
 #if defined ARCH_RISCV
   cmd_line.add             ("stop-host"		 , '\0', "Stop simulation by accessing MTOHOST"                               );
-  cmd_line.add<uint32_t>   ("gdb"			 , '\0', "Wait GDB port"                                           , false, -1);
+  // cmd_line.add<uint32_t>   ("gdb"			 , '\0', "Wait GDB port"                                           , false, -1);
   cmd_line.add<std::string>("use-pk"         , '\0', "Location of RISC-V Proxy Kernel"                         , false    );
   cmd_line.add<uint32_t>   ("bit-mode"       , '\0', "Execution Bit-Mode (32 or 64)"                           , false, 64);
   cmd_line.add             ("trace-hier"     , '\0', "Generate Hierarcical Trace"                                         );
