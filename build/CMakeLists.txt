@@ -89,6 +89,7 @@ target_link_libraries (riscv_cedar softfloat)
 target_link_libraries (riscv_cedar gmp)
 target_link_libraries (riscv_cedar gmpxx)
 
+target_link_libraries (swimmer_riscv pthread)
 target_link_libraries (swimmer_riscv riscv_cedar)
 target_link_libraries (swimmer_riscv ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries (swimmer_riscv bfd)
