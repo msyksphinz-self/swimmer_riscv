@@ -37,7 +37,7 @@
 #include <bfd.h>
 #include <dis-asm.h>
 
-// #include "softfloat.h"
+#include "softfloat.h"
 
 #include "env.hpp"
 #include "riscv_sysreg_impl.hpp"
@@ -340,11 +340,11 @@ class RiscvPeThread : public EnvBase
 
   uint8_t EncodeRMField (uint8_t rm) {
     switch (rm) {
-      // case 0x00 : return softfloat_round_near_even;
-      // case 0x01 : return softfloat_round_minMag;
-      // case 0x02 : return softfloat_round_min;
-      // case 0x03 : return softfloat_round_max;
-      // case 0x04 : return softfloat_round_near_maxMag;
+      case 0x00 : return softfloat_round_near_even;
+      case 0x01 : return softfloat_round_minMag;
+      case 0x02 : return softfloat_round_min;
+      case 0x03 : return softfloat_round_max;
+      case 0x04 : return softfloat_round_near_maxMag;
       case 0x07 : {
         uint32_t frm;
         CSRRead(SYSREG_ADDR_FRM, &frm);
