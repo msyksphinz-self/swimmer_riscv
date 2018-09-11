@@ -113,7 +113,6 @@ int main (int argc, char *argv[])
   bool        is_init_pc      = !init_pc_str.empty();
   bool        is_debug_trace  = cmd_line.exist("debug");
   bool        is_load_dump    = cmd_line.exist("load-dump");
-  bool        is_cpu_parallel = cmd_line.exist("parallel");
 
 #if defined ARCH_RISCV
   std::string pk_loc          = cmd_line.get<std::string>("use-pk");
