@@ -72,31 +72,28 @@ int main (int argc, char *argv[])
   //=====================
 
   // Commond Options
-  cmd_line.add<uint32_t>   ("max_size"       , '\0', "Max size of log file [MB]"   							   , false, 0);
-  cmd_line.add<uint64_t>   ("max"			 , '\0', "Max instructions to simulate"							   , false, 0);
+  cmd_line.add<uint32_t>   ("max_size"       , '\0', "Max size of log file [MB]"   							   , false, 0 );
+  cmd_line.add<uint64_t>   ("max"			 , '\0', "Max instructions to simulate"							   , false, 0 );
   cmd_line.add<std::string>("binfile"		 , '\0', "Binary file to simulate."    							   , false, "");
   cmd_line.add<std::string>("hexfile"		 , '\0', "Hex file to simulate."       							   , false, "");
   cmd_line.add<std::string>("imgfile"		 , '\0', "Image file to simulate."     							   , false, "");
-  cmd_line.add             ("only_info_load" , '\0', "Debug Info is only loaded (only enable with --binfile)"  );
-  cmd_line.add             ("debug"			 , '\0', "Generate debug log"                                      );
-  cmd_line.add<std::string>("out"			 , '\0', "Output log filename"                                     , false);
-  cmd_line.add             ("load-dump"		 , '\0', "Dump Loaded Bin file (only enable with --binfile)"       );
-  cmd_line.add             ("parallel"		 , '\0', "CPU Parallel Execution"                                  );
-  cmd_line.add<std::string>("init_pc"        , '\0', "Initial Program Counter Value"                           , false);
-  cmd_line.add             ("reduc_thread"   , '\0', "Thread Reduction Mode"                                   );
-  cmd_line.add<std::string>("comptrace"      , '\0', "CompTrace Execution Mode RTL Trace File"                 , false);
+  cmd_line.add             ("only_info_load" , '\0', "Debug Info is only loaded (only enable with --binfile)"             );
+  cmd_line.add             ("debug"			 , '\0', "Generate debug log"                                                 );
+  cmd_line.add<std::string>("out"			 , '\0', "Output log filename"                                     , false    );
+  cmd_line.add             ("load-dump"		 , '\0', "Dump Loaded Bin file (only enable with --binfile)"                  );
+  cmd_line.add<std::string>("init_pc"        , '\0', "Initial Program Counter Value"                           , false    );
 
 #if defined ARCH_RISCV
-  cmd_line.add             ("stop-host"		 , '\0', "Stop simulation by accessing MTOHOST" );
-  cmd_line.add<uint32_t>   ("gdb"			 , '\0', "Wait GDB port"                        , false, -1);
-  cmd_line.add<std::string>("use-pk"         , '\0', "Location of RISC-V Proxy Kernel"                         , false);
+  cmd_line.add             ("stop-host"		 , '\0', "Stop simulation by accessing MTOHOST"                               );
+  cmd_line.add<uint32_t>   ("gdb"			 , '\0', "Wait GDB port"                                           , false, -1);
+  cmd_line.add<std::string>("use-pk"         , '\0', "Location of RISC-V Proxy Kernel"                         , false    );
   cmd_line.add<uint32_t>   ("bit-mode"       , '\0', "Execution Bit-Mode (32 or 64)"                           , false, 64);
-  cmd_line.add             ("trace-hier"     , '\0', "Generate Hierarcical Trace"                              );
+  cmd_line.add             ("trace-hier"     , '\0', "Generate Hierarcical Trace"                                         );
   cmd_line.add<std::string>("trace-out"      , '\0', "Hierarcical Trace Output Filename"                       , false, "");
-  cmd_line.add<std::string>("vmlinux"        , '\0', "Location of vmlinux", false, "");
-  cmd_line.add<uint64_t>   ("logstart"       , '\0', "cycle of log start", false, 0);
-  cmd_line.add<uint64_t>   ("printstep"      , '\0', "print number of steps each cycle", false, 0);
-  cmd_line.add<std::string>("signature"      , '\0', "Generate Signature and filename ", false, "");
+  cmd_line.add<std::string>("vmlinux"        , '\0', "Location of vmlinux"                                     , false, "");
+  cmd_line.add<uint64_t>   ("logstart"       , '\0', "cycle of log start"                                      , false, 0 );
+  cmd_line.add<uint64_t>   ("printstep"      , '\0', "print number of steps each cycle"                        , false, 0 );
+  cmd_line.add<std::string>("signature"      , '\0', "Generate Signature and filename "                        , false, "");
 #endif // defined ARCH_RISCV
 
   cmd_line.add ("version", 'v', "Show Version Information");
