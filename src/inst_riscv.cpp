@@ -852,6 +852,7 @@ void InstEnv::RISCV_INST_SC_W (InstWord_t inst_hex)
 
   if (m_pe_thread->GetLoadReservation() != mem_addr) {
     m_pe_thread->WriteGReg<Word_t> (rd_addr, 0x1);
+    m_pe_thread->ClearLoadReservation();
     return;
   }
 
@@ -865,6 +866,8 @@ void InstEnv::RISCV_INST_SC_W (InstWord_t inst_hex)
     return;
   }
   m_pe_thread->WriteGReg<Word_t> (rd_addr, 0x0);
+
+  m_pe_thread->ClearLoadReservation();
 }
 
 
