@@ -114,6 +114,7 @@ make
 10 / 402 patterns in riscv-tests are failed now.
 
 | Pattern Name        | Status |
+|---------------------|--------|
 | rv32mi-p-mcsr       | Fail   |
 | rv32uc-v-rvc        | Fail   |
 | rv32mi-p-illegal    | Fail   |
