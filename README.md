@@ -109,8 +109,26 @@ cmake . -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
+## Support Status
+
+10 / 402 patterns in riscv-tests are failed now.
+
+| Pattern Name        | Status |
+| rv32mi-p-mcsr       | Fail   |
+| rv32uc-v-rvc        | Fail   |
+| rv32mi-p-illegal    | Fail   |
+| rv32mi-p-breakpoint | Fail   |
+| rv32mi-p-ma_fetch   | Fail   |
+| rv64uc-v-rvc        | Fail   |
+| rv64mi-p-breakpoint | Fail   |
+| rv64mi-p-access     | Fail   |
+| rv64mi-p-illegal    | Fail   |
+| rv64mi-p-ma_fetch   | Fail   |
+
 ## Contribution
 
 ## Author
 
 [msyksphinz](https://github.com/msyksphinz)
+
+Email : msyksphinz.dev@gmail.com
