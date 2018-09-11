@@ -41,7 +41,8 @@
 
 #include <bfd.h>
 #include <dis-asm.h>
-#include <bfd.h>
+#include <limits.h>
+#include <stdlib.h>
 
 #include <elf.h>
 #include "riscv_pe_thread.hpp"
@@ -110,8 +111,7 @@ int32_t RiscvPeThread::LoadBinary (std::string path_exec, std::string filename, 
 
   if (path_exec != "") {
     FILE *dtb_fp;
-    const int BUFFERSIZE = 1024;
-    char dtb_path_buf[BUFFERSIZE];
+    char dtb_path_buf[PATH_MAX];
     if (realpath (path_exec.c_str(), dtb_path_buf) == NULL) {
       perror (path_exec.c_str());
       return -1;
