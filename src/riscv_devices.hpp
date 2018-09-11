@@ -37,7 +37,7 @@
 // static uint64_t PAYLOAD(uint64_t command) { return command << 16 >> 16; }
 #define DEVICE(cmd)  ((cmd >> 56) & 0xff)
 #define COMMAND(cmd) ((cmd >> 48) & 0xff)
-#define PAYLOAD(cmd) (cmd & 0xffff)
+#define PAYLOAD(cmd) (cmd & 0xffffffffffffULL)
 
 #define MAKE_COMMAND(dev, cmd, payload) (static_cast<uint64_t>(dev) << 56 | static_cast<uint64_t>(cmd) << 48 | static_cast<uint64_t>(payload) & 0x0ffff)
 

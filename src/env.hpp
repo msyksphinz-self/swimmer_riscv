@@ -151,6 +151,8 @@ class EnvBase
   uint8_t m_en_stop_sim;  //! if this flag is enabled, simulation can be stopped by hitting CSR registers
   uint8_t m_result;
 
+  std::string m_binary_filename = "null";
+
  public:
   std::unique_ptr<Memory>  m_memory;
 
@@ -216,6 +218,9 @@ class EnvBase
 
   virtual std::string GetRegSoftName (RegAddr_t addr) = 0;
   virtual AbiRegType GetPrintRegStyle (void) = 0;
+
+  void SetBinaryName (std::string filename) { m_binary_filename = filename; }
+  std::string GetBinaryName () { return m_binary_filename; }
 
   uint32_t LoadSrec (std::string filename);
   uint32_t LoadBinary (std::string filename);

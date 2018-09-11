@@ -65,8 +65,7 @@ RiscvSyscall_t::RiscvSyscall_t(uint32_t dev_id, RiscvPeThread *pe_thread)
   table[1039] = &RiscvSyscall_t::sys_lstat;
   table[2011] = &RiscvSyscall_t::sys_getmainvars;
 
-  // register_command(0, std::bind(&RiscvSyscall_t::handle_syscall, this, _1), "syscall");
-
+  m_pe_thread = pe_thread;
   int stdin_fd = dup(0), stdout_fd0 = dup(1), stdout_fd1 = dup(1);
   if (stdin_fd < 0 || stdout_fd0 < 0 || stdout_fd1 < 0)
     throw std::runtime_error("could not dup stdin/stdout");
@@ -141,7 +140,7 @@ reg_t RiscvSyscall_t::sys_read(reg_t fd, reg_t pbuf, reg_t len, reg_t a3, reg_t 
   reg_t ret_errno = sysret_errno(ret);
   if (ret > 0) {
     for (unsigned int idx = 0; idx < len; idx++) {
-      GetPeThread()->StoreToBus (pbuf + idx, buf[idx]);
+      GetPeThread()->StoreMemoryDebug (pbuf + idx, &buf[idx]);
     }
   }
   return ret_errno;
@@ -156,7 +155,7 @@ reg_t RiscvSyscall_t::sys_pread(reg_t fd, reg_t pbuf, reg_t len, reg_t off, reg_
     GetPeThread()->DebugPrint ("<Info : System Call sys_pread. Write Memory %016lx>\n", pbuf);
     GetPeThread()->DebugPrint ("<");
     for (unsigned int idx = 0; idx < len; idx++) {
-      GetPeThread()->StoreToBus (pbuf + idx, buf[idx]);
+      GetPeThread()->StoreMemoryDebug (pbuf + idx, &buf[idx]);
       GetPeThread()->DebugPrint ("%02x ", static_cast<uint8_t>(buf[idx]));
     }
     GetPeThread()->DebugPrint (">\n");
@@ -212,7 +211,7 @@ reg_t RiscvSyscall_t::sys_fstat(reg_t fd, reg_t pbuf, reg_t a2, reg_t a3, reg_t 
     riscv_stat rbuf(buf);
     Byte_t *rbuf_byte = new Byte_t[sizeof(rbuf)];
     for (unsigned idx = 0; idx < sizeof(rbuf); idx++) {
-      GetPeThread()->StoreToBus (pbuf + idx, rbuf_byte[idx]);
+      GetPeThread()->StoreMemoryDebug (pbuf + idx, &rbuf_byte[idx]);
     }
   }
   return ret;
@@ -245,7 +244,7 @@ reg_t RiscvSyscall_t::sys_lstat(reg_t pname, reg_t len, reg_t pbuf, reg_t a3, re
     riscv_stat rbuf(buf);
     Byte_t *rbuf_byte = new Byte_t[sizeof(rbuf)];
     for (unsigned idx = 0; idx < sizeof(rbuf); idx++) {
-      GetPeThread()->StoreToBus (pbuf + idx, rbuf_byte[idx]);
+      GetPeThread()->StoreMemoryDebug (pbuf + idx, &rbuf_byte[idx]);
     }
   }
   return ret;
@@ -273,7 +272,7 @@ reg_t RiscvSyscall_t::sys_fstatat(reg_t dirfd, reg_t pname, reg_t len, reg_t pbu
 {
   Byte_t *name = new Byte_t[len];
   for (Addr_t idx = 0; idx < len; idx++) {
-    GetPeThread()->LoadMemory (pname + idx, &name[idx]);
+    GetPeThread()->LoadMemoryDebug (pname + idx, &name[idx]);
   }
   char *c_name = new char[len];
   memcpy(c_name, name, len);
@@ -285,7 +284,7 @@ reg_t RiscvSyscall_t::sys_fstatat(reg_t dirfd, reg_t pname, reg_t len, reg_t pbu
     riscv_stat rbuf(buf);
     Byte_t *rbuf_byte = new Byte_t[sizeof(rbuf)];
     for (unsigned idx = 0; idx < sizeof(rbuf); idx++) {
-      GetPeThread()->StoreToBus (pbuf + idx, rbuf_byte[idx]);
+      GetPeThread()->StoreMemoryDebug (pbuf + idx, &rbuf_byte[idx]);
     }
   }
   return ret;
@@ -295,7 +294,7 @@ reg_t RiscvSyscall_t::sys_faccessat(reg_t dirfd, reg_t pname, reg_t len, reg_t m
 {
   Byte_t *name = new Byte_t[len];
   for (Addr_t idx = 0; idx < len; idx++) {
-    GetPeThread()->LoadMemory (pname + idx, &name[idx]);
+    GetPeThread()->LoadMemoryDebug (pname + idx, &name[idx]);
   }
   char *c_name = new char[len];
   memcpy(c_name, name, len);
@@ -308,10 +307,10 @@ reg_t RiscvSyscall_t::sys_renameat(reg_t odirfd, reg_t popath, reg_t olen, reg_t
   Byte_t *opath = new Byte_t[olen];
   Byte_t *npath = new Byte_t[nlen];
   for (Addr_t idx = 0; idx < olen; idx++) {
-    GetPeThread()->LoadMemory (popath + idx, &opath[idx]);
+    GetPeThread()->LoadMemoryDebug (popath + idx, &opath[idx]);
   }
   for (Addr_t idx = 0; idx < olen; idx++) {
-    GetPeThread()->LoadMemory (pnpath + idx, &npath[idx]);
+    GetPeThread()->LoadMemoryDebug (pnpath + idx, &npath[idx]);
   }
 
   char *c_opath = new char[olen];
@@ -329,10 +328,10 @@ reg_t RiscvSyscall_t::sys_linkat(reg_t odirfd, reg_t poname, reg_t olen, reg_t n
   Byte_t *npath = new Byte_t[nlen];
 
   for (Addr_t idx = 0; idx < olen; idx++) {
-    GetPeThread()->LoadMemory (poname + idx, &opath[idx]);
+    GetPeThread()->LoadMemoryDebug (poname + idx, &opath[idx]);
   }
   for (Addr_t idx = 0; idx < olen; idx++) {
-    GetPeThread()->LoadMemory (pnname + idx, &npath[idx]);
+    GetPeThread()->LoadMemoryDebug (pnname + idx, &npath[idx]);
   }
 
   char *c_opath = new char[olen];
@@ -349,7 +348,7 @@ reg_t RiscvSyscall_t::sys_unlinkat(reg_t dirfd, reg_t pname, reg_t len, reg_t fl
 {
   Byte_t *name = new Byte_t[len];
   for (Addr_t idx = 0; idx < len; idx++) {
-    GetPeThread()->LoadMemory (pname + idx, &name[idx]);
+    GetPeThread()->LoadMemoryDebug (pname + idx, &name[idx]);
   }
 
   char *c_name = new char[len];
@@ -362,7 +361,7 @@ reg_t RiscvSyscall_t::sys_mkdirat(reg_t dirfd, reg_t pname, reg_t len, reg_t mod
 {
   Byte_t *name = new Byte_t[len];
   for (Addr_t idx = 0; idx < len; idx++) {
-    GetPeThread()->LoadMemory (pname + idx, &name[idx]);
+    GetPeThread()->LoadMemoryDebug (pname + idx, &name[idx]);
   }
   char *c_name = new char[len];
   memcpy(c_name, name, len);
@@ -382,15 +381,17 @@ reg_t RiscvSyscall_t::sys_getcwd(reg_t pbuf, reg_t size, reg_t a2, reg_t a3, reg
   const char *c_tmp = tmp.c_str();
   for (unsigned int idx = 0; idx < tmp.size() + 1; idx++) {
     Byte_t c = static_cast<Byte_t>(c_tmp[idx]);
-    GetPeThread()->StoreToBus (pbuf + idx, c);
+    GetPeThread()->StoreMemoryDebug (pbuf + idx, &c);
   }
   return tmp.size() + 1;
 }
 
 reg_t RiscvSyscall_t::sys_getmainvars(reg_t pbuf, reg_t limit, reg_t a2, reg_t a3, reg_t a4, reg_t a5, reg_t a6)
 {
-  // std::vector<std::string> args = htif->target_args();
-  std::vector<std::string> args = {"pk", "file_access_riscv"};
+  std::vector<std::string> args;
+  args.push_back("pk");
+  args.push_back(m_pe_thread->GetBinaryName());
+
   std::vector<uint64_t> words(args.size()+3, 0);
   words[0] = args.size();
   words[args.size()+1] = 0; // argv[argc] = NULL
@@ -414,7 +415,7 @@ reg_t RiscvSyscall_t::sys_getmainvars(reg_t pbuf, reg_t limit, reg_t a2, reg_t a
   GetPeThread()->DebugPrint("<Info: sys_getmainvars : Store %08lx>\n", pbuf);
   for (unsigned int idx = 0; idx < bytes.size() + 1; idx++) {
     Byte_t c = static_cast<Byte_t>(bytes[idx]);
-    GetPeThread()->StoreToBus (pbuf + idx, c);
+    GetPeThread()->StoreMemoryDebug (pbuf + idx, &c);
   }
 
   return 0;
@@ -425,13 +426,13 @@ reg_t RiscvSyscall_t::sys_chdir(reg_t path, reg_t a1, reg_t a2, reg_t a3, reg_t 
   size_t size = 0;
   Byte_t path_data;
   do {
-    GetPeThread()->LoadMemory(path + size++, &path_data);
+    GetPeThread()->LoadMemoryDebug (path + size++, &path_data);
   } while (path_data);
   // std::vector<char> buf(size);
   Byte_t *buf = new Byte_t[size];
   for (size_t offset = 0;; offset++)
   {
-    GetPeThread()->LoadMemory(path + offset, &buf[offset]);
+    GetPeThread()->LoadMemoryDebug (path + offset, &buf[offset]);
     if (!buf[offset])
       break;
   }
@@ -456,7 +457,7 @@ void RiscvSyscall_t::dispatch(reg_t mm)
   reg_t n = magicmem[0];
   if (n >= table.size() || !table[n]) {
     GetPeThread()->ErrorPrint("<Info: Bad Syscall = %d>\n", n);
-    // throw std::runtime_error("bad syscall #" + std::to_string(n));
+    return;
   }
 
   GetPeThread()->DebugPrint("<Info: Syscall Number = %d>\n", n);
@@ -465,6 +466,6 @@ void RiscvSyscall_t::dispatch(reg_t mm)
 
   memcpy (c_magicmem, magicmem, sizeof(magicmem));
   for (unsigned int idx = 0; idx < sizeof(magicmem); idx++) {
-    GetPeThread()->StoreToBus (mm + idx, c_magicmem[idx]);
+    GetPeThread()->StoreMemoryDebug (mm + idx, &c_magicmem[idx]);
   }
 }
