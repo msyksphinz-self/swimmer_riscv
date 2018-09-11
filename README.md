@@ -60,6 +60,25 @@ options:
   -?, --help              print this message
 ```
 
+- `--max_size` : Max size of simulation log file generated with `--out` option.
+- `--max` : Max number of instruction to be simulated.
+- `--binfile` : RISC-V binary file to be simulated.
+- `--hexfile` : RISC-V srec file to be simulated.
+- `--only_info_load` : only load RISC-V binary BFD information. Simulation doesn't start.
+- `--debug` : Generate debug information.
+- `--out` : Filename of debug information.
+- `--load-dump` : Show load binary dump
+- `--init_pc` : Specify intial program counter address. If not specify, Swimmer autamatically sets PC by reading RISC-V binary.
+- `--stop-host` : Simulator stops when accessing tohost/fromhost memory address.
+- `--use-pk` : Specify location of Proxy Kernel.
+- `--bit-mode` : Bit mode. 32 or 64.
+- `--trace-hier` : Generate Function call hierarchy.
+- `--trace-out` : Filename of Functional call hierarchy.
+- `--vmlinux` : Specify location of vmlinux object. It is for simulate RISC-V Linux.
+- `--logstart` : Number of instructions that starts to generate simulation log.
+- `--printstep` : Swimmer generates Step information for each step.
+- `--signature` : Swimmer generates signature for riscv-torture.
+
 ### Run single elf program
 
 ```sh
