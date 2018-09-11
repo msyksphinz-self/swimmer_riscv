@@ -401,7 +401,7 @@ class RiscvPeThread : public EnvBase
   RiscvPeThread (FILE *dbgfp, RiscvBitMode_t bit_mode, PrivMode maxpriv, bool en_stop_host, bool is_debug_trace, FILE *uart_fp, bool trace_hier, std::string trace_out);
   ~RiscvPeThread ();
 
-  int32_t LoadBinary (std::string filename, bool is_load_dump);
+  int32_t LoadBinary (std::string path_exec, std::string filename, bool is_load_dump);
   int32_t LoadBinaryTable (std::string filename, bool is_load_dump);
   void LoadFunctionTable (bfd *abfd);
   void LoadGVariableTable (bfd *abfd);

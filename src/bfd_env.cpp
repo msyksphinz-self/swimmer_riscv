@@ -196,7 +196,7 @@ static void load_bitfile (bfd *b, asection *section, PTR data)
     str << "<Loading section Code " << section->name << " 0x"
       << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
       << section->flags << ">\n";
-    fprintf (g_debug_fp, "%s", str.str().c_str());
+    DebugPrint ("%s", str.str().c_str());
     load_hex (b, section, p_memory);
   } else if (section->flags & SEC_DATA ||
          section->flags & SEC_HAS_CONTENTS) {
@@ -208,7 +208,7 @@ static void load_bitfile (bfd *b, asection *section, PTR data)
     str << "<Loading section Data " << section->name << " 0x"
       << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
       << section->flags << ">\n";
-    fprintf (g_debug_fp, "%s", str.str().c_str());
+    DebugPrint ("%s", str.str().c_str());
 
     load_hex (b, section, p_memory);
   }

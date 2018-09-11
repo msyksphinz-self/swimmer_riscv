@@ -174,13 +174,13 @@ int main (int argc, char *argv[])
         m_chip->SetSignature(sig_file);
       }
 
-      if (m_chip->LoadBinary (binfile_name.c_str(), is_load_dump) == -1) {
+      if (m_chip->LoadBinary (argv[0], binfile_name.c_str(), is_load_dump) == -1) {
         delete m_chip;
         return -1;
       }
       m_chip->SetBinaryName (binfile_name);
       if (!pk_loc.empty()) {
-        if (m_chip->LoadBinary (pk_loc, is_load_dump) == -1) {
+        if (m_chip->LoadBinary ("", pk_loc, is_load_dump) == -1) {
           delete m_chip;
           return -1;
         }

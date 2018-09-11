@@ -84,10 +84,10 @@ options:
 ```sh
 $ cat test.c
 #include <stdio.h>
-main () { printf("Hello"); }
+main () { printf("Hello\n"); }
 
 $ riscv64-unknown-elf-gcc test.c -o test.elf
-$ swimmer_riscv --binfile test.elf
+$ swimmer_riscv --binfile test.elf --use-pk ${RISCV}/riscv64-unknown-elf/bin/pk
 Hello
 ```
 

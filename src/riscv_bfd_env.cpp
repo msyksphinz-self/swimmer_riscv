@@ -28,6 +28,7 @@
 #include <iostream>
 #include <iomanip>
 #include <memory>
+#include <regex>
 
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -52,7 +53,7 @@ extern FILE *g_debug_fp;
 
 bool g_dump_hex; // used for Load_hex
 
-int32_t RiscvPeThread::LoadBinary (std::string filename, bool is_load_dump)
+int32_t RiscvPeThread::LoadBinary (std::string path_exec, std::string filename, bool is_load_dump)
 {
   g_dump_hex = is_load_dump;
 
@@ -91,11 +92,8 @@ int32_t RiscvPeThread::LoadBinary (std::string filename, bool is_load_dump)
 
   Addr_t entry_address = eh->e_entry;
   SetPC (0x1000);
-  std::cout << "<Info: Set Entry Point as " << std::hex << std::setw(8) << GetPC () << ">\n";
 
   const int reset_vec_size = 8;
-
-  std::cout << "<Info: Set Debug Module>\n";
 
   StoreToBus<Word_t> (0x00001000, 0x00000297                          );       // auipc  t0,0x0
   StoreToBus<Word_t> (0x00001004, 0x28593 + (reset_vec_size * 4 << 20));       // addi   a1, t0, &dtb
@@ -110,19 +108,28 @@ int32_t RiscvPeThread::LoadBinary (std::string filename, bool is_load_dump)
   StoreToBus<Word_t> (0x00001018, static_cast<Word_t>(entry_address & 0xffffffff));
   StoreToBus<Word_t> (0x0000101c, static_cast<Word_t>(entry_address >> 32       ));
 
-  std::cout << "<Info: Set Debug Module Done>\n";
+  if (path_exec != "") {
+    FILE *dtb_fp;
+    const int BUFFERSIZE = 1024;
+    char dtb_path_buf[BUFFERSIZE];
+    if (realpath (path_exec.c_str(), dtb_path_buf) == NULL) {
+      perror (path_exec.c_str());
+      return -1;
+    }
+    std::string dtb_path_str = dtb_path_buf;
+    std::string dtb_path_str_replace = std::regex_replace(dtb_path_str, std::regex("/[^/]+$"), "/riscv64.dtb");
 
-  FILE *dtb_fp;
-  if ((dtb_fp = fopen("riscv64.dtb", "r")) == NULL) {
-    perror ("riscv64.dtb");
-    return -1;
-  }
+    if ((dtb_fp = fopen(dtb_path_str_replace.c_str(), "r")) == NULL) {
+      perror (dtb_path_str_replace.c_str());
+      return -1;
+    }
 
-  Byte_t dtb_buf;
-  Addr_t rom_addr = 0x00001020;
-  while (fread(&dtb_buf, sizeof(Byte_t), 1, dtb_fp) == 1) {
-    StoreMemoryDebug<Byte_t> (rom_addr, &dtb_buf); // To Disable Trace Log
-    rom_addr++;
+    Byte_t dtb_buf;
+    Addr_t rom_addr = 0x00001020;
+    while (fread(&dtb_buf, sizeof(Byte_t), 1, dtb_fp) == 1) {
+      StoreMemoryDebug<Byte_t> (rom_addr, &dtb_buf); // To Disable Trace Log
+      rom_addr++;
+    }
   }
 
   return 0;
@@ -172,11 +179,10 @@ void RiscvPeThread::LoadFunctionTable (bfd *abfd)
     std::cerr << "Error: number_of_symbols < 0\n";
     exit (EXIT_FAILURE);
   }
-  std::cerr << "number_of_symbols = " << number_of_symbols << '\n';
   for (int i = 0; i < number_of_symbols; i++) {
 
-    fprintf (stdout, "<Info: SymbolName= %s, FLAG=%x, Addr=%016lx>\n",
-             bfd_asymbol_name (symbol_table[i]), symbol_table[i]->flags, bfd_asymbol_value(symbol_table[i]));
+    DebugPrint ("<Info: SymbolName= %s, FLAG=%x, Addr=%016lx>\n",
+                bfd_asymbol_name (symbol_table[i]), symbol_table[i]->flags, bfd_asymbol_value(symbol_table[i]));
     if ((symbol_table[i]->flags & BSF_FUNCTION ) != 0x00 ||
         (symbol_table[i]->flags & BSF_DEBUGGING) != 0x00 ||
         (symbol_table[i]->flags & BSF_GLOBAL)    != 0x00) {
@@ -292,11 +298,11 @@ static void load_bitfile (bfd *b, asection *section, PTR data)
 {
   Memory *p_memory = static_cast<Memory *>(data);
 
-  std::stringstream str;
-  str << "<Loading section ... " << section->name << " 0x"
-      << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-      << section->flags << ">\n";
-  fprintf (stderr, "%s", str.str().c_str());
+  // std::stringstream str;
+  // str << "<Loading section ... " << section->name << " 0x"
+  //     << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+  //     << section->flags << ">\n";
+  // fprintf (stderr, "%s", str.str().c_str());
 
   // if (!(section->flags & SEC_ALLOC)) return;
   // if (!(section->flags & SEC_LOAD)) return;
@@ -308,10 +314,10 @@ static void load_bitfile (bfd *b, asection *section, PTR data)
       return;
     }
     // std::stringstream str;
-    str << "<Loading section Code " << section->name << " 0x"
-      << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-      << section->flags << ">\n";
-    fprintf (stderr, "%s", str.str().c_str());
+    // str << "<Loading section Code " << section->name << " 0x"
+    //   << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+    //   << section->flags << ">\n";
+    // fprintf (stderr, "%s", str.str().c_str());
     load_hex (b, section, p_memory);
   } else if (section->flags & SEC_DATA ||
              section->flags & SEC_HAS_CONTENTS) {
@@ -319,11 +325,11 @@ static void load_bitfile (bfd *b, asection *section, PTR data)
       !strncmp (".comment", section->name, 8)) {
       return;
     }
-    std::stringstream str;
-    str << "<Loading section Data " << section->name << " 0x"
-      << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-      << section->flags << ">\n";
-    fprintf (stderr, "%s", str.str().c_str());
+    // std::stringstream str;
+    // str << "<Loading section Data " << section->name << " 0x"
+    //   << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+    //   << section->flags << ">\n";
+    // fprintf (stderr, "%s", str.str().c_str());
 
     load_hex (b, section, p_memory);
   }
