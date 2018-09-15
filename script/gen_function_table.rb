@@ -243,7 +243,7 @@ def gen_inst_impl()
         if inst_info[$arch_list_def["FUNC_SUFFIX"]] != "" then
           fp.printf("_" + inst_info[$arch_list_def["FUNC_SUFFIX"]])
         end
-        fp.printf("<%s> (inst_hex, [](%s op1, %s op2, %s op3) { %s; });",
+        fp.printf("<%s> (inst_hex, [](%s op1, %s op2, %s op3, UWord_t *fflags) { %s; });",
                   TypeFromA(impl_code_list[0]),
                   TypeFromA(impl_code_list[1]), TypeFromA(impl_code_list[2]), TypeFromA(impl_code_list[3]),
                   impl_code_list[4])

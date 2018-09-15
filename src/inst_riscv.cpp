@@ -1273,76 +1273,76 @@ void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FMADD_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-  DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatMadd (rs1_val, rs2_val, rs3_val, &fflags);
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FMSUB_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-  DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatMsub (rs1_val, rs2_val, rs3_val, &fflags);
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FNMSUB_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-  DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatNeg (InstOps::FloatMsub (rs1_val, rs2_val, rs3_val, &fflags));
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FNMADD_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-  DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatNeg (InstOps::FloatMadd (rs1_val, rs2_val, rs3_val, &fflags));
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
+// void InstEnv::RISCV_INST_FMADD_S (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
+//   DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
+//   DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::FloatMadd (rs1_val, rs2_val, rs3_val, &fflags);
+//   m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FMSUB_S (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
+//   DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
+//   DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::FloatMsub (rs1_val, rs2_val, rs3_val, &fflags);
+//   m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FNMSUB_S (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
+//   DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
+//   DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::FloatNeg (InstOps::FloatMsub (rs1_val, rs2_val, rs3_val, &fflags));
+//   m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FNMADD_S (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
+//   DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
+//   DWord_t rs3_val  = m_pe_thread->ReadFReg<Word_t> (rs3_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::FloatNeg (InstOps::FloatMadd (rs1_val, rs2_val, rs3_val, &fflags));
+//   m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
 
 
 void InstEnv::RISCV_INST_FSQRT_S (InstWord_t inst_hex)

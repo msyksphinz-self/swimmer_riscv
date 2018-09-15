@@ -104,9 +104,30 @@ void RiscvPeThread::Func_F_FF (InstWord_t inst_hex, Func func)
   Src_t rs1_val  = ReadFReg<Src_t> (rs1_addr);
   Src_t rs2_val  = ReadFReg<Src_t> (rs2_addr);
 
-  UWord_t fflags;
+  UWord_t fflags = 0;
   Dst_t res = func (rs1_val, rs2_val, round_mode, &fflags);
 
   WriteFReg<Dst_t> (rd_addr, res);
+  CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+}
+
+
+// Destination F, Source FFF
+template <typename Src_t, typename Func>
+void RiscvPeThread::Func_F_FFF (InstWord_t inst_hex, Func func)
+{
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rs3_addr = ExtractR3Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  Src_t rs1_val  = ReadFReg<Src_t> (rs1_addr);
+  Src_t rs2_val  = ReadFReg<Src_t> (rs2_addr);
+  Src_t rs3_val  = ReadFReg<Src_t> (rs3_addr);
+
+  UWord_t fflags = 0;
+  Src_t res = func (rs1_val, rs2_val, rs3_val, &fflags);
+
+  WriteFReg<Src_t> (rd_addr, res);
   CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
 }
