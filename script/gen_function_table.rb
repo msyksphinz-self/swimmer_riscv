@@ -258,7 +258,7 @@ def gen_inst_impl()
         if impl_code_list[3].include?("m_pe_thread->") then
           str_lambda_declaration = "[&]"
         end
-        fp.printf("<%s, %s> (inst_hex, %s(%s op1, %s op2, uint32_t round_mode) { %s; });",
+        fp.printf("<%s, %s> (inst_hex, %s(%s op1, %s op2, uint32_t round_mode, UWord_t *fflags) { %s; });",
                   TypeFromA(impl_code_list[0]), TypeFromA(impl_code_list[1]),
                   str_lambda_declaration,
                   TypeFromA(impl_code_list[0]), TypeFromA(impl_code_list[1]),

@@ -39,6 +39,7 @@
 #include "riscv_sysreg_bitdef.hpp"
 
 #include "inst_riscv__ALU.cpp"
+#include "inst_riscv__FPU.cpp"
 
 InstEnv::InstEnv (RiscvPeThread *env)
 {
@@ -1344,91 +1345,6 @@ void InstEnv::RISCV_INST_FNMADD_S (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FADD_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  rs1_val = ConvertNaNBoxing(rs1_val);
-  rs2_val = ConvertNaNBoxing(rs2_val);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatAdd (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-
-  res |= 0xffffffff00000000ULL;
-
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FSUB_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  rs1_val = ConvertNaNBoxing(rs1_val);
-  rs2_val = ConvertNaNBoxing(rs2_val);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatSub (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  res |= 0xffffffff00000000ULL;
-
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FMUL_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  rs1_val = ConvertNaNBoxing(rs1_val);
-  rs2_val = ConvertNaNBoxing(rs2_val);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatMul (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  res |= 0xffffffff00000000ULL;
-
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FDIV_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  rs1_val = ConvertNaNBoxing(rs1_val);
-  rs2_val = ConvertNaNBoxing(rs2_val);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatDiv (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  res |= 0xffffffff00000000ULL;
-
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
 void InstEnv::RISCV_INST_FSQRT_S (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
@@ -1440,66 +1356,6 @@ void InstEnv::RISCV_INST_FSQRT_S (InstWord_t inst_hex)
   DWord_t res = InstOps::FloatSqrt (rs1_val, softfloat_round_near_even, &fflags);
   m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FSGNJ_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  if (std::is_same<DWord_t, DWord_t>::value) {
-    rs1_val = ConvertNaNBoxing(rs1_val);
-    rs2_val = ConvertNaNBoxing(rs2_val);
-  }
-  DWord_t res = (rs1_val & 0x7FFFFFFFULL) |
-               (rs2_val & 0x80000000ULL);
-  res |= 0xFFFFFFFF00000000ULL;
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-}
-
-
-void InstEnv::RISCV_INST_FSGNJN_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  if (std::is_same<DWord_t, DWord_t>::value) {
-    rs1_val = ConvertNaNBoxing(rs1_val);
-    rs2_val = ConvertNaNBoxing(rs2_val);
-  }
-  DWord_t res = (rs1_val  & 0x7FFFFFFFULL) |
-               (~rs2_val & 0x80000000ULL);
-  res |= 0xFFFFFFFF00000000ULL;
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-}
-
-
-void InstEnv::RISCV_INST_FSGNJX_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  if (std::is_same<DWord_t, DWord_t>::value) {
-    rs1_val = ConvertNaNBoxing(rs1_val);
-    rs2_val = ConvertNaNBoxing(rs2_val);
-  }
-  DWord_t res = (rs1_val & 0x7FFFFFFFULL) |
-               ((rs1_val ^ rs2_val) & 0x80000000ULL);
-  res |= 0xFFFFFFFF00000000ULL;
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
 }
 
 

@@ -263,6 +263,7 @@ class RiscvPeThread : public EnvBase
   template <typename Dst_t, typename Src_t, typename Func> void Func_R_R  (InstWord_t inst_hex, Func func);
   template <typename Dst_t, typename Src_t, typename Func> void Func_R_RI (InstWord_t inst_hex, Func func);
   template <typename Dst_t, typename Src_t, typename Func> void Func_R_RU (InstWord_t inst_hex, Func func);
+  template <typename Dst_t, typename Src_t, typename Func> void Func_F_FF (InstWord_t inst_hex, Func func);
 
   MemResult FetchFromBus (Addr_t addr, Byte_t *data);
   template <typename AccType> MemResult LoadFromBus (Addr_t addr, AccType *data);
