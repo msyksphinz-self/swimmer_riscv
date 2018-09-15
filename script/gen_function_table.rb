@@ -230,7 +230,7 @@ def gen_inst_impl()
                     TypeFromA(impl_code_list[0]), TypeFromA(impl_code_list[0]),
                     impl_code_list[2])
         else
-          fp.printf("<%s, %s> (inst_hex, %s(%s op1, uint32_t round_mode) { %s; });",
+          fp.printf("<%s, %s> (inst_hex, %s(%s op1, uint32_t round_mode, UWord_t *fflags) { %s; });",
                     TypeFromA(impl_code_list[0]), TypeFromA(impl_code_list[1]),
                     str_lambda_declaration,
                     TypeFromA(impl_code_list[1]),

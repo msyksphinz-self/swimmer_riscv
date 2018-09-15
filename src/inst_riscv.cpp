@@ -1273,20 +1273,6 @@ void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FSQRT_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatSqrt (rs1_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
 void InstEnv::RISCV_INST_FCVT_W_S (InstWord_t inst_hex)
 {
   RegAddr_t fs_addr = ExtractR1Field (inst_hex);
@@ -1486,20 +1472,6 @@ void InstEnv::RISCV_INST_FSD (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
     return;
   }
-}
-
-
-void InstEnv::RISCV_INST_FSQRT_D (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::DoubleSqrt (rs1_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
 }
 
 
