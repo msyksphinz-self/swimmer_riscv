@@ -358,6 +358,7 @@ class RiscvPeThread : public EnvBase
     }
   }
 
+
   void PushPrivMode (PrivMode priv);
   template <typename Xlen_t> void GenerateException (ExceptCode code, Xlen_t tval);
   bool CheckInterrupt (IntCode *ret_intcode);

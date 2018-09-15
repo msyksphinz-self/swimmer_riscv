@@ -183,7 +183,8 @@ def gen_inst_impl()
       if fp_hash[category_hash_idx] == nil then
         fp_hash[category_hash_idx] = File.open("inst_" + $arch_name + "_" + type_category + "_" + inst_category + ".cpp", 'w')
         gen_header(fp_hash[category_hash_idx]) # making header
-        fp_hash[category_hash_idx].puts ("#include \"inst_" + $arch_name + ".hpp\"\n\n");
+        fp_hash[category_hash_idx].puts ("#include \"inst_" + $arch_name + ".hpp\"\n");
+        fp_hash[category_hash_idx].puts ("#include \"dec_utils_" + $arch_name + ".hpp\"\n\n");
       end
 
       fp = fp_hash[category_hash_idx]

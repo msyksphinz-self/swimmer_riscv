@@ -1359,40 +1359,6 @@ void InstEnv::RISCV_INST_FSQRT_S (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FMIN_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  Word_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  Word_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatMin (rs1_val, rs2_val, &fflags);
-
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FMAX_S (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t rs1_val  = m_pe_thread->ReadFReg<Word_t> (rs1_addr);
-  DWord_t rs2_val  = m_pe_thread->ReadFReg<Word_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::FloatMax (rs1_val, rs2_val, &fflags);
-
-  m_pe_thread->WriteFReg<Word_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
 void InstEnv::RISCV_INST_FCVT_W_S (InstWord_t inst_hex)
 {
   RegAddr_t fs_addr = ExtractR1Field (inst_hex);
@@ -1727,68 +1693,68 @@ void InstEnv::RISCV_INST_FNMADD_D (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FADD_D (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::DoubleAdd (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FSUB_D (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::DoubleSub (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FMUL_D (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::DoubleMul (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FDIV_D (InstWord_t inst_hex)
-{
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
-
-  DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
-  DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
-
-  UWord_t fflags;
-  DWord_t res = InstOps::DoubleDiv (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
-  m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
+// void InstEnv::RISCV_INST_FADD_D (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
+//   DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::DoubleAdd (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
+//   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FSUB_D (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
+//   DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::DoubleSub (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
+//   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FMUL_D (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
+//   DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::DoubleMul (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
+//   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
+//
+//
+// void InstEnv::RISCV_INST_FDIV_D (InstWord_t inst_hex)
+// {
+//   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+//   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+//   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+//
+//   DWord_t  rs1_val  = m_pe_thread->ReadFReg<DWord_t> (rs1_addr);
+//   DWord_t  rs2_val  = m_pe_thread->ReadFReg<DWord_t> (rs2_addr);
+//
+//   UWord_t fflags;
+//   DWord_t res = InstOps::DoubleDiv (rs1_val, rs2_val, softfloat_round_near_even, &fflags);
+//   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
+//   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
+// }
 
 
 void InstEnv::RISCV_INST_FSQRT_D (InstWord_t inst_hex)

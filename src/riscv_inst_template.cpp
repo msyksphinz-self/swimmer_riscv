@@ -104,9 +104,6 @@ void RiscvPeThread::Func_F_FF (InstWord_t inst_hex, Func func)
   Src_t rs1_val  = ReadFReg<Src_t> (rs1_addr);
   Src_t rs2_val  = ReadFReg<Src_t> (rs2_addr);
 
-  rs1_val = ConvertNaNBoxing(rs1_val);
-  rs2_val = ConvertNaNBoxing(rs2_val);
-
   UWord_t fflags;
   Dst_t res = func (rs1_val, rs2_val, round_mode, &fflags);
 

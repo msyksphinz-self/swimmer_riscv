@@ -116,3 +116,6 @@ UDWord_t UExtXlen (UDWord_t hex);
 
 // #define BOXED_NAN_64 (0xffffffff7fc00000ULL)
 #define BOXED_NAN_64 (0x07fc00000ULL)
+
+bool IsNaNBoxed (DWord_t hex);
+DWord_t ConvertNaNBoxing (DWord_t hex);
