@@ -1273,36 +1273,6 @@ void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_FCVT_W_S (InstWord_t inst_hex)
-{
-  RegAddr_t fs_addr = ExtractR1Field (inst_hex);
-  RegAddr_t fd_addr = ExtractRDField (inst_hex);
-  uint8_t   round_mode = m_pe_thread->EncodeRMField(ExtractF3Field (inst_hex));
-
-  Word_t fs_val  = m_pe_thread->ReadFReg<Word_t> (fs_addr);
-  UWord_t fflags;
-  Word_t fs_res  = InstOps::Convert_StoW (fs_val, round_mode, &fflags);
-
-  m_pe_thread->WriteGReg<Word_t> (fd_addr, fs_res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
-void InstEnv::RISCV_INST_FCVT_WU_S (InstWord_t inst_hex)
-{
-  RegAddr_t fs_addr = ExtractR1Field (inst_hex);
-  RegAddr_t fd_addr = ExtractRDField (inst_hex);
-  uint8_t   round_mode = m_pe_thread->EncodeRMField(ExtractF3Field (inst_hex));
-
-  Word_t  fs_val = m_pe_thread->ReadFReg<Word_t> (fs_addr);
-  UWord_t fflags;
-  Word_t fs_res = InstOps::Convert_StoWU (fs_val, round_mode, &fflags);
-
-  m_pe_thread->WriteGReg<Word_t> (fd_addr, fs_res);
-  m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
-}
-
-
 void InstEnv::RISCV_INST_FMV_X_W (InstWord_t inst_hex)
 {
   RegAddr_t fs_addr = ExtractR1Field (inst_hex);
