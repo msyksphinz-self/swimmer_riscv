@@ -1757,25 +1757,21 @@ void InstEnv::RISCV_INST_ECALL (InstWord_t inst_hex)
 
   switch (curr_priv) {
     case PrivMode::PrivUser     : {
-      m_pe_thread->DebugPrint ("<Info: ECALL from PrivMode::PrivUser>\n");
       m_pe_thread->GenerateException (ExceptCode::Except_EcallFromUMode, 0);
 
       break;
     }
     case PrivMode::PrivSupervisor : {
-      m_pe_thread->DebugPrint ("<Info: ECALL from SuperUser>\n");
       m_pe_thread->GenerateException (ExceptCode::Except_EcallFromSMode, 0);
 
       break;
     }
     case PrivMode::PrivHypervisor : {
-      m_pe_thread->DebugPrint ("<Info: ECALL from Hypervisor>\n");
       m_pe_thread->GenerateException (ExceptCode::Except_EcallFromHMode, 0);
 
       break;
     }
     case PrivMode::PrivMachine  : {
-      m_pe_thread->DebugPrint ("<Info: ECALL from Machine>\n");
       m_pe_thread->GenerateException (ExceptCode::Except_EcallFromMMode, 0);
 
       break;

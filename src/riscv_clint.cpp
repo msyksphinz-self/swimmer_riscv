@@ -117,7 +117,6 @@ void RiscvClint_t::Increment(UDWord_t inc)
 
     mip = SetBitField (mip, 0, SYSREG_MIP_MTIP_MSB, SYSREG_MIP_MTIP_LSB);
     if (m_mtime >= m_mtimecmp[i]) {
-      m_pe_thread->DebugPrint("<Info: set MIP>\n");
       mip = SetBitField (mip, 1, SYSREG_MIP_MTIP_MSB, SYSREG_MIP_MTIP_LSB);
     }
 
