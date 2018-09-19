@@ -1022,7 +1022,7 @@ Xlen_t CsrEnv::Read_MISA (Xlen_t *data, PrivMode mode)
     *data = misa.misa;
     return 0;
   } else {
-    m_pe_thread->DebugPrint ("<Error: MBASE is prohibited to read lower than Supervisor Mode>\n");
+    m_pe_thread->DebugPrint ("<Error: MISA is prohibited to read lower than Supervisor Mode>\n");
     return -1;
   }
   return 0;
@@ -1755,8 +1755,14 @@ template <typename Xlen_t>
 Xlen_t CsrEnv::Write_MISA(Xlen_t data, PrivMode mode)
 {
   if (mode == PrivMode::PrivMachine) {
-    misa.misa = data;
-    return 0;
+    if (!(data & 0x04) && ((m_pe_thread->GetPC() & 0x02) == 0x02)) {
+      // if disabling C and next instruction fetch is misaligned,
+      // C mode cannot be disabled.
+      return 0;
+    } else {
+      misa.misa = data;
+      return 0;
+    }
   } else {
     m_pe_thread->DebugPrint ("<Error: MISA is not writable lower than Machine Mode>\n");
     return -1;

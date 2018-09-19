@@ -418,4 +418,10 @@ class RiscvPeThread : public EnvBase
   bool IsCpuWaitMode () { return m_cpu_wait; }
   void SetCpuWaitMode (bool wait_mode) { m_cpu_wait = wait_mode; }
 
+  inline bool IsSupportCMode () {
+    UDWord_t misa;
+    CSRReadNoTrace (SYSREG_ADDR_MISA, &misa, PrivMode::PrivMachine);
+    return (misa & 0x04) != 0;
+  }
+
 };

@@ -1816,8 +1816,10 @@ void InstEnv::RISCV_INST_MRET (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
+  if (!m_pe_thread->IsSupportCMode()) {
+    ret_pc = ret_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+  }
   m_pe_thread->SetPrivMode (next_priv_field);
-
   m_pe_thread->SetPC (m_pe_thread->UExtXlen(ret_pc));
   m_pe_thread->SetJumped (true);
 }
@@ -1851,6 +1853,9 @@ void InstEnv::RISCV_INST_SRET (InstWord_t inst_hex)
 
   Addr_t ret_pc = 0x0;
   m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_SEPC), &ret_pc);
+  if (!m_pe_thread->IsSupportCMode()) {
+    ret_pc = ret_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+  }
   m_pe_thread->SetPrivMode (next_priv);
 
   m_pe_thread->SetPC (m_pe_thread->UExtXlen(ret_pc));
@@ -1877,6 +1882,9 @@ void InstEnv::RISCV_INST_HRET (InstWord_t inst_hex)
   if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_SEPC), &ret_pc) == static_cast<uint32_t>(-1)) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
+  }
+  if (!m_pe_thread->IsSupportCMode()) {
+    ret_pc = ret_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
   }
   m_pe_thread->SetPrivMode (next_priv_field);
 

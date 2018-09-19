@@ -298,6 +298,12 @@ ExecStatus RiscvPeThread::StepExec (bool is_resume_break)
   InstId_t inst_idx = m_ptr_riscv_dec->DecodeInst (inst_hex);
   GetTrace()->SetInstIdx (inst_idx);
 
+  if (RiscvDec::GetInstCategory(inst_idx) == InstCategory::COMPRESS) {
+    if (!IsSupportCMode()) {
+      GenerateException (ExceptCode::Except_InstAddrMisalign, inst_hex);
+    }
+  }
+
   if (inst_idx == InstId_t::INST_ID_SENTINEL_MAX) {
     std::stringstream err_str;
     uint32_t bit_length  = m_bit_mode == RiscvBitMode_t::Bit32 ? 8 : 16;
