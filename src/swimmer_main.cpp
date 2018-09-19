@@ -60,9 +60,6 @@ int main (int argc, char *argv[])
 
   std::string	debug_filename;
 
-  //! simulation controls
-  uint32_t		en_stop_sim = false;
-
   int	result = 0;
 
   cmdline::parser cmd_line;
