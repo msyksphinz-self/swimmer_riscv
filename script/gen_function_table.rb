@@ -172,7 +172,7 @@ def gen_inst_impl()
   impl_idx = $arch_list_def["IMPL"]
 
   $arch_table.each {|inst_info|
-    if not inst_info[impl_idx].empty? then
+    if inst_info[impl_idx].size != 1 then
       impl_code_list = inst_info[impl_idx]
 
       inst_category = inst_info[$arch_list_def["CATEGORY"]]
