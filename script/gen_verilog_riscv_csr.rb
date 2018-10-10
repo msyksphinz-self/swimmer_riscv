@@ -26,7 +26,7 @@
 #   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-require './riscv_sysreg_table_1_9_1.rb'
+require './riscv_spr_table.rb'
 
 ##=== displaying headers ===
 

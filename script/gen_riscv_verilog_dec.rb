@@ -131,65 +131,17 @@ $arch_table.each_with_index {|inst_info, index|
 
   mne = "INST_RISCV_%s"%([inst_info[$arch_list_def["NAME"]].split(" ")[0].gsub(/\./,'_').upcase])
   mnemonic = "    assign IC_INST_DEC[`" + mne + "] = "
-  if not inst_info[$arch_list_def["R3"]].include?("X") then
-    mnemonic = mnemonic + "(IC_INST[31:27] == 5'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R3"]] + ")"
-    is_generate_and = true
-  end
 
-  if not inst_info[$arch_list_def["F2"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
+  $decode_field_list.each{|decode_field|
+    if not inst_info[decode_field.field_idx].include?("X") then
+      if is_generate_and == true then
+        mnemonic = mnemonic + " & ";
+      end
+      mnemonic = mnemonic + "(IC_INST[" + decode_field.field_msb.to_s + ":" + decode_field.field_lsb.to_s + "] == " + (decode_field.field_msb - decode_field.field_lsb + 1).to_s + "'b"
+      mnemonic = mnemonic + inst_info[decode_field.field_idx] + ")"
+      is_generate_and = true
     end
-    mnemonic = mnemonic + "(IC_INST[26:25] == 2'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["F2"]] + ")"
-    is_generate_and = true
-  end
-
-  if not inst_info[$arch_list_def["R2"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
-    end
-    mnemonic = mnemonic + "(IC_INST[24:20] == 5'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R2"]] + ")"
-    is_generate_and = true
-  end
-
-  if not inst_info[$arch_list_def["R1"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
-    end
-    mnemonic = mnemonic + "(IC_INST[19:15] == 5'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R1"]] + ")"
-    is_generate_and = true
-  end
-
-  if not inst_info[$arch_list_def["F3"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
-    end
-    mnemonic = mnemonic + "(IC_INST[14:12] == 3'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["F3"]] + ")"
-    is_generate_and = true
-  end
-
-  if not inst_info[$arch_list_def["RD"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
-    end
-    mnemonic = mnemonic + "(IC_INST[11: 7] == 6'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["RD"]] + ")"
-    is_generate_and = true
-  end
-
-  if not inst_info[$arch_list_def["OP"]].include?("X") then
-    if is_generate_and == true then
-      mnemonic = mnemonic + " & ";
-    end
-    mnemonic = mnemonic + "(IC_INST[ 6: 0] == 7'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["OP"]] + ")"
-    is_generate_and = true
-  end
+  }
 
   mnemonic = mnemonic + ";\n"
   inst_decoder_fp.puts(mnemonic)
