@@ -193,13 +193,11 @@ def decode_wfs (decode_field_list, arch_table, prefix, c_fp, h_fp)
     if arch.info_arrays.size() != 1 then
       c_fp.printf("    // Remaining Instruction is %d\n", arch.info_arrays().size())
       arch.info_arrays().each{|inst_info|
-        c_fp.printf("    // %s\n", inst_info[$arch_list_def["NAME"]])
+        c_fp.printf("    // %s\n", inst_info["name"])
       }
       c_fp.printf("      return DecodeInst%s_%s_%s (inst); break;\n",
                   prefix, smallest_decode_field.field_name, arch.field_name[0])
     else
-      # c_fp.printf("      return %s;\n", gen_inst_id(arch.info_arrays[0][0]))
-      print("\n<<Calling get_inst_id " + arch.info_arrays[0]["name"] + ">>\n")
       c_fp.printf("      return %s;\n", gen_inst_id(arch.info_arrays[0]["name"]))
     end
   }

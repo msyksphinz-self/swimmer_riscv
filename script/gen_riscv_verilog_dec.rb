@@ -96,7 +96,7 @@ gen_header(inst_define_fp) # making header
 
 # generate instruction list
 $arch_table.each_with_index {|inst_info, index|
-  mnemonic = "INST_RISCV_%s"%([inst_info[$arch_list_def["NAME"]].split(" ")[0].gsub(/\./,'_').upcase])
+  mnemonic = "INST_RISCV_%s"%([inst_info["name"].split(" ")[0].gsub(/\./,'_').upcase])
   $arch_table[index][DEC::INST_NAME] = mnemonic
   $arch_table[index][DEC::FUNC_STR] = "RISCV_DEC"
   mne_str = "`define %s\t\t%d"%([mnemonic, index])
@@ -129,7 +129,7 @@ inst_decoder_fp.puts(mnemonic)
 $arch_table.each_with_index {|inst_info, index|
   is_generate_and = false
 
-  mne = "INST_RISCV_%s"%([inst_info[$arch_list_def["NAME"]].split(" ")[0].gsub(/\./,'_').upcase])
+  mne = "INST_RISCV_%s"%([inst_info["name"].split(" ")[0].gsub(/\./,'_').upcase])
   mnemonic = "    assign IC_INST_DEC[`" + mne + "] = "
 
   $decode_field_list.each{|decode_field|
@@ -186,12 +186,12 @@ module riscv_ctrl (
 inst_dec_name = Array[]
 inst_dec_type = Array[]
 $arch_table.each_with_index {|inst_info, index|
-  inst_string = inst_info[$arch_list_def["NAME"]].gsub(/\w+\[\d+:\d+\]/, "@")
+  inst_string = inst_info["name"].gsub(/\w+\[\d+:\d+\]/, "@")
   inst_dec_name.push(inst_string)
 
   # count-up instruction type
-  if not inst_dec_type.include?(inst_info[$arch_list_def["CATEGORY"]]) then
-    inst_dec_type.push(inst_info[$arch_list_def["CATEGORY"]])
+  if not inst_dec_type.include?(inst_info["category"]) then
+    inst_dec_type.push(inst_info["category"])
   end
 }
 
@@ -214,11 +214,11 @@ inst_dec_type.each {|inst_type|
   ctrl_signals = Hash.new()
 
   $arch_table.each_with_index {|inst_info, index|
-    if inst_type != inst_info[$arch_list_def["CATEGORY"]] then
+    if inst_type != inst_info["category"] then
       next
     end
 
-    inst_ctrls = inst_info[$arch_list_def["INST_CTRL"]];
+    inst_ctrls = inst_info["inst_ctrl"];
     if inst_ctrls == nil then
       print "Not Found INST CTRL FIELD\n"
       print inst_info
@@ -317,10 +317,10 @@ inst_ctrl_fp.printf("    always @ (*) begin\n")
 inst_ctrl_fp.printf("        case (1'b1)\n")
 
 $arch_table.each_with_index {|target_inst, index|
-  target_signals = target_inst[$arch_list_def["INST_CTRL"]];
-  target_type    = target_inst[$arch_list_def["CATEGORY"]];
+  target_signals = target_inst["inst_ctrl"];
+  target_type    = target_inst["category"];
 
-  mne = "`INST_RISCV_%s"%([target_inst[$arch_list_def["NAME"]].split(" ")[0].gsub(/\./,'_').upcase])
+  mne = "`INST_RISCV_%s"%([target_inst["name"].split(" ")[0].gsub(/\./,'_').upcase])
 
   inst_ctrl_fp.printf("          IC_INST_DEC[%-15s] : begin  //%s\n", mne, target_type)
   inst_ctrl_fp.printf("              ID_INST_TYPE <= `INST_TYPE_%s;\n", target_type)
@@ -434,65 +434,65 @@ inst_print_fp.puts(mnemonic)
 $arch_table.each_with_index {|inst_info, index|
   is_generate_and = false
 
-  mne = "INST_RISCV_%s"%([inst_info[$arch_list_def["NAME"]].split(" ")[0].gsub(/\./,'_').upcase])
+  mne = "INST_RISCV_%s"%([inst_info["name"].split(" ")[0].gsub(/\./,'_').upcase])
   mnemonic = "    if ("
-  if not inst_info[$arch_list_def["R3"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["R3"]].include?("X") then
     mnemonic = mnemonic + "(INST[31:27] == 6'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R3"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["R3"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["F2"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["F2"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[26:25] == 2'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["F2"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["F2"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["R2"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["R2"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[24:20] == 5'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R2"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["R2"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["R1"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["R1"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[19:15] == 5'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["R1"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["R1"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["F3"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["F3"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[14:12] == 3'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["F3"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["F3"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["RD"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["RD"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[11: 7] == 6'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["RD"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["RD"]] + ")"
     is_generate_and = true
   end
 
-  if not inst_info[$arch_list_def["OP"]].include?("X") then
+  if not inst_info["field"][$arch_list_def["OP"]].include?("X") then
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
     mnemonic = mnemonic + "(INST[ 6: 0] == 7'b"
-    mnemonic = mnemonic + inst_info[$arch_list_def["OP"]] + ")"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["OP"]] + ")"
     is_generate_and = true
   end
 
@@ -500,8 +500,8 @@ $arch_table.each_with_index {|inst_info, index|
   inst_print_fp.puts(mnemonic)
 
   # Print Instructions
-  operands = inst_info[$arch_list_def["NAME"]].split(" ")[1]
-  opcode   = inst_info[$arch_list_def["NAME"]].split(" ")[0]
+  operands = inst_info["name"].split(" ")[1]
+  opcode   = inst_info["name"].split(" ")[0]
 
   inst_print_fp.printf("      $fwrite (F_HANDLE, \"%-10s", opcode.upcase)
   total_bit = 0
