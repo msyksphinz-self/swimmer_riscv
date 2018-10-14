@@ -111,8 +111,8 @@ def decode_wfs (decode_field_list, arch_table, prefix, c_fp, h_fp)
   arch_table.each {|inst_info|
     # 一度でコード可能な領域を展開して、配列にする
     extended_result = Array.new
-    if inst_info[smallest_decode_field.field_idx].include?('X') then
-      target_inst_info_field = inst_info[smallest_decode_field.field_idx].gsub(/\<\>.+/,'')
+    if inst_info["field"][smallest_decode_field.field_idx].include?('X') then
+      target_inst_info_field = inst_info["field"][smallest_decode_field.field_idx].gsub(/\<\>.+/,'')
       extend_bit_array = [0,1].to_a.repeated_permutation(target_inst_info_field.count('X')).to_a.map{|array| array.join}
       extend_inst_info = Array.new(extend_bit_array.size).fill(target_inst_info_field)
       # c_fp.puts("concatinating " + extend_inst_info + " and " + extend_bit_array)
@@ -134,11 +134,11 @@ def decode_wfs (decode_field_list, arch_table, prefix, c_fp, h_fp)
       # c_fp.print extended_result
       # c_fp.printf("\n")
       # <>が入っていると例外があるので、それを除去する
-      if inst_info[smallest_decode_field.field_idx].include?("<>") then
-        extended_result.select! {|item| item.to_i(2) != inst_info[smallest_decode_field.field_idx].split("<>")[1].to_i(10)}
+      if inst_info["field"][smallest_decode_field.field_idx].include?("<>") then
+        extended_result.select! {|item| item.to_i(2) != inst_info["field"][smallest_decode_field.field_idx].split("<>")[1].to_i(10)}
       end
     else
-      extended_result.push(inst_info[smallest_decode_field.field_idx])
+      extended_result.push(inst_info["field"][smallest_decode_field.field_idx])
     end
     extended_result.each{|item|
       arch = arch_arrays.find {|arch| arch.field_name.to_i(2) == item.to_i(2)}
@@ -198,7 +198,9 @@ def decode_wfs (decode_field_list, arch_table, prefix, c_fp, h_fp)
       c_fp.printf("      return DecodeInst%s_%s_%s (inst); break;\n",
                   prefix, smallest_decode_field.field_name, arch.field_name[0])
     else
-      c_fp.printf("      return %s;\n", gen_inst_id(arch.info_arrays[0][0]))
+      # c_fp.printf("      return %s;\n", gen_inst_id(arch.info_arrays[0][0]))
+      print("\n<<Calling get_inst_id " + arch.info_arrays[0]["name"] + ">>\n")
+      c_fp.printf("      return %s;\n", gen_inst_id(arch.info_arrays[0]["name"]))
     end
   }
   c_fp.printf("    default : return InstId_t::INST_ID_SENTINEL_MAX;\n");
@@ -232,5 +234,5 @@ end
 # Count number of field that includes "X"
 #
 def count_x_field (arch_table_list, field_idx)
-  return arch_table_list.count {|arch_table| arch_table[field_idx].include?('X') }
+  return arch_table_list.count {|arch_table| arch_table["field"][field_idx].include?('X') }
 end

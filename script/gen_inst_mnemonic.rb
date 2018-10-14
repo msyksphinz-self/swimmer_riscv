@@ -38,7 +38,7 @@ def gen_inst_mnemonic()
 
   inst_mnemonic_c_fp.printf("const char *inst_strings[%d] = {\n", $arch_table.size + 1);  # Last+1 is for Sentinel
   $arch_table.each_with_index {|inst_info, index|
-    inst_string = inst_info[get_key_idx("NAME")].gsub(/\w+\[\d+:\d+\]/, "@")
+    inst_string = inst_info["name"].gsub(/\w+\[\d+:\d+\]/, "@")
     inst_string = inst_string.gsub(/@(\|@)+/, "@")
     inst_mnemonic_c_fp.printf("  \"%s\"", inst_string)
     inst_mnemonic_c_fp.puts(",\n")

@@ -93,6 +93,7 @@ end  # DecodeFieldInfo
 
 
 def gen_inst_id_code (inst_mnemonic)
+  printf("inst_mnemonic = %s\n", inst_mnemonic)
   return inst_mnemonic.split(' ')[0].gsub(/[\.:\[\]]/,'_').gsub('.', '_').upcase
 end
 

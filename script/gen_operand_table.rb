@@ -103,8 +103,8 @@ def gen_operand_table()
 
 
   $arch_table.each_with_index {|inst_info, index|
-    operand = inst_info[get_key_idx("NAME")].scan(/\w+\[\d+:\d+\]\|*/)
-    inst_name = gen_inst_id($arch_table[index][$arch_list_def["NAME"]])
+    operand = inst_info["name"].scan(/\w+\[\d+:\d+\]\|*/)
+    inst_name = gen_inst_id($arch_table[index]["name"])
     inst_operand_c_fp.printf("  // %s\n", inst_name)
     inst_operand_c_fp.printf("  inst_operand[static_cast<uint32_t>(%s)].size = %d;\n", inst_name, operand.size)
     operand.each_with_index {|bit_field, op_index|
@@ -159,7 +159,7 @@ def gen_inst_category_table()
   # Gather Category
   inst_category_list = Array[]
   $arch_table.each{|inst_info|
-    inst_category = inst_info[$arch_list_def["CATEGORY"]]
+    inst_category = inst_info["category"]
     if not inst_category_list.include?(inst_category) then
       inst_category_list.push(inst_category)
     end
@@ -168,7 +168,7 @@ def gen_inst_category_table()
   # Gather Suffix
   inst_suffix_list = Array[]
   $arch_table.each{|inst_info|
-    inst_suffix = inst_info[$arch_list_def["FUNC_SUFFIX"]] == "" ? "None" : inst_info[$arch_list_def["FUNC_SUFFIX"]]
+    inst_suffix = inst_info["func_suffix"] == "" ? "None" : inst_info["func_suffix"]
     if not inst_suffix_list.include?(inst_suffix) then
       inst_suffix_list.push(inst_suffix)
     end
@@ -219,8 +219,8 @@ def gen_inst_category_func(fp)
   fp.puts("  switch (inst_id) {")
 
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
-    fp.puts("    case InstId_t::" + mnemonic + " : return InstCategory::" + inst_info[$arch_list_def["CATEGORY"]] + ";\n")
+    mnemonic = "INST_ID_%s"%([inst_info["name"].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    fp.puts("    case InstId_t::" + mnemonic + " : return InstCategory::" + inst_info["category"] + ";\n")
   }
   fp.puts("    default: fprintf(stderr, \"<Internal Error. Can't get Catgory of InstId=%d. Exit.>\\n\", static_cast<uint32_t>(inst_id)); gen_backtrace(); exit(EXIT_FAILURE);")
   fp.puts("  }")
@@ -237,11 +237,11 @@ def gen_inst_suffix_func(fp)
   fp.puts("  switch (inst_id) {")
 
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
-    if inst_info[$arch_list_def["FUNC_SUFFIX"]] == "" then
+    mnemonic = "INST_ID_%s"%([inst_info["name"].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    if inst_info["func_suffix"] == "" then
       fp.puts("    case InstId_t::" + mnemonic + " : return InstSuffix::None;\n")
     else
-      fp.puts("    case InstId_t::" + mnemonic + " : return InstSuffix::" + inst_info[$arch_list_def["FUNC_SUFFIX"]] + ";\n")
+      fp.puts("    case InstId_t::" + mnemonic + " : return InstSuffix::" + inst_info["func_suffix"] + ";\n")
     end
   }
   fp.puts("    default: fprintf(stderr, \"<Internal Error. Can't get Suffix of InstId=%d. Exit.>\\n\", static_cast<uint32_t>(inst_id)); gen_backtrace(); exit(EXIT_FAILURE);")
@@ -259,8 +259,8 @@ def gen_inst_length_func(fp)
   fp.puts("  switch (inst_id) {")
 
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
-    fp.puts("    case InstId_t::" + mnemonic + " : return " + inst_info[$arch_list_def["LENGTH"]].to_s(10) + ";\n")
+    mnemonic = "INST_ID_%s"%([inst_info["name"].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    fp.puts("    case InstId_t::" + mnemonic + " : return " + inst_info["length"] + ";\n")
   }
   fp.puts("    default: fprintf(stderr, \"<Internal Error. Can't get Length of InstId=%d. Exit.>\\n\", static_cast<uint32_t>(inst_id)); gen_backtrace(); exit(EXIT_FAILURE);")
   fp.puts("  }")
@@ -279,11 +279,11 @@ def gen_inst_template_hex(fp)
   fp.puts("  switch (inst_id) {")
 
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    mnemonic = "INST_ID_%s"%([inst_info["name"].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
     fp.printf("    case InstId_t::" + mnemonic + " : return ")
     inst_hex = 0
     $decode_field_list.each{|decode_field|
-      raw_decode_field = inst_info[decode_field.field_idx].gsub('<>.*','')
+      raw_decode_field = inst_info["field"][decode_field.field_idx].gsub('<>.*','')
       inst_hex = inst_hex | (raw_decode_field.gsub('X', '0').to_i(2) << decode_field.field_lsb)
     }
     fp.printf("0x%08x;\n", inst_hex)
@@ -312,8 +312,8 @@ def gen_datalength_func()
   dlength_c_fp.puts("  switch (inst_id) {")
 
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
-    dlength_c_fp.puts("    case InstId_t::" + mnemonic + " : return " + inst_info[$arch_list_def["DLENGTH"]].to_s + ";\n")
+    mnemonic = "INST_ID_%s"%([inst_info["name"].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    dlength_c_fp.puts("    case InstId_t::" + mnemonic + " : return " + inst_info["dlength"].to_s + ";\n")
   }
   dlength_c_fp.puts("    default: fprintf(stderr, \"<Internal Error. Can't get DLength of InstId=%d. Exit.>\\n\", static_cast<uint32_t>(inst_id)); exit(EXIT_FAILURE);")
   dlength_c_fp.puts("  }")

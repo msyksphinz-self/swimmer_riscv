@@ -45,8 +45,9 @@ def gen_inst_list()
   inst_define_fp.printf("enum class InstId_t : uint32_t {\n")
   # generate instruction list
   $arch_table.each_with_index {|inst_info, index|
-    mnemonic = "  INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
-    inst_define_fp.printf("  %s = %d,\n", mnemonic, index)
+    print(inst_info)
+    # mnemonic = "  INST_ID_%s"%([inst_info[get_key_idx("NAME")].split(" ")[0].gsub(/[\.:\[\]]/,'_').upcase])
+    # inst_define_fp.printf("  %s = %d,\n", mnemonic, index)
   }
   inst_define_fp.printf("    INST_ID_SENTINEL_MAX = %d\n", $arch_table.size())
   inst_define_fp.printf("};\n");

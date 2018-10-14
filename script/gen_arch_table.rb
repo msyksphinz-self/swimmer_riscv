@@ -33,12 +33,7 @@ end
 
 require '../build/riscv_arch_table.rb'
 
-require "gen_inst_list.rb"
-require "gen_decode_table.rb"
-require "gen_function_table.rb"
-require "gen_inst_mnemonic.rb"
-require "gen_operand_table.rb"
-
+require "json"
 
 ##=== displaying headers ===
 
@@ -92,6 +87,17 @@ module DEC
 end
 
 binary_list = Hash[]
+
+File.open("../build/riscv_arch_table.json") do |file|
+  $arch_table = JSON.load(file)
+end
+
+require "gen_inst_list.rb"
+require "gen_decode_table.rb"
+require "gen_function_table.rb"
+require "gen_inst_mnemonic.rb"
+require "gen_operand_table.rb"
+
 
 ## generate instruction define list
 gen_inst_list()

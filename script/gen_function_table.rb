@@ -58,7 +58,7 @@ def gen_function_table_header(arch_name)
   inst_func_fp.printf("  %s void %s_Inst_Exec (InstId_t index, InstWord_t inst_hex);\n\n", $arch_inst_mod, arch_name.upcase);
 
   $arch_table.each {|inst_info|
-    inst_func_fp.printf("  %s void %s_INST_%s (InstWord_t inst_hex);\n", $arch_inst_mod, arch_name.upcase, gen_inst_id_code(inst_info[$arch_list_def["NAME"]]))
+    inst_func_fp.printf("  %s void %s_INST_%s (InstWord_t inst_hex);\n", $arch_inst_mod, arch_name.upcase, gen_inst_id_code(inst_info["name"]))
   }
 
   inst_func_fp.printf("};\n")
@@ -77,18 +77,16 @@ def gen_function_table_header(arch_name)
   # traverse all of instruction table
   # to print all of Instruction Definition
 
-  impl_idx = $arch_list_def["IMPL"]
-
   $arch_table.each_with_index {|inst_info, index|
     if $arch_inst_mod != "" then
       inst_op_type = "S"
-      if not inst_info[impl_idx].empty? then
-        inst_op_type = inst_info[impl_idx][0]
+      if not inst_info["impl"].empty? then
+        inst_op_type = inst_info["impl"][0]
       end
-      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s<" + InstType("32bit", inst_op_type) + ">,\n", arch_name.upcase, gen_inst_id_code(inst_info[$arch_list_def["NAME"]]))
-      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s<" + InstType("64bit", inst_op_type) + "> ", arch_name.upcase, gen_inst_id_code(inst_info[$arch_list_def["NAME"]]))
+      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s<" + InstType("32bit", inst_op_type) + ">,\n", arch_name.upcase, gen_inst_id_code(inst_info["name"]))
+      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s<" + InstType("64bit", inst_op_type) + "> ", arch_name.upcase, gen_inst_id_code(inst_info["name"]))
     else
-      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s", arch_name.upcase, gen_inst_id_code(inst_info[$arch_list_def["NAME"]]))
+      inst_func_init_fp.printf("  &InstEnv::%s_INST_%s", arch_name.upcase, gen_inst_id_code(inst_info["name"]))
     end
     if (index == $arch_table.size-1) then
       inst_func_init_fp.puts("\n  };");
@@ -151,16 +149,13 @@ def gen_template_table()
   template_fp = File.open("inst_" + $arch_name + "_template_list.cpp", 'w')
   gen_header(template_fp)
 
-  impl_idx = $arch_list_def["IMPL"]
-
-  impl_idx = $arch_list_def["IMPL"]
   $arch_table.each {|inst_info|
     inst_op_type = "S"
-    if not inst_info[impl_idx].empty? then
-      inst_op_type = inst_info[impl_idx][0]
+    if not inst_info["impl"].empty? then
+      inst_op_type = inst_info["impl"][0]
     end
-    template_fp.printf("template void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info[$arch_list_def["NAME"]]) + "<" + InstType("32bit", inst_op_type) + ">  (InstWord_t inst_hex);\n")
-    template_fp.printf("template void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info[$arch_list_def["NAME"]]) + "<" + InstType("64bit", inst_op_type) + "> (InstWord_t inst_hex);\n")
+    template_fp.printf("template void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info["name"]) + "<" + InstType("32bit", inst_op_type) + ">  (InstWord_t inst_hex);\n")
+    template_fp.printf("template void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info["name"]) + "<" + InstType("64bit", inst_op_type) + "> (InstWord_t inst_hex);\n")
   }
   template_fp.close
 end
@@ -169,13 +164,11 @@ def gen_inst_impl()
 
   fp_hash = Hash.new()
 
-  impl_idx = $arch_list_def["IMPL"]
-
   $arch_table.each {|inst_info|
-    if inst_info[impl_idx].size != 1 then
-      impl_code_list = inst_info[impl_idx]
+    if inst_info["impl"].size != 1 then
+      impl_code_list = inst_info["impl"]
 
-      inst_category = inst_info[$arch_list_def["CATEGORY"]]
+      inst_category = inst_info["category"]
       type_category = ""
 
       category_hash_idx = type_category + inst_category
@@ -190,15 +183,15 @@ def gen_inst_impl()
       fp = fp_hash[category_hash_idx]
 
       fp.puts($arch_inst_mod)
-      fp.puts("void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info[$arch_list_def["NAME"]]) +
+      fp.puts("void InstEnv::" + $arch_name.upcase + "_INST_" + gen_inst_id_code(inst_info["name"]) +
               "(InstWord_t inst_hex)")
       fp.puts("{")
       if impl_code_list[0][0] == 'S' then
         # System Register Control
         fp.printf("  m_pe_thread->Func_" + RegFromA(impl_code_list[0]) + "_" + RegFromA(impl_code_list[1]) + RegFromA(impl_code_list[2]))
 
-        if inst_info[$arch_list_def["FUNC_SUFFIX"]] != "" then
-          fp.printf("_" + inst_info[$arch_list_def["FUNC_SUFFIX"]])
+        if inst_info["func_suffix"] != "" then
+          fp.printf("_" + inst_info["func_suffix"])
         end
 
         # 1-Dest, 2-Operand, 1-Function
@@ -215,8 +208,8 @@ def gen_inst_impl()
         # 2-Reg Implementation
         fp.printf("  m_pe_thread->Func_" + RegFromA(impl_code_list[0]) + "_" + RegFromA(impl_code_list[1]))
 
-        if inst_info[$arch_list_def["FUNC_SUFFIX"]] != "" then
-          fp.printf("_" + inst_info[$arch_list_def["FUNC_SUFFIX"]])
+        if inst_info["func_suffix"] != "" then
+          fp.printf("_" + inst_info["func_suffix"])
         end
 
         str_lambda_declaration = "[]"
@@ -240,8 +233,8 @@ def gen_inst_impl()
         # 3-Reg Implementation
         fp.printf("  m_pe_thread->Func_" + RegFromA(impl_code_list[0]) + "_" + RegFromA(impl_code_list[1]) + RegFromA(impl_code_list[2]) + RegFromA(impl_code_list[3]))
 
-        if inst_info[$arch_list_def["FUNC_SUFFIX"]] != "" then
-          fp.printf("_" + inst_info[$arch_list_def["FUNC_SUFFIX"]])
+        if inst_info["func_suffix"] != "" then
+          fp.printf("_" + inst_info["func_suffix"])
         end
         fp.printf("<%s> (inst_hex, [](%s op1, %s op2, %s op3, UWord_t *fflags) { %s; });",
                   TypeFromA(impl_code_list[0]),
@@ -251,8 +244,8 @@ def gen_inst_impl()
         # Normal Operation
         fp.printf("  m_pe_thread->Func_" + RegFromA(impl_code_list[0]) + "_" + RegFromA(impl_code_list[1]) + RegFromA(impl_code_list[2]))
 
-        if inst_info[$arch_list_def["FUNC_SUFFIX"]] != "" then
-          fp.printf("_" + inst_info[$arch_list_def["FUNC_SUFFIX"]])
+        if inst_info["func_suffix"] != "" then
+          fp.printf("_" + inst_info["func_suffix"])
         end
 
         str_lambda_declaration = "[]"
