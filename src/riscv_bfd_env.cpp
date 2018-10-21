@@ -110,15 +110,17 @@ int32_t RiscvPeThread::LoadBinary (std::string path_exec, std::string filename, 
   StoreToBus<Word_t> (0x0000101c, static_cast<Word_t>(entry_address >> 32       ));
 
   if (path_exec != "") {
-    FILE *dtb_fp;
+    char szTmp[32];
     char dtb_path_buf[PATH_MAX];
-    if (realpath (path_exec.c_str(), dtb_path_buf) == NULL) {
-      perror (path_exec.c_str());
-      return -1;
-    }
+    sprintf(szTmp, "/proc/%d/exe", getpid());
+    int bytes = readlink(szTmp, dtb_path_buf, PATH_MAX);
+    if(bytes >= 0)
+      dtb_path_buf[bytes] = '\0';
+
     std::string dtb_path_str = dtb_path_buf;
     std::string dtb_path_str_replace = std::regex_replace(dtb_path_str, std::regex("/[^/]+$"), "/riscv64.dtb");
 
+    FILE *dtb_fp;
     if ((dtb_fp = fopen(dtb_path_str_replace.c_str(), "r")) == NULL) {
       perror (dtb_path_str_replace.c_str());
       return -1;
