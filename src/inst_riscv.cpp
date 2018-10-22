@@ -84,6 +84,10 @@ void InstEnv::RISCV_INST_JAL (InstWord_t inst_hex)
   Addr_t    res_pc  = imm + pc_addr;
 
   m_pe_thread->WriteGReg (rd_addr, m_pe_thread->SExtXlen(pc_addr + 4));
+
+  if (!m_pe_thread->IsSupportCMode()) {
+    res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+  }
   m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
   m_pe_thread->SetJumped (true);
 
@@ -108,6 +112,9 @@ void InstEnv::RISCV_INST_JALR (InstWord_t inst_hex)
   m_pe_thread->WriteGReg (rd_addr, m_pe_thread->SExtXlen(pc_addr + 4));
   // }
 
+  if (!m_pe_thread->IsSupportCMode()) {
+    res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+  }
   m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
   m_pe_thread->SetJumped (true);
 
@@ -185,6 +192,9 @@ void InstEnv::RISCV_INST_BEQ (InstWord_t inst_hex)
   bool taken = (rs1_val == rs2_val);
   if (taken) {
     DWord_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -208,6 +218,9 @@ void InstEnv::RISCV_INST_BNE (InstWord_t inst_hex)
   bool taken = (rs1_val != rs2_val);
   if (taken) {
     Addr_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -231,6 +244,9 @@ void InstEnv::RISCV_INST_BLT (InstWord_t inst_hex)
   bool taken = (rs1_val < rs2_val);
   if (taken) {
     DWord_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -255,6 +271,9 @@ void InstEnv::RISCV_INST_BGE (InstWord_t inst_hex)
   bool taken = (rs1_val >= rs2_val);
   if (taken) {
     DWord_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -279,6 +298,9 @@ void InstEnv::RISCV_INST_BLTU (InstWord_t inst_hex)
   bool taken = (rs1_val < rs2_val);
   if (taken) {
     DWord_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -309,6 +331,9 @@ void InstEnv::RISCV_INST_BGEU (InstWord_t inst_hex)
 
   if (taken) {
     DWord_t res_pc = current_pc + imm;
+    if (!m_pe_thread->IsSupportCMode()) {
+      res_pc = res_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
+    }
     m_pe_thread->SetPC (m_pe_thread->UExtXlen(res_pc));
     m_pe_thread->SetJumped (true);
   }
@@ -1819,6 +1844,8 @@ void InstEnv::RISCV_INST_MRET (InstWord_t inst_hex)
   if (!m_pe_thread->IsSupportCMode()) {
     ret_pc = ret_pc & ~0x03ULL;  // If Compress Mode is disabled, return PC should be 4-byte aligned.
   }
+  ret_pc = m_pe_thread->UExtXlen (ret_pc & (~0x01));
+
   m_pe_thread->SetPrivMode (next_priv_field);
   m_pe_thread->SetPC (m_pe_thread->UExtXlen(ret_pc));
   m_pe_thread->SetJumped (true);
