@@ -70,6 +70,7 @@ UDWord_t operator<<(UDWord_t L, IntCode R) {
  */
 RiscvPeThread::RiscvPeThread (FILE *dbgfp,
                               RiscvBitMode_t bit_mode,
+                              uint64_t misa,
                               PrivMode maxpriv,
                               bool en_stop_host,
                               bool is_debug_trace,
@@ -87,6 +88,8 @@ RiscvPeThread::RiscvPeThread (FILE *dbgfp,
   m_inst_env = std::unique_ptr<InstEnv> (new InstEnv (this));
   m_csr_env  = std::unique_ptr<CsrEnv> (new CsrEnv (this));
   m_riscv_page_table = std::unique_ptr<RiscvPageTable>(new RiscvPageTable(this));
+
+  CSRWrite (SYSREG_ADDR_MISA, misa, PrivMode::PrivMachine);  // Set MISA
 
   // Floating Point Register Format
   m_regs  = std::unique_ptr<DWord_t[]>(new DWord_t[32]);

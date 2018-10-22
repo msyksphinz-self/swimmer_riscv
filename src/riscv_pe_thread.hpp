@@ -405,7 +405,7 @@ class RiscvPeThread : public EnvBase
   inline DWord_t  SExtXlen (DWord_t  hex) { return (hex << (64-GetBitModeInt())) >> (64-GetBitModeInt()); }
   inline UDWord_t UExtXlen (UDWord_t hex) { return (hex << (64-GetBitModeInt())) >> (64-GetBitModeInt()); }
 
-  RiscvPeThread (FILE *dbgfp, RiscvBitMode_t bit_mode, PrivMode maxpriv, bool en_stop_host, bool is_debug_trace, FILE *uart_fp, bool trace_hier, std::string trace_out);
+  RiscvPeThread (FILE *dbgfp, RiscvBitMode_t bit_mode, uint64_t misa, PrivMode maxpriv, bool en_stop_host, bool is_debug_trace, FILE *uart_fp, bool trace_hier, std::string trace_out);
   ~RiscvPeThread ();
 
   int32_t LoadBinary (std::string path_exec, std::string filename, bool is_load_dump);

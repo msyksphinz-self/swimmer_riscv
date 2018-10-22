@@ -84,7 +84,8 @@ int main (int argc, char *argv[])
   cmd_line.add             ("stop-host"		 , '\0', "Stop simulation by accessing MTOHOST"                               );
   // cmd_line.add<uint32_t>   ("gdb"			 , '\0', "Wait GDB port"                                           , false, -1);
   cmd_line.add<std::string>("use-pk"         , '\0', "Location of RISC-V Proxy Kernel"                         , false    );
-  cmd_line.add<uint32_t>   ("bit-mode"       , '\0', "Execution Bit-Mode (32 or 64)"                           , false, 64);
+  // cmd_line.add<uint32_t>   ("bit-mode"       , '\0', "Execution Bit-Mode (32 or 64)"                           , false, 64);
+  cmd_line.add<std::string>("arch"           , '\0', "Support RISC-V Architecture (ex. --arch rv32imafd.../rv64imafd...)" , false, "rv64imafdc");
   cmd_line.add             ("trace-hier"     , '\0', "Generate Hierarcical Trace"                                         );
   cmd_line.add<std::string>("trace-out"      , '\0', "Hierarcical Trace Output Filename"                       , false, "");
   cmd_line.add<std::string>("vmlinux"        , '\0', "Location of vmlinux"                                     , false, "");
@@ -114,14 +115,31 @@ int main (int argc, char *argv[])
 #if defined ARCH_RISCV
   std::string pk_loc          = cmd_line.get<std::string>("use-pk");
   bool is_stop_host           = cmd_line.exist           ("stop-host");
-  uint32_t bit_mode_n         = cmd_line.get<uint32_t>   ("bit-mode");
+  // uint32_t bit_mode_n         = cmd_line.get<uint32_t>   ("bit-mode");
+  std::string arch_str        = cmd_line.get<std::string>("arch");
+
+  std::transform(arch_str.begin(), arch_str.end(), arch_str.begin(), ::tolower);  // Lower
+  if (arch_str[0] != 'r' || arch_str[1] != 'v') {
+    fprintf(stderr, "Error : --arch option should start with 'rv'\n");
+    exit (EXIT_FAILURE);
+  }
+  const char *arch_str_c = arch_str.c_str();
+  uint32_t    bit_mode_n = ((arch_str_c[2] - '0') * 10) + (arch_str_c[3] - '0');
   RiscvBitMode_t bit_mode;
   if (!(bit_mode_n == 32 || bit_mode_n == 64)) {
     std::cout << "<Error: Bit Mode " << bit_mode_n << " is not supported. Abort.>\n";
+    printf("%s\n", arch_str_c);
+    printf("%x %x\n", arch_str_c[2], arch_str_c[3]);
     exit (EXIT_FAILURE);
   } else {
     bit_mode = (bit_mode_n == 32) ? RiscvBitMode_t::Bit32 : RiscvBitMode_t::Bit64;
   }
+
+  uint64_t misa_value = 0;
+  for(int idx = 4; idx < arch_str.length(); idx++) {
+    misa_value |= 1 << (arch_str[idx] - 'a');
+  }
+
   bool is_trace_hier         = cmd_line.exist("trace-hier");
   std::string trace_hier_str = cmd_line.get<std::string>("trace-out");
   std::string vmlinux_pos    = cmd_line.get<std::string>("vmlinux");
@@ -153,7 +171,7 @@ int main (int argc, char *argv[])
   FormatOperand ();
 
   if (is_cmd_hexfile || is_cmd_binfile) {
-    RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str);
+    RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, misa_value, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str);
 
     m_chip->SetPC (init_pc);
     m_chip->SetMaxCycle (max_sim_inst);
@@ -209,7 +227,11 @@ int main (int argc, char *argv[])
   ProfilerStop ();
 #endif // USE_PERF
 
-  return result;
+  if (is_gen_sig) {
+    return 0;
+  } else {
+    return result;
+  }
 }
 
 
