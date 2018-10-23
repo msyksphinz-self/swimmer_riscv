@@ -265,7 +265,7 @@
         "field": ["00000", "00", "XXXXX", "XXXXX", "001", "XXXXX", "01100", "11"],
         "category":"ALU",
         "func_suffix":"",
-        "impl":["XS", "XS", "XS", "return m_pe_thread->SExtXlen(op1 << op2)"],
+        "impl":["XS", "XS", "XS", "return m_pe_thread->SExtXlen(op1 << (op2 & 0x1f))"],
         "inst_ctrl":["RD_R3", "R1_R1", "R2_R2", "OP_LOGIC_SLL"]
     },
     {
@@ -301,7 +301,7 @@
         "field": ["00000", "00", "XXXXX", "XXXXX", "101", "XXXXX", "01100", "11"],
         "category":"ALU",
         "func_suffix":"",
-        "impl":["XU", "XU", "XU", "return m_pe_thread->SExtXlen(m_pe_thread->UExtXlen(op1) >> op2)"],
+        "impl":["XU", "XU", "XU", "return m_pe_thread->SExtXlen(m_pe_thread->UExtXlen(op1) >> (op2 & 0x1f))"],
         "inst_ctrl":["RD_R3", "R1_R1", "R2_R2", "OP_LOGIC_SRL"]
     },
     {
@@ -310,7 +310,7 @@
         "field": ["01000", "00", "XXXXX", "XXXXX", "101", "XXXXX", "01100", "11"],
         "category":"ALU",
         "func_suffix":"",
-        "impl":["XS", "XS", "XS", "return m_pe_thread->SExtXlen(op1 >> op2)"],
+        "impl":["XS", "XS", "XS", "return m_pe_thread->SExtXlen(op1 >> (op2 & 0x1f))"],
         "inst_ctrl":["RD_R3", "R1_R1", "R2_R2", "OP_LOGIC_SRA"]
     },
     {

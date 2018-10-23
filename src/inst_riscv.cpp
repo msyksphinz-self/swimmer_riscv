@@ -815,8 +815,8 @@ void InstEnv::RISCV_INST_REMU (InstWord_t inst_hex)
     UWord_t  res;
     if (rs2_val == 0) {
       res = rs1_val;
-    } else if (rs2_val == static_cast<UWord_t>(-1)) {
-      res = rs1_val;
+    // } else if (rs2_val == static_cast<UWord_t>(-1)) {
+    //   res = rs1_val;
     } else {
       res = rs1_val % rs2_val;
     }
@@ -828,8 +828,8 @@ void InstEnv::RISCV_INST_REMU (InstWord_t inst_hex)
     UDWord_t  res;
     if (rs2_val == 0) {
       res = rs1_val;
-    } else if (rs2_val == static_cast<UDWord_t>(-1)) {
-      res = rs1_val;
+    // } else if (rs2_val == static_cast<UDWord_t>(-1)) {
+    //   res = rs1_val;
     } else {
       res = rs1_val % rs2_val;
     }
@@ -2274,8 +2274,8 @@ void InstEnv::RISCV_INST_REMUW (InstWord_t inst_hex)
   UWord_t  res;
   if (rs2_val == 0) {
     res = rs1_val;
-  } else if (rs2_val == static_cast<UWord_t>(-1)) {
-    res = rs1_val;
+  // } else if (rs2_val == static_cast<UWord_t>(-1)) {
+  //   res = rs1_val;
   } else {
     res = rs1_val % rs2_val;
   }
