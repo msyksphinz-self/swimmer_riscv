@@ -49,7 +49,7 @@ options:
       --init_pc           Initial Program Counter Value (string [=])
       --stop-host         Stop simulation by accessing MTOHOST
       --use-pk            Location of RISC-V Proxy Kernel (string [=])
-      --bit-mode          Execution Bit-Mode (32 or 64) (unsigned int [=64])
+      --arch              Support RISC-V Architecture (ex. --arch rv32imafd.../rv64imafd...) (string [=rv64imafdc])
       --trace-hier        Generate Hierarcical Trace
       --trace-out         Hierarcical Trace Output Filename (string [=])
       --vmlinux           Location of vmlinux (string [=])
