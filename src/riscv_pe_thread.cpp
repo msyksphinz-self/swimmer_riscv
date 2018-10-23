@@ -268,6 +268,11 @@ ExecStatus RiscvPeThread::StepExec (bool is_resume_break)
     return ExecStatus::ExecBreakPC;
   }
 
+  if (!IsSupportCMode() && ((fetch_pc & 0x03) != 0)) {
+    GenerateException (ExceptCode::Except_InstAddrMisalign, fetch_pc);
+    return ExecStatus::ExecIllegal;
+  }
+
   fetch_res = FetchMemory (fetch_pc, &inst_hex);
 
   if (fetch_res == MemResult::MemNotDefined) {
