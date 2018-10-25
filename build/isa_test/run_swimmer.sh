@@ -18,8 +18,8 @@ if [ $? -eq 0 ] ; then
     bit_mode=64
 fi
 
-echo ${riscv_swimmer} ${swimmer_opts} --bit-mode ${bit_mode} --binfile ${pattern_name} > ${log_name}
-${riscv_swimmer} ${swimmer_opts} --bit-mode ${bit_mode} --binfile ${pattern_name} >> ${log_name} 2>&1
+echo ${riscv_swimmer} ${swimmer_opts} --arch rv${bit_mode}imafdc --binfile ${pattern_name} > ${log_name}
+${riscv_swimmer} ${swimmer_opts} --arch rv${bit_mode}imafdc --binfile ${pattern_name} >> ${log_name} 2>&1
 result=$?
 
 if [ ${result} -eq 1 ]; then
