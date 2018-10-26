@@ -33,10 +33,13 @@
 #include <fstream>
 #include <iomanip>
 #include <memory>
+#include <Python.h>
 
 #include "cmdline.h"
 
 #include "swimmer_main.hpp"
+#include "swimmer_util.hpp"
+#include "python3_env.hpp"
 #include "config.hpp"
 #include "gdb_env.hpp"
 
@@ -92,7 +95,11 @@ int main (int argc, char *argv[])
   cmd_line.add<uint64_t>   ("logstart"       , '\0', "cycle of log start"                                      , false, 0 );
   cmd_line.add<uint64_t>   ("printstep"      , '\0', "print number of steps each cycle"                        , false, 0 );
   cmd_line.add<std::string>("signature"      , '\0', "Generate Signature and filename "                        , false, "");
+
 #endif // defined ARCH_RISCV
+
+  cmd_line.add             ("py"             , 'p',  "Python interactive mode"            );
+  cmd_line.add<std::string>("py-scr"         , '\0', "Read Python configuration file"     , false);
 
   cmd_line.add ("version", 'v', "Show Version Information");
 
@@ -136,7 +143,7 @@ int main (int argc, char *argv[])
   }
 
   uint64_t misa_value = 0;
-  for(int idx = 4; idx < arch_str.length(); idx++) {
+  for(size_t idx = 4; idx < arch_str.length(); idx++) {
     misa_value |= 1 << (arch_str[idx] - 'a');
   }
 
@@ -147,6 +154,13 @@ int main (int argc, char *argv[])
   uint64_t printstep         = cmd_line.get<std::uint64_t>("printstep");
   bool is_gen_sig            = cmd_line.get<std::string>("signature") != "";
   std::string sig_file       = cmd_line.get<std::string>("signature");
+  bool is_py_mode            = cmd_line.exist("py");
+
+  std::string pyscr_filename = "";
+  if (cmd_line.exist("py-scr")) {
+    pyscr_filename = cmd_line.get<std::string>("py-scr");
+  }
+
 #endif // defined ARCH_RISCV
 
   Addr_t init_pc = 0x0;
@@ -170,57 +184,87 @@ int main (int argc, char *argv[])
 
   FormatOperand ();
 
-  if (is_cmd_hexfile || is_cmd_binfile) {
-    RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, misa_value, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str);
+  if (is_py_mode) {
 
-    m_chip->SetPC (init_pc);
-    m_chip->SetMaxCycle (max_sim_inst);
+    wchar_t *_program_name = Py_DecodeLocale(pyscr_filename.c_str(), NULL);
+    char *py_args[] = {"swimmer_riscv"};
+    wchar_t **_argv = nstrws_array(1, py_args);
 
-    FILE *hex_fp = nullptr;
-    if (is_cmd_hexfile && (hex_fp = fopen(hexfile_name.c_str(), "r")) == NULL) {
-      perror (hexfile_name.c_str());
-      exit (EXIT_FAILURE);
+    /* Add a built-in module, before Py_Initialize */
+    PyImport_AppendInittab("riscv", InitPyEnv);
+
+    Py_SetProgramName(_program_name);
+    Py_Initialize();
+
+    PyImport_ImportModule("riscv");
+    PyRun_SimpleString ("import riscv");
+
+    if (pyscr_filename != "") {
+      FILE *py_fp;
+      if ((py_fp = fopen(pyscr_filename.c_str(), "r")) == NULL) {
+        perror (pyscr_filename.c_str());
+        exit (EXIT_FAILURE);
+      }
+      PyRun_SimpleFile (py_fp, pyscr_filename.c_str());
+    } else {
+      Py_Main(1, _argv);
     }
-
-    if (is_cmd_binfile) {
-      if (is_gen_sig) {
-        m_chip->SetSignature(sig_file);
-      }
-
-      if (m_chip->LoadBinary (argv[0], binfile_name.c_str(), is_load_dump) == -1) {
-        delete m_chip;
-        return -1;
-      }
-      m_chip->SetBinaryName (binfile_name);
-      if (!pk_loc.empty()) {
-        if (m_chip->LoadBinary ("", pk_loc, is_load_dump) == -1) {
-          delete m_chip;
-          return -1;
-        }
-      }
-      if (!vmlinux_pos.empty()) {
-        if (m_chip->LoadBinaryTable (vmlinux_pos, true) == -1) {
-          delete m_chip;
-          return -1;
-        }
-      }
-      m_chip->SetLogStart(logstart);
-      m_chip->SetPrintStep(printstep);
-    }
-    m_chip->SetDebugFunc(is_trace_hier);
-    m_chip->SetDebugGVar(is_trace_hier);
-    m_chip->StepSimulation(max_sim_inst, (max_sim_inst == 0) ? LoopType_t::InfLoop : LoopType_t::FiniteLoop);
-	result = m_chip->GetResult();
-
-    if (is_gen_sig) {
-      m_chip->OutputSignature();
-    }
-
-    delete m_chip;
+    Py_Finalize ();
 
   } else {
-    std::cerr << "Input file (--hexfile) is not specified.\n";
-    exit (EXIT_FAILURE);
+
+    if (is_cmd_hexfile || is_cmd_binfile) {
+      RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, misa_value, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str);
+
+      m_chip->SetPC (init_pc);
+      m_chip->SetMaxCycle (max_sim_inst);
+
+      FILE *hex_fp = nullptr;
+      if (is_cmd_hexfile && (hex_fp = fopen(hexfile_name.c_str(), "r")) == NULL) {
+        perror (hexfile_name.c_str());
+        exit (EXIT_FAILURE);
+      }
+
+      if (is_cmd_binfile) {
+        if (is_gen_sig) {
+          m_chip->SetSignature(sig_file);
+        }
+
+        if (m_chip->LoadBinary (argv[0], binfile_name.c_str(), is_load_dump) == -1) {
+          delete m_chip;
+          return -1;
+        }
+        m_chip->SetBinaryName (binfile_name);
+        if (!pk_loc.empty()) {
+          if (m_chip->LoadBinary ("", pk_loc, is_load_dump) == -1) {
+            delete m_chip;
+            return -1;
+          }
+        }
+        if (!vmlinux_pos.empty()) {
+          if (m_chip->LoadBinaryTable (vmlinux_pos, true) == -1) {
+            delete m_chip;
+            return -1;
+          }
+        }
+        m_chip->SetLogStart(logstart);
+        m_chip->SetPrintStep(printstep);
+      }
+      m_chip->SetDebugFunc(is_trace_hier);
+      m_chip->SetDebugGVar(is_trace_hier);
+      m_chip->StepSimulation(max_sim_inst, (max_sim_inst == 0) ? LoopType_t::InfLoop : LoopType_t::FiniteLoop);
+      result = m_chip->GetResult();
+
+      if (is_gen_sig) {
+        m_chip->OutputSignature();
+      }
+
+      delete m_chip;
+
+    } else {
+      std::cerr << "Input file (--hexfile) is not specified.\n";
+      exit (EXIT_FAILURE);
+    }
   }
 
 #ifdef USE_PERF

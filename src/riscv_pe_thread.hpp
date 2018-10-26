@@ -140,7 +140,7 @@ class RiscvPeThread : public EnvBase
 
   bool        m_en_stop_host;
   Addr_t      m_tohost_addr, m_fromhost_addr;
-  DWord_t     m_tohost, m_fromhost;
+  DWord_t     m_tohost = 0, m_fromhost = 0;
   bool        m_tohost_en = false, m_fromhost_en = false;
   bool        m_is_gen_sig = false;
   std::string m_sig_filename;

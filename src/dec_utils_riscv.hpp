@@ -37,14 +37,20 @@
  */
 inline uint64_t ExtendSign (uint64_t data, uint32_t msb)
 {
-  uint64_t mask = 0x0UL;
-  if (((data >> msb) & 0x01) == 0x01) {
-    mask = 0x0FFFFFFFFFFFFFFFFULL & (~((1 << msb) - 1));
-    return data | mask;
-  } else {
-    mask = (1 << msb) - 1;
-    return data & mask;
-  }
+
+  int const mask = 1ULL << msb; // mask can be pre-computed if b is fixed
+
+  data = data & ((1ULL << (msb + 1)) - 1);  // (Skip this if bits in x above position b are already zero.)
+  return (data ^ mask) - mask;
+
+  // uint64_t mask = 0x0UL;
+  // if (((data >> msb) & 0x01) == 0x01) {
+  //   mask = 0x0FFFFFFFFFFFFFFFFULL & (~((1 << msb) - 1));
+  //   return data | mask;
+  // } else {
+  //   mask = (1 << msb) - 1;
+  //   return data & mask;
+  // }
 }
 
 
@@ -71,15 +77,14 @@ bool IsSameIncludeX (uint32_t field0, std::string field1, const int length);
 /*!
  * RISC-V decoder bit field extraction
  */
-#define ExtractR3Field(hex) (ExtractBitField(hex,31,27))
-#define ExtractF2Field(hex) (ExtractBitField(hex,26,25))
-#define ExtractR2Field(hex) (ExtractBitField(hex,24,20))
-#define ExtractR1Field(hex) (ExtractBitField(hex,19,15))
-#define ExtractF3Field(hex) (ExtractBitField(hex,14,12))
-#define ExtractRDField(hex) (ExtractBitField(hex,11, 7))
-#define ExtractOPField(hex) (ExtractBitField(hex, 6, 2))
-#define ExtractLDField(hex) (ExtractBitField(hex, 1, 0))
-
+#define ExtractR3Field(hex) ((hex >> 27) & 0x1f) /* (ExtractBitField(hex,31,27)) */
+#define ExtractF2Field(hex) ((hex >> 25) & 0x03) /* (ExtractBitField(hex,26,25)) */
+#define ExtractR2Field(hex) ((hex >> 20) & 0x1f) /* (ExtractBitField(hex,24,20)) */
+#define ExtractR1Field(hex) ((hex >> 15) & 0x1f) /* (ExtractBitField(hex,19,15)) */
+#define ExtractF3Field(hex) ((hex >> 12) & 0x07) /* (ExtractBitField(hex,14,12)) */
+#define ExtractRDField(hex) ((hex >>  7) & 0x1f) /* (ExtractBitField(hex,11, 7)) */
+#define ExtractOPField(hex) ((hex >>  2) & 0x1f) /* (ExtractBitField(hex, 6, 2)) */
+#define ExtractLDField(hex) ((hex >>  0) & 0x03) /* (ExtractBitField(hex, 1, 0)) */
 
 /*!
  * RISC-V decoder bit field for RVC

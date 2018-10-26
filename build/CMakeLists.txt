@@ -10,10 +10,22 @@ execute_process (COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE CMAKE_REVISI
 
 option (USE_PERF "Use Google Profiler" OFF)
 
-set(CMAKE_VERBOSE_MAKEFILE true)
+# set(CMAKE_VERBOSE_MAKEFILE true)
 
-set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -Wall -O0 -g -fstack-protector")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
+# Add Python Option
+execute_process(COMMAND python3.6m-config --cflags
+    RESULT_VARIABLE _RETVAL
+    OUTPUT_VARIABLE PYTHON_CFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(COMMAND python3.6m-config --ldflags
+    RESULT_VARIABLE _RETVAL
+    OUTPUT_VARIABLE PYTHON_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+set (CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   -Wall -O0 -g -fstack-protector")
+set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O3")
 
 set (VERSION ${CMAKE_VERSION})
 set (REVISION ${CMAKE_REVISION})
@@ -21,6 +33,10 @@ set (REVISION ${CMAKE_REVISION})
 set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}             ")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 set (CMAKE_LD_FLAGS  "${CMAKE_LD_FLAGS}  -std=c++0x")
+
+set (CMAKE_C_FLAGS   "      ${CMAKE_C_FLAGS}   ${PYTHON_CFLAGS} ")
+set (CMAKE_CXX_FLAGS "      ${CMAKE_CXX_FLAGS} ${PYTHON_CFLAGS} ")
+set (CMAKE_EXE_LINKER_FLAGS ${PYTHON_LDFLAGS})
 
 include_directories ("../vendor/cmdline/")
 include_directories ($ENV{RISCV}/include/fesvr/)
@@ -82,7 +98,9 @@ add_library (riscv_cedar
 
 add_executable (swimmer_riscv
   ../src/swimmer_main.cpp
+  ../src/swimmer_util.cpp
   ../src/riscv_bfd_env.cpp
+  ../src/python3_env.cpp
 )
 
 target_link_libraries (riscv_cedar softfloat)
@@ -93,6 +111,7 @@ target_link_libraries (swimmer_riscv pthread)
 target_link_libraries (swimmer_riscv riscv_cedar)
 target_link_libraries (swimmer_riscv ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries (swimmer_riscv bfd)
+target_link_libraries (swimmer_riscv python3.6m)
 
 # Device Tree
 
