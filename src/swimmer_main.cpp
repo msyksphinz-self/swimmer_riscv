@@ -142,9 +142,12 @@ int main (int argc, char *argv[])
     bit_mode = (bit_mode_n == 32) ? RiscvBitMode_t::Bit32 : RiscvBitMode_t::Bit64;
   }
 
-  uint64_t misa_value = 0;
+  uint64_t misa_value = (1 << ('u' - 'a')) | (1 << ('s' - 'a'));
   for(size_t idx = 4; idx < arch_str.length(); idx++) {
-    misa_value |= 1 << (arch_str[idx] - 'a');
+      if (arch_str[idx] == 'g') {
+          arch_str += "imafd";
+      }
+      misa_value |= 1 << (arch_str[idx] - 'a');
   }
 
   bool is_trace_hier         = cmd_line.exist("trace-hier");

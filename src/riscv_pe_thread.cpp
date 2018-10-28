@@ -89,7 +89,8 @@ RiscvPeThread::RiscvPeThread (FILE *dbgfp,
   m_csr_env  = std::unique_ptr<CsrEnv> (new CsrEnv (this));
   m_riscv_page_table = std::unique_ptr<RiscvPageTable>(new RiscvPageTable(this));
 
-  CSRWrite (SYSREG_ADDR_MISA, misa, PrivMode::PrivMachine);  // Set MISA
+  UDWord_t misa_val = (2ULL << 62) | misa;
+  CSRWrite (SYSREG_ADDR_MISA, misa_val, PrivMode::PrivMachine);  // Set MISA
 
   // Floating Point Register Format
   m_regs  = std::unique_ptr<DWord_t[]>(new DWord_t[32]);
