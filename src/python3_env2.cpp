@@ -44,7 +44,7 @@ PyMethodDef riscv_methods[] = {
 
 PyMethodDef riscv_chip_methods[] = {
   { "py_add"     , (PyCFunction)HelloAdd     , METH_VARARGS, "Example ADD"                    },
-  { "riscv_chip" , (PyCFunction)MakeRiscvChip, METH_VARARGS, "Make RiscvChip"                 },
+  { "__init__"   , (PyCFunction)MakeRiscvChip, METH_VARARGS, "Make RiscvChip"                 },
   { "simulate"   , (PyCFunction)SimRiscvChip , METH_VARARGS, "Simulate RiscvChip"             },
   { NULL         , NULL                      ,            0, NULL                             } /* Sentinel */
 };
@@ -75,8 +75,9 @@ static struct PyModuleDef moduledef = {
 PyObject* HelloAdd (PyObject* self, PyObject* args)
 {
   int x, y, g;
+  PyObject *py_chip;
 
-  if (!PyArg_ParseTuple(args, "ii", &x, &y))
+  if (!PyArg_ParseTuple(args, "Oii", &py_chip, &x, &y))
     return NULL;
   g = x + y;
   return Py_BuildValue("I", g);
@@ -92,24 +93,44 @@ PyObject* MakeRiscvChip (PyObject* self, PyObject* args)
                                            true, true, stdout, true, "trace_out.log");
 
   PyObject* chip_capsule = PyCapsule_New((void *)chip, "chip_ptr", NULL);
-  PyCapsule_SetPointer(chip_capsule, (void *)chip);
 
-  return Py_BuildValue("O", chip_capsule);
+  printf("MakeRiscvChip %p\n", chip_capsule);
+
+  PyModule_AddObject(self, "RiscvChip", chip_capsule);
+ return NULL;
+  // return Py_BuildValue("O", chip_capsule);
 }
 
 
 PyObject* SimRiscvChip (PyObject* self, PyObject* args)
 {
-  PyObject *py_chip;
+    PyObject *py_chip, *py_chip_self;
   int max_inst;
-  if (!PyArg_ParseTuple(args, "Oi", &py_chip, &max_inst)) {
+  // if (!PyArg_ParseTuple(args, "Oi", &py_chip, &max_inst)) {
+  if (!PyArg_UnpackTuple(args, "ref", 2, 2, &py_chip, &max_inst)) {
     return NULL;
   }
 
-  RiscvPeThread *chip = (RiscvPeThread *)PyCapsule_GetPointer(py_chip, "chip_ptr");
+  // if (!PyCapsule_CheckExact(py_chip)) {
+  //     printf("Error: is not PyCapsule.");
+  // }
+  // if (!PyCapsule_CheckExact(py_chip_self)) {
+  //     printf("Error: is not PyCapsule.");
+  // }
 
+  printf("SimRiscvChip %p\n", py_chip);
+
+  RiscvPeThread *chip;
+  if ((chip = (RiscvPeThread *)PyCapsule_GetPointer(py_chip, "chip_ptr")) == NULL) {
+      printf("Error: object is not valid.");
+      return Py_BuildValue("I", 0);
+  }
+
+  printf("Phase1.\n");
   chip->SetMaxCycle (max_inst);
+  printf("Phase2.\n");
   chip->StepSimulation(max_inst, (max_inst == 0) ? LoopType_t::InfLoop : LoopType_t::FiniteLoop);
+  printf("Phase3.\n");
 
   return Py_BuildValue("I", 0);
 }
@@ -135,22 +156,22 @@ PyMODINIT_FUNC InitPyEnv (void)
   PyObject *class_dict  = PyDict_New ();
   PyObject *class_name  = PyUnicode_FromString("RiscvChip");
   PyObject *class_bases = PyTuple_New(0); // An empty tuple for bases is equivalent to `(object,)`
-  // PyObject *riscv_class   = PyClass_New(NULL, class_dict, class_name);
-  PyObject *riscv_class   = PyObject_CallFunctionObjArgs((PyObject *)&PyType_Type, class_name, class_bases, class_dict, NULL);
-  PyDict_SetItemString (module_dict, "riscvchip", riscv_class);
-  Py_DECREF(class_dict);
-  Py_DECREF(class_name);
-  Py_DECREF(riscv_class);
 
   /* add methods to class */
   for (PyMethodDef *def = riscv_chip_methods; def->ml_name != NULL; def++) {
-      printf("def %s added\n", def->ml_name);
       PyObject *func   = PyCFunction_New(def, NULL);
-      PyObject *method = PyMethod_New(func, riscv_class);
+      PyObject *method = PyInstanceMethod_New(func);
       PyDict_SetItemString(class_dict, def->ml_name, method);
       Py_DECREF(func);
       Py_DECREF(method);
   }
+
+  PyObject *riscv_class   = PyObject_CallFunctionObjArgs((PyObject *)&PyType_Type, class_name, class_bases, class_dict, NULL);
+
+  PyModule_AddObject(module, "RiscvChip", riscv_class);
+  Py_DECREF(class_dict);
+  Py_DECREF(class_name);
+  Py_DECREF(riscv_class);
 
   return module;
 }
