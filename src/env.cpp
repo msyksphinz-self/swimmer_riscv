@@ -50,19 +50,15 @@ void EnvBase::StepSimulation (uint64_t stepCount, LoopType_t inf_loop)
 {
   SetStopSim (false);  // at first, release stop condition
 
-  // int32_t curr_step = GetStep ();
   uint64_t max_step = GetMaxCycle ();
 
   m_loop_type = inf_loop;
 
-  // DebugPrint ("StartDebug max_step=%d <= curr_step(%d) + stepCount(%d)\n",
-  // max_step, curr_step, stepCount);
-
-  for (uint64_t i = 0;
+  for (uint64_t step = 0;
        (IsStopSim () == false) &&
            ((inf_loop == LoopType_t::InfLoop) ||
-            (inf_loop == LoopType_t::FiniteLoop && (i < max_step)));
-       i++) {
+            (inf_loop == LoopType_t::FiniteLoop && (step < max_step)));
+       step++) {
     GetTrace()->clearTraceInfo ();
     ExecStatus status = StepExec (IsResumeBreak ());
     if (status == ExecStatus::ExecBreakPC) {

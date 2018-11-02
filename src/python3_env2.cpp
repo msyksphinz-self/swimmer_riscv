@@ -36,17 +36,47 @@ struct module_state {
 #define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
 
 PyMethodDef riscv_methods[] = {
-//  { "py_add"     , (PyCFunction)HelloAdd     , METH_VARARGS, "Example ADD"                    },
-//  { "riscv_chip" , (PyCFunction)MakeRiscvChip, METH_VARARGS, "Make RiscvChip"                 },
-//  { "simulate"   , (PyCFunction)SimRiscvChip , METH_VARARGS, "Simulate RiscvChip"             },
   { NULL         , NULL                      ,            0, NULL                             } /* Sentinel */
 };
 
+typedef struct {
+  PyObject_HEAD
+  RiscvPeThread *pe_thread;
+  int number;
+} RiscvPeObject;
+
+static int InitRiscvChip (RiscvPeObject *self, PyObject* args, PyObject *kwds);
+static PyObject* MakeRiscvChip (PyTypeObject *type, PyObject* args, PyObject *kwds);
+static PyObject* SimRiscvChip (RiscvPeObject *self, PyObject* args);
+static PyObject* LoadBinaryRiscvChip (RiscvPeObject *self, PyObject* args);
+
 PyMethodDef riscv_chip_methods[] = {
-  { "py_add"     , (PyCFunction)HelloAdd     , METH_VARARGS, "Example ADD"                    },
-  { "__init__"   , (PyCFunction)MakeRiscvChip, METH_VARARGS, "Make RiscvChip"                 },
-  { "simulate"   , (PyCFunction)SimRiscvChip , METH_VARARGS, "Simulate RiscvChip"             },
-  { NULL         , NULL                      ,            0, NULL                             } /* Sentinel */
+  { "py_add"     , (PyCFunction)HelloAdd            , METH_VARARGS, "Example ADD"                    },
+  { "simulate"   , (PyCFunction)SimRiscvChip        , METH_VARARGS, "Simulate RiscvChip"             },
+  { "load_bin"   , (PyCFunction)LoadBinaryRiscvChip , METH_VARARGS, "Load Binary file"               },
+  { NULL         , NULL                             ,            0, NULL                             } /* Sentinel */
+};
+
+
+static void RiscvPeDealloc(RiscvPeObject *self)
+{
+  Py_XDECREF(self->pe_thread);
+  Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+
+static PyTypeObject RiscvPeType = {
+  PyVarObject_HEAD_INIT(NULL, 0)
+  .tp_name      = "riscv.RiscvPe",
+  .tp_basicsize = (Py_ssize_t) sizeof(RiscvPeObject),
+  .tp_itemsize  = 0,
+  .tp_dealloc   = (destructor) RiscvPeDealloc,
+  .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+  .tp_doc       = "Riscv objects",
+  .tp_methods   = riscv_chip_methods,
+  .tp_members   = NULL,
+  .tp_init      = (initproc) InitRiscvChip,
+  .tp_new       = MakeRiscvChip,
 };
 
 static int riscv_traverse(PyObject *m, visitproc visit, void *arg) {
@@ -84,94 +114,60 @@ PyObject* HelloAdd (PyObject* self, PyObject* args)
 }
 
 
-PyObject* MakeRiscvChip (PyObject* self, PyObject* args)
+static PyObject* MakeRiscvChip (PyTypeObject *type, PyObject* args, PyObject *kwds)
 {
-  // if (!PyArg_ParseTuple(args, "")
-  //   return NULL;
+  RiscvPeObject *self = (RiscvPeObject *) type->tp_alloc(type, 0);
 
   RiscvPeThread *chip = new RiscvPeThread (stdout, RiscvBitMode_t::Bit64, 0xffffffff, PrivMode::PrivUser,
                                            true, true, stdout, true, "trace_out.log");
 
-  PyObject* chip_capsule = PyCapsule_New((void *)chip, "chip_ptr", NULL);
+  self->pe_thread = chip;
 
-  printf("MakeRiscvChip %p\n", chip_capsule);
-
-  PyModule_AddObject(self, "RiscvChip", chip_capsule);
- return NULL;
-  // return Py_BuildValue("O", chip_capsule);
+  return (PyObject *)self;
 }
 
 
-PyObject* SimRiscvChip (PyObject* self, PyObject* args)
+static int InitRiscvChip (RiscvPeObject *self, PyObject* args, PyObject *kwds)
 {
-    PyObject *py_chip, *py_chip_self;
-  int max_inst;
-  // if (!PyArg_ParseTuple(args, "Oi", &py_chip, &max_inst)) {
-  if (!PyArg_UnpackTuple(args, "ref", 2, 2, &py_chip, &max_inst)) {
-    return NULL;
+  return 0;
+}
+
+
+static PyObject* LoadBinaryRiscvChip (RiscvPeObject *self, PyObject* args)
+{
+  char *filename;
+  if (!PyArg_ParseTuple(args, "s", &filename)) {
+    return PyLong_FromLong (-1);
   }
 
-  // if (!PyCapsule_CheckExact(py_chip)) {
-  //     printf("Error: is not PyCapsule.");
-  // }
-  // if (!PyCapsule_CheckExact(py_chip_self)) {
-  //     printf("Error: is not PyCapsule.");
-  // }
-
-  printf("SimRiscvChip %p\n", py_chip);
-
-  RiscvPeThread *chip;
-  if ((chip = (RiscvPeThread *)PyCapsule_GetPointer(py_chip, "chip_ptr")) == NULL) {
-      printf("Error: object is not valid.");
-      return Py_BuildValue("I", 0);
+  if (self->pe_thread->LoadBinary("swimmer_riscv", filename, true) == -1) {
+    return PyLong_FromLong (-1);
   }
 
-  printf("Phase1.\n");
-  chip->SetMaxCycle (max_inst);
-  printf("Phase2.\n");
-  chip->StepSimulation(max_inst, (max_inst == 0) ? LoopType_t::InfLoop : LoopType_t::FiniteLoop);
-  printf("Phase3.\n");
+  return PyLong_FromLong (0);
+}
 
-  return Py_BuildValue("I", 0);
+
+static PyObject* SimRiscvChip (RiscvPeObject *self, PyObject* args)
+{
+  self->pe_thread->SetMaxCycle (100);
+  self->pe_thread->StepSimulation(100, LoopType_t::FiniteLoop);
+
+  return PyLong_FromLong(0);
 }
 
 
 PyMODINIT_FUNC InitPyEnv (void)
 {
-  PyObject *module = PyModule_Create (&moduledef);
+  if (PyType_Ready(&RiscvPeType) < 0)
+    return NULL;
 
+  PyObject *module = PyModule_Create (&moduledef);
   if (module == NULL) {
     return NULL;
   }
-
-  struct module_state *st = GETSTATE(module);
-
-  st->error = PyErr_NewException("riscv.Error", NULL, NULL);
-  if (st->error == NULL) {
-    Py_DECREF(module);
-    return NULL;
-  }
-
-  PyObject *module_dict = PyModule_GetDict (module);
-  PyObject *class_dict  = PyDict_New ();
-  PyObject *class_name  = PyUnicode_FromString("RiscvChip");
-  PyObject *class_bases = PyTuple_New(0); // An empty tuple for bases is equivalent to `(object,)`
-
-  /* add methods to class */
-  for (PyMethodDef *def = riscv_chip_methods; def->ml_name != NULL; def++) {
-      PyObject *func   = PyCFunction_New(def, NULL);
-      PyObject *method = PyInstanceMethod_New(func);
-      PyDict_SetItemString(class_dict, def->ml_name, method);
-      Py_DECREF(func);
-      Py_DECREF(method);
-  }
-
-  PyObject *riscv_class   = PyObject_CallFunctionObjArgs((PyObject *)&PyType_Type, class_name, class_bases, class_dict, NULL);
-
-  PyModule_AddObject(module, "RiscvChip", riscv_class);
-  Py_DECREF(class_dict);
-  Py_DECREF(class_name);
-  Py_DECREF(riscv_class);
+  Py_INCREF(&RiscvPeType);
+  PyModule_AddObject(module, "RiscvPe", (PyObject *) &RiscvPeType);
 
   return module;
 }

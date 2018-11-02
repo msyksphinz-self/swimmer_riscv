@@ -30,7 +30,7 @@
 #include <Python.h>
 
 PyObject* HelloAdd      (PyObject*, PyObject*);
-PyObject* MakeRiscvChip (PyObject*, PyObject*);
-PyObject* SimRiscvChip  (PyObject*, PyObject*);
+// PyObject* MakeRiscvChip (PyObject*, PyObject*);
+// PyObject* SimRiscvChip  (PyObject*, PyObject*);
 
 PyMODINIT_FUNC InitPyEnv (void);
