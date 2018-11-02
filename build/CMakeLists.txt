@@ -100,7 +100,7 @@ add_executable (swimmer_riscv
   ../src/swimmer_main.cpp
   ../src/swimmer_util.cpp
   ../src/riscv_bfd_env.cpp
-  ../src/python3_env2.cpp
+  ../src/python3_env.cpp
 )
 
 target_link_libraries (riscv_cedar softfloat)
