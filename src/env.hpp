@@ -40,9 +40,9 @@
 #include <dis-asm.h>
 #endif // _ENABLE_BFD_
 
-#include "./basic.hpp"
-#include "./mem_body.hpp"
-#include "./trace.hpp"
+#include "basic.hpp"
+#include "mem_body.hpp"
+#include "trace.hpp"
 
 class InstEnv;
 

@@ -35,13 +35,12 @@
 #include <memory>
 #include <string.h>
 #include <inttypes.h>
-#include "./mem_body.hpp"
-#include "./memory_block.hpp"
-#include "./basic.hpp"
-#include "./env.hpp"
-#include "./trace.hpp"
-#include "./module_ide.hpp"
-#include "./module_uart.hpp"
+#include "mem_body.hpp"
+#include "memory_block.hpp"
+#include "basic.hpp"
+#include "env.hpp"
+#include "trace.hpp"
+
 
 /*!
  * step instruction

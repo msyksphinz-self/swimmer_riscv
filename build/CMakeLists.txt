@@ -90,8 +90,6 @@ add_library (riscv_cedar
   ../src/memory_block.cpp
   ../src/mem_body.cpp
   ../src/gdb_env.cpp
-  ../src/module_crt.cpp
-  ../src/module_uart.cpp
 )
 
 # ../src/module_rom.cpp

@@ -67,16 +67,6 @@ static void RiscvPeDealloc(RiscvPeObject *self)
 
 static PyTypeObject RiscvPeType = {
   PyVarObject_HEAD_INIT(NULL, 0)
-  .tp_name      = "riscv.RiscvPe",
-  .tp_basicsize = (Py_ssize_t) sizeof(RiscvPeObject),
-  .tp_itemsize  = 0,
-  .tp_dealloc   = (destructor) RiscvPeDealloc,
-  .tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_doc       = "Riscv objects",
-  .tp_methods   = riscv_chip_methods,
-  .tp_members   = NULL,
-  .tp_init      = (initproc) InitRiscvChip,
-  .tp_new       = MakeRiscvChip,
 };
 
 static int riscv_traverse(PyObject *m, visitproc visit, void *arg) {
@@ -159,7 +149,18 @@ static PyObject* SimRiscvChip (RiscvPeObject *self, PyObject* args)
 
 PyMODINIT_FUNC InitPyEnv (void)
 {
-  if (PyType_Ready(&RiscvPeType) < 0)
+    RiscvPeType.tp_name      = "riscv.RiscvPe";
+    RiscvPeType.tp_basicsize = (Py_ssize_t) sizeof(RiscvPeObject);
+    RiscvPeType.tp_itemsize  = 0;
+    RiscvPeType.tp_dealloc   = (destructor) RiscvPeDealloc;
+    RiscvPeType.tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    RiscvPeType.tp_doc       = "Riscv objects";
+    RiscvPeType.tp_methods   = riscv_chip_methods;
+    RiscvPeType.tp_members   = NULL;
+    RiscvPeType.tp_init      = (initproc) InitRiscvChip;
+    RiscvPeType.tp_new       = MakeRiscvChip;
+
+    if (PyType_Ready(&RiscvPeType) < 0)
     return NULL;
 
   PyObject *module = PyModule_Create (&moduledef);
