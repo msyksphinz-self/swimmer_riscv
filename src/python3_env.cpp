@@ -149,18 +149,18 @@ static PyObject* SimRiscvChip (RiscvPeObject *self, PyObject* args)
 
 PyMODINIT_FUNC InitPyEnv (void)
 {
-    RiscvPeType.tp_name      = "riscv.RiscvPe";
-    RiscvPeType.tp_basicsize = (Py_ssize_t) sizeof(RiscvPeObject);
-    RiscvPeType.tp_itemsize  = 0;
-    RiscvPeType.tp_dealloc   = (destructor) RiscvPeDealloc;
-    RiscvPeType.tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    RiscvPeType.tp_doc       = "Riscv objects";
-    RiscvPeType.tp_methods   = riscv_chip_methods;
-    RiscvPeType.tp_members   = NULL;
-    RiscvPeType.tp_init      = (initproc) InitRiscvChip;
-    RiscvPeType.tp_new       = MakeRiscvChip;
+  RiscvPeType.tp_name      = "riscv.RiscvPe";
+  RiscvPeType.tp_basicsize = (Py_ssize_t) sizeof(RiscvPeObject);
+  RiscvPeType.tp_itemsize  = 0;
+  RiscvPeType.tp_dealloc   = (destructor) RiscvPeDealloc;
+  RiscvPeType.tp_flags     = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+  RiscvPeType.tp_doc       = "Riscv objects";
+  RiscvPeType.tp_methods   = riscv_chip_methods;
+  RiscvPeType.tp_members   = NULL;
+  RiscvPeType.tp_init      = (initproc) InitRiscvChip;
+  RiscvPeType.tp_new       = MakeRiscvChip;
 
-    if (PyType_Ready(&RiscvPeType) < 0)
+  if (PyType_Ready(&RiscvPeType) < 0)
     return NULL;
 
   PyObject *module = PyModule_Create (&moduledef);
