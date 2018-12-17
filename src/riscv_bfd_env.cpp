@@ -182,8 +182,10 @@ void RiscvPeThread::LoadFunctionTable (bfd *abfd)
   }
   for (int i = 0; i < number_of_symbols; i++) {
 
-    DebugPrint ("<Info: SymbolName= %s, FLAG=%x, Addr=%016lx>\n",
-                bfd_asymbol_name (symbol_table[i]), symbol_table[i]->flags, bfd_asymbol_value(symbol_table[i]));
+    if (g_dump_hex) {
+      DebugPrint ("<Info: SymbolName= %s, FLAG=%x, Addr=%016lx>\n",
+                  bfd_asymbol_name (symbol_table[i]), symbol_table[i]->flags, bfd_asymbol_value(symbol_table[i]));
+    }
     if ((symbol_table[i]->flags & BSF_FUNCTION ) != 0x00 ||
         (symbol_table[i]->flags & BSF_DEBUGGING) != 0x00 ||
         (symbol_table[i]->flags & BSF_GLOBAL)    != 0x00) {
@@ -196,11 +198,12 @@ void RiscvPeThread::LoadFunctionTable (bfd *abfd)
       // m_func_table->push_back (p_func_info);
       m_func_table->insert(std::make_pair(addr, bfd_asymbol_name(symbol_table[i])));
 
-      std::stringstream str;
-      str << "<BSF_Function: 0x" << std::hex << std::setw(16) << std::setfill('0')
-          << addr << " " << bfd_asymbol_name(symbol_table[i]) << ">\n";
-      DebugPrint ("%s", str.str().c_str());
-
+      if (g_dump_hex) {
+        std::stringstream str;
+        str << "<BSF_Function: 0x" << std::hex << std::setw(16) << std::setfill('0')
+            << addr << " " << bfd_asymbol_name(symbol_table[i]) << ">\n";
+        DebugPrint ("%s", str.str().c_str());
+      }
     } else if ((symbol_table[i]->flags & BSF_LOCAL) != 0x00) {
       // fprintf (stdout, "BSF_Local ");
     } else {
@@ -210,7 +213,9 @@ void RiscvPeThread::LoadFunctionTable (bfd *abfd)
 
   free (symbol_table);
 
-  DebugPrint ("<Finish loading function symbol table>\n");
+  if (g_dump_hex) {
+    DebugPrint ("<Finish loading function symbol table>\n");
+  }
 }
 
 
@@ -256,24 +261,29 @@ void RiscvPeThread::LoadGVariableTable (bfd *abfd)
       m_gvar_table->insert(std::make_pair(bfd_asymbol_value (symbol_table[i]),
                                           bfd_asymbol_name(symbol_table[i])));
 
-      std::stringstream str;
-      str << "<BSF_Global: 0x" << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-          << bfd_asymbol_value(symbol_table[i]) << " " << bfd_asymbol_name(symbol_table[i]) << ">\n";
-      DebugPrint ("%s", str.str().c_str());
-
-      if (!strcmp(bfd_asymbol_name(symbol_table[i]), "tohost")) {
+      if (g_dump_hex) {
         std::stringstream str;
-        str << "<Info: set tohost address " << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-            << bfd_asymbol_value(symbol_table[i]) << ">\n";
+        str << "<BSF_Global: 0x" << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+            << bfd_asymbol_value(symbol_table[i]) << " " << bfd_asymbol_name(symbol_table[i]) << ">\n";
         DebugPrint ("%s", str.str().c_str());
+      }
+      if (!strcmp(bfd_asymbol_name(symbol_table[i]), "tohost")) {
+        if (g_dump_hex) {
+          std::stringstream str;
+          str << "<Info: set tohost address " << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+              << bfd_asymbol_value(symbol_table[i]) << ">\n";
+          DebugPrint ("%s", str.str().c_str());
+        }
         m_tohost_addr = bfd_asymbol_value(symbol_table[i]);
         m_tohost_en = true;
       }
       if (!strcmp(bfd_asymbol_name(symbol_table[i]), "fromhost")) {
-        std::stringstream str;
-        str << "<Info: set fromhost address " << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
-            << bfd_asymbol_value(symbol_table[i]) << ">\n";
-        DebugPrint ("%s", str.str().c_str());
+        if (g_dump_hex) {
+          std::stringstream str;
+          str << "<Info: set fromhost address " << std::hex << std::setw(Addr_bitwidth / 4) << std::setfill('0')
+              << bfd_asymbol_value(symbol_table[i]) << ">\n";
+          DebugPrint ("%s", str.str().c_str());
+        }
         m_fromhost_addr = bfd_asymbol_value(symbol_table[i]);
         m_fromhost_en = true;
       }
@@ -290,8 +300,9 @@ void RiscvPeThread::LoadGVariableTable (bfd *abfd)
       // fprintf (stdout, "BSF_others ");
     }
   }
-
-  DebugPrint ("<Finish loading global variable table>\n");
+  if (g_dump_hex) {
+    DebugPrint ("<Finish loading global variable table>\n");
+  }
 }
 
 
