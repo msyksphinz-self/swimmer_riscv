@@ -92,7 +92,6 @@ int32_t RiscvPeThread::LoadBinary (std::string path_exec, std::string filename, 
 
 
   Addr_t entry_address = eh->e_entry;
-  SetPC (0x1000);
 
   const int reset_vec_size = 8;
 

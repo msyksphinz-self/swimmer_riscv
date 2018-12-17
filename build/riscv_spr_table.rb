@@ -355,3 +355,8 @@ $sysreg_table.push(Array[0xccc,  'UR' ,     'uarch12', Array[Array[xlen-1, 0, 'u
 $sysreg_table.push(Array[0xccd,  'UR' ,     'uarch13', Array[Array[xlen-1, 0, 'uarch13', 'R',  0]]])
 $sysreg_table.push(Array[0xcce,  'UR' ,     'uarch14', Array[Array[xlen-1, 0, 'uarch14', 'R',  0]]])
 $sysreg_table.push(Array[0xccf,  'UR' ,     'uarch15', Array[Array[xlen-1, 0, 'uarch15', 'R',  0]]])
+
+$sysreg_table.push(Array[07B0,  'MRW',     'dcsr'      , Array[Array[xlen-1, 0, 'dcsr'      , 'RW', 0]]])
+$sysreg_table.push(Array[07B1,  'MRW',     'dpc'       , Array[Array[xlen-1, 0, 'dpc'       , 'RW', 0]]])
+$sysreg_table.push(Array[07B2,  'MRW',     'dscratch0' , Array[Array[xlen-1, 0, 'dscratch0' , 'RW', 0]]])
+$sysreg_table.push(Array[07B3,  'MRW',     'dscratch1' , Array[Array[xlen-1, 0, 'dscratch1' , 'RW', 0]]])

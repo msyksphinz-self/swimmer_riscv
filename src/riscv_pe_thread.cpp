@@ -349,16 +349,16 @@ ExecStatus RiscvPeThread::StepExec (bool is_resume_break)
 
       uint32_t inst_length = RiscvDec::GetInstLength (inst_idx);
 
-      pc_str << "[" << std::hex << std::setfill('0') << std::setw(vaddr_width) << v_pc << "][P";
-      pc_str << std::hex << std::setfill('0') << std::setw(paddr_width) << p_pc << "] ";
-      if (inst_length == 32) { pc_str << std::hex <<           std::setfill('0') << std::setw(8) << (GetTrace()->GetInstHex ())           << " : "; }
-      if (inst_length == 16) { pc_str << std::hex << "    " << std::setfill('0') << std::setw(4) << (GetTrace()->GetInstHex () & 0x0ffff) << " : "; }
+      pc_str << std::hex << std::setfill('0') << std::setw(vaddr_width) << v_pc << ":P";
+      pc_str << std::hex << std::setfill('0') << std::setw(paddr_width) << p_pc << ":";
+      if (inst_length == 32) { pc_str << std::hex <<           std::setfill('0') << std::setw(8) << (GetTrace()->GetInstHex ())           << ":"; }
+      if (inst_length == 16) { pc_str << std::hex << "    " << std::setfill('0') << std::setw(4) << (GetTrace()->GetInstHex () & 0x0ffff) << ":"; }
       DebugPrint ("%s", pc_str.str().c_str());
 
       char inst_string[50];
       PrintInst (GetTrace()->GetInstHex(), GetTrace()->GetInstIdx(),
                  inst_string, 50);
-      DebugPrint ("%-30s  ", inst_string);
+      DebugPrint ("%-30s  :", inst_string);
 
 #ifdef NEVER
       // For Future Map simulation

@@ -170,6 +170,8 @@ int main (int argc, char *argv[])
   if (is_init_pc) {
     char *fail_str;
     init_pc = strtoull (init_pc_str.c_str(), &fail_str, 16);
+  } else {
+    init_pc = 0x1000;
   }
 
   // opening debug out
