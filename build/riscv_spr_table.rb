@@ -303,39 +303,39 @@ $sysreg_table.push(Array[0x33E,  'MRW',     'mhpevent30'    , Array[Array[xlen-1
 $sysreg_table.push(Array[0x33F,  'MRW',     'mhpevent31'    , Array[Array[xlen-1, 0, 'mhpevent31'     , 'RW', 0]]])
 
 ## Machine Protection and Transalation
-# $sysreg_table.push(Array[0x3A0,  'MRW',     'pmpcfg0'       , Array[Array[31,24, 'pmpcfg3',  'RW', 0],
-#                                                                     Array[23,16, 'pmpcfg2',  'RW', 0],
-#                                                                     Array[15, 8, 'pmpcfg1',  'RW', 0],
-#                                                                     Array[ 7, 0, 'pmpcfg0',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3A1,  'MRW',     'pmpcfg1'       , Array[Array[31,24, 'pmpcfg7',  'RW', 0],
-#                                                                     Array[23,16, 'pmpcfg6',  'RW', 0],
-#                                                                     Array[15, 8, 'pmpcfg5',  'RW', 0],
-#                                                                     Array[ 7, 0, 'pmpcfg4',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3A2,  'MRW',     'pmpcfg2'       , Array[Array[31,24, 'pmpcfg11', 'RW', 0],
-#                                                                     Array[23,16, 'pmpcfg10', 'RW', 0],
-#                                                                     Array[15, 8, 'pmpcfg9',  'RW', 0],
-#                                                                     Array[ 7, 0, 'pmpcfg8',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3A3,  'MRW',     'pmpcfg3'       , Array[Array[31,24, 'pmpcfg15', 'RW', 0],
-#                                                                     Array[23,16, 'pmpcfg14', 'RW', 0],
-#                                                                     Array[15, 8, 'pmpcfg13', 'RW', 0],
-#                                                                     Array[ 7, 0, 'pmpcfg12', 'RW', 0]]])
+$sysreg_table.push(Array[0x3A0,  'MRW',     'pmpcfg0'       , Array[Array[31,24, 'pmpcfg3',  'RW', 0],
+                                                                    Array[23,16, 'pmpcfg2',  'RW', 0],
+                                                                    Array[15, 8, 'pmpcfg1',  'RW', 0],
+                                                                    Array[ 7, 0, 'pmpcfg0',  'RW', 0]]])
+$sysreg_table.push(Array[0x3A1,  'MRW',     'pmpcfg1'       , Array[Array[31,24, 'pmpcfg7',  'RW', 0],
+                                                                    Array[23,16, 'pmpcfg6',  'RW', 0],
+                                                                    Array[15, 8, 'pmpcfg5',  'RW', 0],
+                                                                    Array[ 7, 0, 'pmpcfg4',  'RW', 0]]])
+$sysreg_table.push(Array[0x3A2,  'MRW',     'pmpcfg2'       , Array[Array[31,24, 'pmpcfg11', 'RW', 0],
+                                                                    Array[23,16, 'pmpcfg10', 'RW', 0],
+                                                                    Array[15, 8, 'pmpcfg9',  'RW', 0],
+                                                                    Array[ 7, 0, 'pmpcfg8',  'RW', 0]]])
+$sysreg_table.push(Array[0x3A3,  'MRW',     'pmpcfg3'       , Array[Array[31,24, 'pmpcfg15', 'RW', 0],
+                                                                    Array[23,16, 'pmpcfg14', 'RW', 0],
+                                                                    Array[15, 8, 'pmpcfg13', 'RW', 0],
+                                                                    Array[ 7, 0, 'pmpcfg12', 'RW', 0]]])
 
-# $sysreg_table.push(Array[0x3B0,  'MRW',     'pmpaddr0'      , Array[Array[xlen-1,0, 'pmpaddr0',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B1,  'MRW',     'pmpaddr1'      , Array[Array[xlen-1,0, 'pmpaddr1',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B2,  'MRW',     'pmpaddr2'      , Array[Array[xlen-1,0, 'pmpaddr2',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B3,  'MRW',     'pmpaddr3'      , Array[Array[xlen-1,0, 'pmpaddr3',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B4,  'MRW',     'pmpaddr4'      , Array[Array[xlen-1,0, 'pmpaddr4',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B5,  'MRW',     'pmpaddr5'      , Array[Array[xlen-1,0, 'pmpaddr5',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B6,  'MRW',     'pmpaddr6'      , Array[Array[xlen-1,0, 'pmpaddr6',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B7,  'MRW',     'pmpaddr7'      , Array[Array[xlen-1,0, 'pmpaddr7',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B8,  'MRW',     'pmpaddr8'      , Array[Array[xlen-1,0, 'pmpaddr8',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3B9,  'MRW',     'pmpaddr9'      , Array[Array[xlen-1,0, 'pmpaddr9',  'RW', 0]]])
-# $sysreg_table.push(Array[0x3BA,  'MRW',     'pmpaddr10'     , Array[Array[xlen-1,0, 'pmpaddr10', 'RW', 0]]])
-# $sysreg_table.push(Array[0x3BB,  'MRW',     'pmpaddr11'     , Array[Array[xlen-1,0, 'pmpaddr11', 'RW', 0]]])
-# $sysreg_table.push(Array[0x3BC,  'MRW',     'pmpaddr12'     , Array[Array[xlen-1,0, 'pmpaddr12', 'RW', 0]]])
-# $sysreg_table.push(Array[0x3BD,  'MRW',     'pmpaddr13'     , Array[Array[xlen-1,0, 'pmpaddr13', 'RW', 0]]])
-# $sysreg_table.push(Array[0x3BE,  'MRW',     'pmpaddr14'     , Array[Array[xlen-1,0, 'pmpaddr14', 'RW', 0]]])
-# $sysreg_table.push(Array[0x3BF,  'MRW',     'pmpaddr15'     , Array[Array[xlen-1,0, 'pmpaddr15', 'RW', 0]]])
+$sysreg_table.push(Array[0x3B0,  'MRW',     'pmpaddr0'      , Array[Array[xlen-1,0, 'pmpaddr0',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B1,  'MRW',     'pmpaddr1'      , Array[Array[xlen-1,0, 'pmpaddr1',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B2,  'MRW',     'pmpaddr2'      , Array[Array[xlen-1,0, 'pmpaddr2',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B3,  'MRW',     'pmpaddr3'      , Array[Array[xlen-1,0, 'pmpaddr3',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B4,  'MRW',     'pmpaddr4'      , Array[Array[xlen-1,0, 'pmpaddr4',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B5,  'MRW',     'pmpaddr5'      , Array[Array[xlen-1,0, 'pmpaddr5',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B6,  'MRW',     'pmpaddr6'      , Array[Array[xlen-1,0, 'pmpaddr6',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B7,  'MRW',     'pmpaddr7'      , Array[Array[xlen-1,0, 'pmpaddr7',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B8,  'MRW',     'pmpaddr8'      , Array[Array[xlen-1,0, 'pmpaddr8',  'RW', 0]]])
+$sysreg_table.push(Array[0x3B9,  'MRW',     'pmpaddr9'      , Array[Array[xlen-1,0, 'pmpaddr9',  'RW', 0]]])
+$sysreg_table.push(Array[0x3BA,  'MRW',     'pmpaddr10'     , Array[Array[xlen-1,0, 'pmpaddr10', 'RW', 0]]])
+$sysreg_table.push(Array[0x3BB,  'MRW',     'pmpaddr11'     , Array[Array[xlen-1,0, 'pmpaddr11', 'RW', 0]]])
+$sysreg_table.push(Array[0x3BC,  'MRW',     'pmpaddr12'     , Array[Array[xlen-1,0, 'pmpaddr12', 'RW', 0]]])
+$sysreg_table.push(Array[0x3BD,  'MRW',     'pmpaddr13'     , Array[Array[xlen-1,0, 'pmpaddr13', 'RW', 0]]])
+$sysreg_table.push(Array[0x3BE,  'MRW',     'pmpaddr14'     , Array[Array[xlen-1,0, 'pmpaddr14', 'RW', 0]]])
+$sysreg_table.push(Array[0x3BF,  'MRW',     'pmpaddr15'     , Array[Array[xlen-1,0, 'pmpaddr15', 'RW', 0]]])
 
 # HW Implementation
 $sysreg_table.push(Array[0x0c0,  'URW',     'stats'  , Array[Array[xlen-1, 0, 'stats'  , 'RW', 0]]])

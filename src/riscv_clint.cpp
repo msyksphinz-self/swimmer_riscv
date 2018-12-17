@@ -106,9 +106,9 @@ MemResult RiscvClint_t::Store (Addr_t addr, size_t len, Byte_t *data)
 void RiscvClint_t::Increment(UDWord_t inc)
 {
   m_mtime += inc;
-  m_pe_thread->DebugPrint("<Info: %d increment mtime = %016lx, mtimecmp = %016lx>\n",
-                          m_pe_thread->GetStep(),
-                          m_mtime, m_mtimecmp[0]);
+  // m_pe_thread->DebugPrint("<Info: %d increment mtime = %016lx, mtimecmp = %016lx>\n",
+  //                         m_pe_thread->GetStep(),
+  //                         m_mtime, m_mtimecmp[0]);
 
   for (size_t i = 0; i < NumCores ; i++) {
 

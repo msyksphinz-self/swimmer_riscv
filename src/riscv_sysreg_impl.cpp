@@ -1078,7 +1078,6 @@ Xlen_t CsrEnv::Read_HEDELEG (Xlen_t *data, PrivMode mode)
 }
 
 
-/*
 template <typename Xlen_t>
 Xlen_t CsrEnv::Read_PMPCFG0   (Xlen_t *data, PrivMode mode) { *data = pmpcfg0  .pmpcfg0  ; return 0; };
 template <typename Xlen_t>
@@ -1119,7 +1118,7 @@ template <typename Xlen_t>
 Xlen_t CsrEnv::Read_PMPADDR14 (Xlen_t *data, PrivMode mode) { *data = pmpaddr14.pmpaddr14; return 0; };
 template <typename Xlen_t>
 Xlen_t CsrEnv::Read_PMPADDR15 (Xlen_t *data, PrivMode mode) { *data = pmpaddr15.pmpaddr15; return 0; };
-*/
+
 
 template <typename Xlen_t>
 Xlen_t CsrEnv::Read_STATS (Xlen_t *data, PrivMode mode)
@@ -2031,7 +2030,7 @@ Xlen_t CsrEnv::Write_HPMCOUNTERH6(Xlen_t data, PrivMode mode) { return 0; }
 template <typename Xlen_t>
 Xlen_t CsrEnv::Write_MHPMCOUNTER27(Xlen_t data, PrivMode mode) { return 0; }
 
-/*
+
 template <typename Xlen_t>
 Xlen_t CsrEnv::Write_PMPCFG0   (Xlen_t data, PrivMode mode) { return 0; };
 template <typename Xlen_t>
@@ -2072,7 +2071,7 @@ template <typename Xlen_t>
 Xlen_t CsrEnv::Write_PMPADDR14 (Xlen_t data, PrivMode mode) { return 0; };
 template <typename Xlen_t>
 Xlen_t CsrEnv::Write_PMPADDR15 (Xlen_t data, PrivMode mode) { return 0; };
-*/
+
 
 template <typename Xlen_t>
 Xlen_t CsrEnv::Write_UARCH00 (Xlen_t data, PrivMode mode)
