@@ -1247,7 +1247,10 @@ void InstEnv::RISCV_INST_AMOMAXU_W (InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_FLW (InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsFPAvailable ()) { return; }
+  if (!m_pe_thread->IsFPAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
 
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
@@ -1275,7 +1278,10 @@ void InstEnv::RISCV_INST_FLW (InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsFPAvailable ()) { return; }
+  if (!m_pe_thread->IsFPAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
 
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -2837,6 +2843,11 @@ void InstEnv::RISCV_INST_C_ADDI4SPN (InstWord_t inst_hex)
                   (ExtractBitField (inst_hex, 10, 7) << 6) |
                   (ExtractBitField (inst_hex,  6, 6) << 2) |
                   (ExtractBitField (inst_hex,  5, 5) << 3);
+
+  if (imm == 0) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
 
   UDWord_t rs_val = m_pe_thread->ReadGReg<DWord_t> (RS_ADDR_SP);
   UDWord_t res    = rs_val + imm;

@@ -1541,7 +1541,10 @@ Xlen_t CsrEnv::Write_MSTATUS (Xlen_t data, PrivMode mode)
   mstatus.bit_mstatus.MXR  = ExtractBitField (data, SYSREG_MSTATUS_MXR_MSB,  SYSREG_MSTATUS_MXR_LSB );
 //mstatus.bit_mstatus.SUM  = ExtractBitField (data, SYSREG_MSTATUS_SUM_MSB,  SYSREG_MSTATUS_SUM_LSB );
   mstatus.bit_mstatus.MPRV = ExtractBitField (data, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB);
-  mstatus.bit_mstatus.XS   = ExtractBitField (data, SYSREG_MSTATUS_XS_MSB,   SYSREG_MSTATUS_XS_LSB  );
+
+  // This Implementation XS is not supported.
+  // mstatus.bit_mstatus.XS   = ExtractBitField (data, SYSREG_MSTATUS_XS_MSB,   SYSREG_MSTATUS_XS_LSB  );
+
   mstatus.bit_mstatus.FS   = ExtractBitField (data, SYSREG_MSTATUS_FS_MSB,   SYSREG_MSTATUS_FS_LSB  );
   mstatus.bit_mstatus.MPP  = ExtractBitField (data, SYSREG_MSTATUS_MPP_MSB,  SYSREG_MSTATUS_MPP_LSB );
   mstatus.bit_mstatus.SPP  = ExtractBitField (data, SYSREG_MSTATUS_SPP_MSB,  SYSREG_MSTATUS_SPP_LSB );

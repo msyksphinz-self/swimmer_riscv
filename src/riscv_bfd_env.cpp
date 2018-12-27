@@ -291,10 +291,14 @@ void RiscvPeThread::LoadGVariableTable (bfd *abfd)
       if (IsGenSignature() &&
           !strcmp(bfd_asymbol_name(symbol_table[i]), "begin_signature")) {
         m_sig_addr_start = bfd_asymbol_value(symbol_table[i]);
+      } else {
+        m_sig_addr_start = 0x100;
       }
       if (IsGenSignature() &&
           !strcmp(bfd_asymbol_name(symbol_table[i]), "end_signature")) {
         m_sig_addr_end = bfd_asymbol_value(symbol_table[i]);
+      } else {
+        m_sig_addr_end = 0x400;
       }
     } else {
       // fprintf (stdout, "BSF_others ");

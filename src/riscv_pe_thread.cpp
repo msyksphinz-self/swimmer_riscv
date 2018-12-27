@@ -842,8 +842,7 @@ void RiscvPeThread::GenerateException (ExceptCode code, Xlen_t tval)
 {
   FlushTlb();
 
-  if (code != ExceptCode::Except_IllegalInst &&
-      code != ExceptCode::Except_EcallFromSMode) {
+  if (code != ExceptCode::Except_EcallFromSMode) {
     Addr_t paddr;
     ConvertVirtualAddress (&paddr, GetPC(), MemAccType::ReadMemType);
     DebugPrint ("<Info: GenerateException Code=%d, TVAL=%016lx PC=%016lx,%016lx>\n", code, tval, GetPC(), paddr);
@@ -1341,6 +1340,9 @@ void RiscvPeThread::OutputSignature()
     ErrorPrint ("<Error: couldn't open signature file %s>\n", m_sig_filename.c_str());
     return;
   }
+
+  DebugPrint ("OutputSignature : m_sig_addr_start = %016lx, m_sig_addr_stop = %016lx\n", m_sig_addr_start, m_sig_addr_end);
+
   for (Addr_t addr = m_sig_addr_start; addr <= ((m_sig_addr_end-1) | 0xf); addr += 0x10) {
     for (Addr_t b_addr = addr + 0xf; b_addr >= addr; b_addr--) {
       UByte_t b_data;
