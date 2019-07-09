@@ -286,7 +286,7 @@ ExecStatus RiscvPeThread::StepExec (bool is_resume_break)
   }
 
   if (fetch_res != MemResult::MemNoExcept) {
-    GenerateException (ExceptCode::Except_InstAddrMisalign, fetch_pc);
+    GenerateException (ExceptCode::Except_InstPageFault, inst_hex);
     return ExecStatus::ExecIllegal;
   }
 
