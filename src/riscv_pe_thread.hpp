@@ -81,15 +81,15 @@ enum class ExceptCode {
   Except_Breakpoint        =  3,
   Except_LoadAddrMisalign  =  4,
   Except_LoadAccessFault   =  5,
-  Except_StoreAddrMisalign =  6,
-  Except_StoreAccessFault  =  7,
+  Except_StoreAMOAddrMisalign =  6,
+  Except_StoreAMOAccessFault  =  7,
   Except_EcallFromUMode    =  8,
   Except_EcallFromSMode    =  9,
   Except_EcallFromHMode    = 10,
   Except_EcallFromMMode    = 11,
   Except_InstPageFault     = 12,
   Except_LoadPageFault     = 13,
-  Except_StorePageFault    = 15
+  Except_StoreAMOPageFault    = 15
 };
 
 

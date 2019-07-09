@@ -489,11 +489,11 @@ void InstEnv::RISCV_INST_SB (InstWord_t inst_hex)
   Byte_t  store_data = rs2_val & 0x000000ff;
   MemResult except = m_pe_thread->StoreToBus (mem_addr, store_data);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -514,11 +514,11 @@ void InstEnv::RISCV_INST_SH (InstWord_t inst_hex)
   HWord_t store_data = rs2_val & 0x0000ffff;
   MemResult except = m_pe_thread->StoreToBus (mem_addr, store_data);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -537,11 +537,11 @@ void InstEnv::RISCV_INST_SW (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -884,11 +884,11 @@ void InstEnv::RISCV_INST_SC_W (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
   m_pe_thread->WriteGReg<Word_t> (rd_addr, 0x0);
@@ -911,21 +911,21 @@ void InstEnv::RISCV_INST_AMOSWAP_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
   except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -947,11 +947,11 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -959,11 +959,11 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -985,11 +985,11 @@ void InstEnv::RISCV_INST_AMOXOR_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -997,11 +997,11 @@ void InstEnv::RISCV_INST_AMOXOR_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1024,11 +1024,11 @@ void InstEnv::RISCV_INST_AMOAND_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1036,11 +1036,11 @@ void InstEnv::RISCV_INST_AMOAND_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1063,11 +1063,11 @@ void InstEnv::RISCV_INST_AMOOR_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1075,11 +1075,11 @@ void InstEnv::RISCV_INST_AMOOR_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1102,11 +1102,11 @@ void InstEnv::RISCV_INST_AMOMIN_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1114,11 +1114,11 @@ void InstEnv::RISCV_INST_AMOMIN_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1141,11 +1141,11 @@ void InstEnv::RISCV_INST_AMOMAX_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1153,11 +1153,11 @@ void InstEnv::RISCV_INST_AMOMAX_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1180,11 +1180,11 @@ void InstEnv::RISCV_INST_AMOMINU_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1193,11 +1193,11 @@ void InstEnv::RISCV_INST_AMOMINU_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1220,11 +1220,11 @@ void InstEnv::RISCV_INST_AMOMAXU_W (InstWord_t inst_hex)
   Word_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1233,11 +1233,11 @@ void InstEnv::RISCV_INST_AMOMAXU_W (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (mem_addr, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -1294,11 +1294,11 @@ void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -1466,11 +1466,11 @@ void InstEnv::RISCV_INST_FSD (InstWord_t inst_hex)
   except = m_pe_thread->StoreToBus (mem_addr + 0, rs2_lo);
   except = m_pe_thread->StoreToBus (mem_addr + 4, rs2_hi);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -1986,7 +1986,7 @@ void InstEnv::RISCV_INST_MRTS (InstWord_t inst_hex)
   m_pe_thread->CSRWrite (SYSREG_ADDR_STVAL,  mbadaddr);
 
   UDWord_t stvec;
-  csr_status = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_STVEC), &stvec);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_STVEC), &stvec);
 
   m_pe_thread->SetPrivMode (PrivMode::PrivSupervisor);
 
@@ -2012,7 +2012,7 @@ void InstEnv::RISCV_INST_MRTH (InstWord_t inst_hex)
   m_pe_thread->CSRWrite (SYSREG_ADDR_HBADADDR, mbadaddr);
 
   UDWord_t htvec;
-  csr_status = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_HTVEC), &htvec);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_HTVEC), &htvec);
 
   m_pe_thread->SetPrivMode (PrivMode::PrivHypervisor);
 
@@ -2103,18 +2103,18 @@ void InstEnv::RISCV_INST_SD (InstWord_t inst_hex)
   Addr_t  mem_addr = m_pe_thread->UExtXlen (rs1_val + imm);
 
   if ((mem_addr & 0x7) != 0) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
 
   MemResult except = MemResult::MemNoExcept;
   except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -2361,18 +2361,18 @@ void InstEnv::RISCV_INST_SC_D (InstWord_t inst_hex)
   }
 
   if ((mem_addr & 0x7) != 0) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
 
   MemResult except = MemResult::MemNoExcept;
   except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, 0x0);
@@ -2403,11 +2403,11 @@ void InstEnv::RISCV_INST_AMOSWAP_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, rs2_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
   m_pe_thread->WriteGReg (rd_addr, mem);
@@ -2440,11 +2440,11 @@ void InstEnv::RISCV_INST_AMOADD_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2478,11 +2478,11 @@ void InstEnv::RISCV_INST_AMOXOR_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2516,11 +2516,11 @@ void InstEnv::RISCV_INST_AMOAND_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2554,11 +2554,11 @@ void InstEnv::RISCV_INST_AMOOR_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2592,11 +2592,11 @@ void InstEnv::RISCV_INST_AMOMIN_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2630,11 +2630,11 @@ void InstEnv::RISCV_INST_AMOMAX_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2669,11 +2669,11 @@ void InstEnv::RISCV_INST_AMOMINU_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2707,11 +2707,11 @@ void InstEnv::RISCV_INST_AMOMAXU_D (InstWord_t inst_hex)
 
   except = m_pe_thread->StoreToBus (rs1_val + 0, ret);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -2897,7 +2897,7 @@ void InstEnv::RISCV_INST_C_FLD (InstWord_t inst_hex)
   DWord_t res;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -2922,7 +2922,7 @@ void InstEnv::RISCV_INST_C_LD (InstWord_t inst_hex)
   DWord_t res;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -2948,7 +2948,7 @@ void InstEnv::RISCV_INST_C_LW (InstWord_t inst_hex)
   Word_t  res_32;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res_32);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -2974,7 +2974,7 @@ void InstEnv::RISCV_INST_C_FLW (InstWord_t inst_hex)
   Word_t  res_32;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res_32);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -3001,11 +3001,11 @@ void InstEnv::RISCV_INST_C_SW (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -3025,11 +3025,11 @@ void InstEnv::RISCV_INST_C_FSW (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 
@@ -3049,11 +3049,11 @@ void InstEnv::RISCV_INST_C_SD (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -3381,7 +3381,7 @@ void InstEnv::RISCV_INST_C_FLDSP (InstWord_t inst_hex)
   Word_t  res_32;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res_32);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -3406,7 +3406,7 @@ void InstEnv::RISCV_INST_C_LWSP (InstWord_t inst_hex)
   Word_t  res_32;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res_32);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -3431,7 +3431,7 @@ void InstEnv::RISCV_INST_C_FLWSP (InstWord_t inst_hex)
   Word_t  res_32;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res_32);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -3509,11 +3509,11 @@ void InstEnv::RISCV_INST_C_SWSP (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -3531,11 +3531,11 @@ void InstEnv::RISCV_INST_C_FSWSP (InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
@@ -3553,7 +3553,7 @@ void InstEnv::RISCV_INST_C_LDSP(InstWord_t inst_hex)
   DWord_t  res;
   MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
@@ -3577,11 +3577,11 @@ void InstEnv::RISCV_INST_C_SDSP(InstWord_t inst_hex)
 
   MemResult except = m_pe_thread->StoreToBus (mem_addr, src_val);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StorePageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
 }
