@@ -1256,6 +1256,38 @@ CsrAccResult CsrEnv::Read_UARCH15 (Xlen_t *data, PrivMode mode)
 
 
 template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_TSELECT (Xlen_t *data, PrivMode mode)
+{
+  *data = tselect.tselect;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_TDATA1 (Xlen_t *data, PrivMode mode)
+{
+  *data = tdata1.tdata1;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_TDATA2 (Xlen_t *data, PrivMode mode)
+{
+  *data = tdata2.tdata2;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_TDATA3 (Xlen_t *data, PrivMode mode)
+{
+  *data = tdata3.tdata3;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_FFLAGS (Xlen_t data, PrivMode mode)
 {
   // m_pe_thread->InfoPrint ("<Info: update Write_FFLAGS>\n");
@@ -2206,6 +2238,54 @@ CsrAccResult CsrEnv::Write_UARCH15 (Xlen_t data, PrivMode mode)
 }
 
 
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_TSELECT (Xlen_t data, PrivMode mode)
+{
+  tselect.tselect = data;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_TDATA1 (Xlen_t data, PrivMode mode)
+{
+  uint32_t xlen_w = 64;
+
+  tdata1.bit_tdata1.hmode   = ExtractBitField (data, xlen_w-5, xlen_w-5);
+  // tdata1.bit_tdata1.maskmax = ExtractBitField (data, xlen_w-6, xlen_w-11);
+  tdata1.bit_tdata1.select  = ExtractBitField (data, 19, 19);
+  tdata1.bit_tdata1.timing  = ExtractBitField (data, 18, 18);
+  tdata1.bit_tdata1.action  = ExtractBitField (data, 17, 12);
+  tdata1.bit_tdata1.chain   = ExtractBitField (data, 11, 11);
+  tdata1.bit_tdata1.match   = ExtractBitField (data, 10,  7);
+  tdata1.bit_tdata1.m       = ExtractBitField (data,  6,  6);
+  tdata1.bit_tdata1.h       = ExtractBitField (data,  5,  5);
+  tdata1.bit_tdata1.s       = ExtractBitField (data,  4,  4);
+  tdata1.bit_tdata1.u       = ExtractBitField (data,  3,  3);
+  tdata1.bit_tdata1.execute = ExtractBitField (data,  2,  2);
+  tdata1.bit_tdata1.store   = ExtractBitField (data,  1,  1);
+  tdata1.bit_tdata1.load    = ExtractBitField (data,  0,  0);
+
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_TDATA2 (Xlen_t data, PrivMode mode)
+{
+  tdata2.tdata2 = data;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_TDATA3 (Xlen_t data, PrivMode mode)
+{
+  tdata3.tdata3 = data;
+  return CsrAccResult::Normal;
+}
+
+
 CsrEnv::CsrEnv (RiscvPeThread *env) : m_pe_thread (env)
 {
   misa.bit_misa.MXL   = 2;   // XLEN
@@ -2271,6 +2351,16 @@ CsrEnv::CsrEnv (RiscvPeThread *env) : m_pe_thread (env)
   uarch13.uarch13     = 0;
   uarch14.uarch14     = 0;
   uarch15.uarch15     = 0;
+
+  tselect.tselect     = 0;
+
+  tdata1.tdata1             = 0;  // All format
+  tdata1.bit_tdata1.type    = 2;
+  tdata1.bit_tdata1.hmode   = 0;
+  tdata1.bit_tdata1.maskmax = 0x4;
+
+  tdata2.tdata2       = 0;
+  tdata3.tdata3       = 0;
 }
 
 

@@ -356,6 +356,26 @@ $sysreg_table.push(Array[0xccd,  'UR' ,     'uarch13', Array[Array[xlen-1, 0, 'u
 $sysreg_table.push(Array[0xcce,  'UR' ,     'uarch14', Array[Array[xlen-1, 0, 'uarch14', 'R',  0]]])
 $sysreg_table.push(Array[0xccf,  'UR' ,     'uarch15', Array[Array[xlen-1, 0, 'uarch15', 'R',  0]]])
 
+$sysreg_table.push(Array[0x7a0,  'MRW',     'tselect' , Array[Array[xlen-1,  0, 'tselect'  , 'RW', 0]]])
+$sysreg_table.push(Array[0x7a1,  'MRW',     'tdata1'  , Array[Array[xlen-1,  xlen-4,  'type'  , 'R', 0],
+                                                              Array[xlen-5,  xlen-5,  'hmode' , 'RW', 0],
+															  Array[xlen-6,  xlen-11, 'maskmax' , 'R', 0],
+															  Array[19    ,  19     , 'select' , 'RW', 0],
+															  Array[18    ,  18     , 'timing' , 'RW', 0],
+															  Array[17    ,  12     , 'action' , 'RW', 0],
+															  Array[11    ,  11     , 'chain' , 'RW', 0],
+															  Array[10    ,   7     , 'match' , 'RW', 0],
+															  Array[6     ,   6     , 'm' , 'RW', 0],
+															  Array[5     ,   5     , 'h' , 'RW', 0],
+															  Array[4     ,   4     , 's' , 'RW', 0],
+															  Array[3     ,   3     , 'u' , 'RW', 0],
+															  Array[2     ,   2     , 'execute' , 'RW', 0],
+															  Array[1     ,   1     , 'store' , 'RW', 0],
+															  Array[0     ,   0     , 'load' , 'RW', 0]
+                                                             ]])
+$sysreg_table.push(Array[0x7a2,  'MRW',     'tdata2'  , Array[Array[xlen-1, 0, 'tdata2'  , 'RW', 0]]])
+$sysreg_table.push(Array[0x7a3,  'MRW',     'tdata3'  , Array[Array[xlen-1, 0, 'tdata3'  , 'RW', 0]]])
+
 # $sysreg_table.push(Array[0x7b0,  'MRW',     'dcsr'      , Array[Array[xlen-1, 0, 'dcsr'      , 'RW', 0]]])
 # $sysreg_table.push(Array[0x7b1,  'MRW',     'dpc'       , Array[Array[xlen-1, 0, 'dpc'       , 'RW', 0]]])
 # $sysreg_table.push(Array[0x7b2,  'MRW',     'dscratch0' , Array[Array[xlen-1, 0, 'dscratch0' , 'RW', 0]]])
