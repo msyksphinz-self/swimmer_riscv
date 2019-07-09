@@ -68,16 +68,20 @@ UDWord_t operator<<(UDWord_t L, IntCode R) {
  * create new RISCV simulation environment
  * \return RiscvPeThread structure (not formatted)
  */
-RiscvPeThread::RiscvPeThread (FILE *dbgfp,
+RiscvPeThread::RiscvPeThread (FILE           *dbgfp,
                               RiscvBitMode_t bit_mode,
-                              uint64_t misa,
-                              PrivMode maxpriv,
-                              bool en_stop_host,
-                              bool is_debug_trace,
-                              FILE *uart_fp,
-                              bool trace_hier,
-                              std::string trace_out)
-    : EnvBase (is_debug_trace, dbgfp, trace_hier, trace_out), m_bit_mode (bit_mode), m_en_stop_host(en_stop_host)
+                              uint64_t       misa,
+                              PrivMode       maxpriv,
+                              bool           en_stop_host,
+                              bool           is_debug_trace,
+                              FILE           *uart_fp,
+                              bool           trace_hier,
+                              std::string    trace_out,
+                              bool           is_misa_writable)
+    : EnvBase (is_debug_trace, dbgfp, trace_hier, trace_out),
+      m_bit_mode (bit_mode),
+      m_en_stop_host (en_stop_host),
+      m_is_misa_writable (is_misa_writable)
 {
   m_ptr_riscv_dec = new RiscvDec(this);
 

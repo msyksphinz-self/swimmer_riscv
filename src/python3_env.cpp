@@ -109,7 +109,7 @@ static PyObject* MakeRiscvChip (PyTypeObject *type, PyObject* args, PyObject *kw
   RiscvPeObject *self = (RiscvPeObject *) type->tp_alloc(type, 0);
 
   RiscvPeThread *chip = new RiscvPeThread (stdout, RiscvBitMode_t::Bit64, 0xffffffff, PrivMode::PrivUser,
-                                           true, true, stdout, true, "trace_out.log");
+                                           true, true, stdout, true, "trace_out.log", false);
 
   self->pe_thread = chip;
 
