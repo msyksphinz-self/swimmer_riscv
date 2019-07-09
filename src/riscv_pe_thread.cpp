@@ -1267,7 +1267,7 @@ MemResult RiscvPeThread::WalkPageTable (Addr_t *paddr, Addr_t vaddr, MemAccType 
   m_tlb_tag [vaddr_tag] = vaddr_vpn;
   m_tlb_addr[vaddr_tag] = (*paddr & ~0x0fff) | (pte_val & 0x0ff);
 
-  DebugPrint("Converted Virtual Address is = 0x%016lx\n", *paddr);
+  DebugPrint("<Info: Converted Virtual Address is = 0x%016lx>\n", *paddr);
 
   return MemResult::MemNoExcept;
 }
