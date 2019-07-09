@@ -121,6 +121,15 @@ enum class RiscvBitMode_t {
   Bit64 = 1
 };
 
+
+enum class CsrAccResult {
+  Normal      = 0,
+  PrivError   = 1,
+  AddrError   = 2,
+  IgnoreWrite = 3
+};
+
+
 class RiscvDec;
 
 class RiscvPeThread : public EnvBase
@@ -340,12 +349,12 @@ class RiscvPeThread : public EnvBase
   template <class T> T    ReadGReg  (RegAddr_t);
   template <class T> void WriteGReg (RegAddr_t, T data);
 
-  template <typename Xlen_t> Xlen_t CSRRead        (Addr_t csr_addr, Xlen_t *data);
-  template <typename Xlen_t> Xlen_t CSRRead        (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
-  template <typename Xlen_t> Xlen_t CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data);
-  template <typename Xlen_t> Xlen_t CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
-  template <typename Xlen_t> Xlen_t CSRWrite       (Addr_t csr_addr, Xlen_t  data);
-  template <typename Xlen_t> Xlen_t CSRWrite       (Addr_t csr_addr, Xlen_t  data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRRead        (Addr_t csr_addr, Xlen_t *data);
+  template <typename Xlen_t> CsrAccResult CSRRead        (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data);
+  template <typename Xlen_t> CsrAccResult CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRWrite       (Addr_t csr_addr, Xlen_t  data);
+  template <typename Xlen_t> CsrAccResult CSRWrite       (Addr_t csr_addr, Xlen_t  data, PrivMode mode);
 
   uint8_t EncodeRMField (uint8_t rm) {
     switch (rm) {
