@@ -1633,14 +1633,16 @@ void InstEnv::RISCV_INST_CSRRW (InstWord_t inst_hex)
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
 
   DWord_t csr_val;
-  if (m_pe_thread->CSRRead (csr_addr, &csr_val) != 0) {
+  CsrAccResult csr_read_result = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  if (csr_read_result == CsrAccResult::AddrError ||
+      csr_read_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
 
   DWord_t rs1_val  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  if (m_pe_thread->CSRWrite (csr_addr, rs1_val) == -1) {
+  if (m_pe_thread->CSRWrite (csr_addr, rs1_val) == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1658,7 +1660,9 @@ void InstEnv::RISCV_INST_CSRRS (InstWord_t inst_hex)
 
   DWord_t  rs1_val = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
   DWord_t csr_val;
-  if (m_pe_thread->CSRRead (csr_addr, &csr_val) != 0) {
+  CsrAccResult csr_read_result = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  if (csr_read_result == CsrAccResult::AddrError ||
+      csr_read_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1668,7 +1672,7 @@ void InstEnv::RISCV_INST_CSRRS (InstWord_t inst_hex)
       m_pe_thread->CSRWrite (csr_addr, csr_val);
     } else {
       DWord_t next_csr_val = csr_val | rs1_val;
-      if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) != 0) {
+      if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) == CsrAccResult::PrivError) {
         m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
         return;
       }
@@ -1688,9 +1692,10 @@ void InstEnv::RISCV_INST_CSRRC (InstWord_t inst_hex)
 
   DWord_t rs1_val = m_pe_thread->ReadGReg<Word_t> (rs1_addr);
   DWord_t csr_val;
-  DWord_t csr_status = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  CsrAccResult csr_status = m_pe_thread->CSRRead (csr_addr, &csr_val);
 
-  if (csr_status != 0) {
+  if (csr_status == CsrAccResult::AddrError ||
+      csr_status == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1700,7 +1705,7 @@ void InstEnv::RISCV_INST_CSRRC (InstWord_t inst_hex)
       m_pe_thread->CSRWrite (csr_addr, csr_val);
     } else {
       DWord_t next_csr_val = csr_val & ~rs1_val;
-      if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) != 0) {
+      if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) == CsrAccResult::PrivError) {
         return;
       }
     }
@@ -1718,11 +1723,15 @@ void InstEnv::RISCV_INST_CSRRWI (InstWord_t inst_hex)
   DWord_t   z_imm    = ExtractBitField (inst_hex, 19, 15);
 
   DWord_t csr_val;
-  if (m_pe_thread->CSRRead (csr_addr, &csr_val) != 0) {
+  CsrAccResult csr_read_result = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  if (csr_read_result == CsrAccResult::AddrError ||
+      csr_read_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
-  if (m_pe_thread->CSRWrite (csr_addr, z_imm) == -1) {
+  CsrAccResult result = m_pe_thread->CSRWrite (csr_addr, z_imm);
+  if (result == CsrAccResult::AddrError ||
+      result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1739,13 +1748,17 @@ void InstEnv::RISCV_INST_CSRRSI (InstWord_t inst_hex)
   DWord_t   z_imm  = ExtractBitField (inst_hex, 19, 15);
 
   DWord_t csr_val;
-  if (m_pe_thread->CSRRead (csr_addr, &csr_val) != 0) {
+  CsrAccResult csr_read_result = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  if (csr_read_result == CsrAccResult::AddrError ||
+      csr_read_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
   if (z_imm != 0) {
     DWord_t next_csr_val  = z_imm | csr_val;
-    if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) != 0) {
+    CsrAccResult result = m_pe_thread->CSRWrite (csr_addr, z_imm);
+    if (result == CsrAccResult::AddrError ||
+        result == CsrAccResult::PrivError) {
       m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
       return;
     }
@@ -1763,13 +1776,17 @@ void InstEnv::RISCV_INST_CSRRCI (InstWord_t inst_hex)
   DWord_t   z_imm  = ExtractBitField (inst_hex, 19, 15);
 
   DWord_t csr_val;
-  if (m_pe_thread->CSRRead (csr_addr, &csr_val) != 0) {
+  CsrAccResult csr_read_result = m_pe_thread->CSRRead (csr_addr, &csr_val);
+  if (csr_read_result == CsrAccResult::AddrError ||
+      csr_read_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
   if (z_imm != 0) {
     DWord_t next_csr_val  = ~z_imm & csr_val;
-    if (m_pe_thread->CSRWrite (csr_addr, next_csr_val) != 0) {
+    CsrAccResult result = m_pe_thread->CSRWrite (csr_addr, z_imm);
+    if (result == CsrAccResult::AddrError ||
+        result == CsrAccResult::PrivError) {
       m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
       return;
     }
@@ -1829,7 +1846,10 @@ void InstEnv::RISCV_INST_MRET (InstWord_t inst_hex)
   Addr_t ret_pc = 0x0;
 
   UDWord_t mstatus;
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MSTATUS), &mstatus) == static_cast<uint32_t>(-1)) {
+  CsrAccResult csr_result;
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MSTATUS), &mstatus);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1843,7 +1863,9 @@ void InstEnv::RISCV_INST_MRET (InstWord_t inst_hex)
 
   m_pe_thread->DebugPrint ("<Info: CPU mode changed from MachineMode to %s>\n",
                            m_pe_thread->PrintPrivMode (next_priv_field).c_str());
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &ret_pc) == static_cast<uint32_t>(-1)) {
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &ret_pc);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1864,7 +1886,10 @@ void InstEnv::RISCV_INST_SRET (InstWord_t inst_hex)
   m_pe_thread->SetPrivMode (PrivMode::PrivMachine);   // Temporary Change Machine
 
   UDWord_t mstatus;
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MSTATUS), &mstatus) == static_cast<uint32_t>(-1)) {
+  CsrAccResult csr_result;
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MSTATUS), &mstatus);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->SetPrivMode (prev_privmode);
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
@@ -1901,7 +1926,10 @@ void InstEnv::RISCV_INST_HRET (InstWord_t inst_hex)
   Addr_t ret_pc = 0x0;
 
   UDWord_t hstatus;
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_HSTATUS), &hstatus) == static_cast<uint32_t>(-1)) {
+  CsrAccResult csr_result;
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_HSTATUS), &hstatus);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1912,7 +1940,9 @@ void InstEnv::RISCV_INST_HRET (InstWord_t inst_hex)
 
   m_pe_thread->DebugPrint ("<Info: CPU mode changed from HypervisorMode to %s>\n",
                      m_pe_thread->PrintPrivMode (next_priv_field).c_str());
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_SEPC), &ret_pc) == static_cast<uint32_t>(-1)) {
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_SEPC), &ret_pc);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1931,7 +1961,10 @@ void InstEnv::RISCV_INST_URET (InstWord_t inst_hex)
   Addr_t ret_pc = 0x0;
 
   UDWord_t ustatus;
-  if (m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_USTATUS), &ustatus) == static_cast<uint32_t>(-1)) {
+  CsrAccResult csr_result;
+  csr_result = m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_USTATUS), &ustatus);
+  if (csr_result == CsrAccResult::AddrError ||
+      csr_result == CsrAccResult::PrivError) {
     m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
     return;
   }
@@ -1950,10 +1983,10 @@ void InstEnv::RISCV_INST_URET (InstWord_t inst_hex)
 void InstEnv::RISCV_INST_MRTS (InstWord_t inst_hex)
 {
   DWord_t mepc, mcause, mbadaddr;
-  DWord_t csr_status = 0;
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &mepc);
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MCAUSE), &mcause);
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MTVAL), &mbadaddr);
+  CsrAccResult csr_status;
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &mepc);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MCAUSE), &mcause);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MTVAL), &mbadaddr);
   m_pe_thread->CSRWrite (SYSREG_ADDR_SEPC,   mepc);
   m_pe_thread->CSRWrite (SYSREG_ADDR_SCAUSE, mcause);
   m_pe_thread->CSRWrite (SYSREG_ADDR_STVAL,  mbadaddr);
@@ -1976,10 +2009,10 @@ void InstEnv::RISCV_INST_MRTS (InstWord_t inst_hex)
 void InstEnv::RISCV_INST_MRTH (InstWord_t inst_hex)
 {
   UDWord_t mepc, mcause, mbadaddr;
-  UDWord_t csr_status = 0;
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &mepc);
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MCAUSE), &mcause);
-  csr_status |= m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MTVAL), &mbadaddr);
+  CsrAccResult csr_status;
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MEPC), &mepc);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MCAUSE), &mcause);
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_MTVAL), &mbadaddr);
   m_pe_thread->CSRWrite (SYSREG_ADDR_HEPC,   mepc);
   m_pe_thread->CSRWrite (SYSREG_ADDR_HCAUSE,   mcause);
   m_pe_thread->CSRWrite (SYSREG_ADDR_HBADADDR, mbadaddr);

@@ -121,6 +121,15 @@ enum class RiscvBitMode_t {
   Bit64 = 1
 };
 
+
+enum class CsrAccResult {
+  Normal      = 0,
+  PrivError   = 1,
+  AddrError   = 2,
+  IgnoreWrite = 3
+};
+
+
 class RiscvDec;
 
 class RiscvPeThread : public EnvBase
@@ -145,6 +154,9 @@ class RiscvPeThread : public EnvBase
   bool        m_is_gen_sig = false;
   std::string m_sig_filename;
   Addr_t      m_sig_addr_start, m_sig_addr_end;
+
+  // MISA Writable / Not-Writable support
+  bool        m_is_misa_writable;
 
   PrivMode m_priv;
   PrivMode m_maxpriv;
@@ -337,12 +349,12 @@ class RiscvPeThread : public EnvBase
   template <class T> T    ReadGReg  (RegAddr_t);
   template <class T> void WriteGReg (RegAddr_t, T data);
 
-  template <typename Xlen_t> Xlen_t CSRRead        (Addr_t csr_addr, Xlen_t *data);
-  template <typename Xlen_t> Xlen_t CSRRead        (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
-  template <typename Xlen_t> Xlen_t CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data);
-  template <typename Xlen_t> Xlen_t CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
-  template <typename Xlen_t> Xlen_t CSRWrite       (Addr_t csr_addr, Xlen_t  data);
-  template <typename Xlen_t> Xlen_t CSRWrite       (Addr_t csr_addr, Xlen_t  data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRRead        (Addr_t csr_addr, Xlen_t *data);
+  template <typename Xlen_t> CsrAccResult CSRRead        (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data);
+  template <typename Xlen_t> CsrAccResult CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode);
+  template <typename Xlen_t> CsrAccResult CSRWrite       (Addr_t csr_addr, Xlen_t  data);
+  template <typename Xlen_t> CsrAccResult CSRWrite       (Addr_t csr_addr, Xlen_t  data, PrivMode mode);
 
   uint8_t EncodeRMField (uint8_t rm) {
     switch (rm) {
@@ -405,7 +417,16 @@ class RiscvPeThread : public EnvBase
   inline DWord_t  SExtXlen (DWord_t  hex) { return (hex << (64-GetBitModeInt())) >> (64-GetBitModeInt()); }
   inline UDWord_t UExtXlen (UDWord_t hex) { return (hex << (64-GetBitModeInt())) >> (64-GetBitModeInt()); }
 
-  RiscvPeThread (FILE *dbgfp, RiscvBitMode_t bit_mode, uint64_t misa, PrivMode maxpriv, bool en_stop_host, bool is_debug_trace, FILE *uart_fp, bool trace_hier, std::string trace_out);
+  RiscvPeThread (FILE *dbgfp,
+                 RiscvBitMode_t bit_mode,
+                 uint64_t       misa,
+                 PrivMode       maxpriv,
+                 bool           en_stop_host,
+                 bool           is_debug_trace,
+                 FILE           *uart_fp,
+                 bool           trace_hier,
+                 std::string    trace_out,
+                 bool           is_misa_writable);
   ~RiscvPeThread ();
 
   int32_t LoadBinary (std::string path_exec, std::string filename, bool is_load_dump);
@@ -422,6 +443,10 @@ class RiscvPeThread : public EnvBase
     UDWord_t misa;
     CSRReadNoTrace (SYSREG_ADDR_MISA, &misa, PrivMode::PrivMachine);
     return (misa & 0x04) != 0;
+  }
+
+  inline bool IsMisaWritable () {
+    return m_is_misa_writable;
   }
 
 };

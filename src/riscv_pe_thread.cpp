@@ -68,16 +68,20 @@ UDWord_t operator<<(UDWord_t L, IntCode R) {
  * create new RISCV simulation environment
  * \return RiscvPeThread structure (not formatted)
  */
-RiscvPeThread::RiscvPeThread (FILE *dbgfp,
+RiscvPeThread::RiscvPeThread (FILE           *dbgfp,
                               RiscvBitMode_t bit_mode,
-                              uint64_t misa,
-                              PrivMode maxpriv,
-                              bool en_stop_host,
-                              bool is_debug_trace,
-                              FILE *uart_fp,
-                              bool trace_hier,
-                              std::string trace_out)
-    : EnvBase (is_debug_trace, dbgfp, trace_hier, trace_out), m_bit_mode (bit_mode), m_en_stop_host(en_stop_host)
+                              uint64_t       misa,
+                              PrivMode       maxpriv,
+                              bool           en_stop_host,
+                              bool           is_debug_trace,
+                              FILE           *uart_fp,
+                              bool           trace_hier,
+                              std::string    trace_out,
+                              bool           is_misa_writable)
+    : EnvBase (is_debug_trace, dbgfp, trace_hier, trace_out),
+      m_bit_mode (bit_mode),
+      m_en_stop_host (en_stop_host),
+      m_is_misa_writable (is_misa_writable)
 {
   m_ptr_riscv_dec = new RiscvDec(this);
 
@@ -468,10 +472,10 @@ void RiscvPeThread::WriteGReg (RegAddr_t reg, T data)
  * \param env RISC-V environment
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data, PrivMode mode)
+CsrAccResult RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data, PrivMode mode)
 {
-  Xlen_t csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, mode);
-  if (csr_status == 0) {
+  CsrAccResult csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, mode);
+  if (csr_status == CsrAccResult::Normal) {
     if (IsDebugTrace() == true) {
       GetTrace()->RecordTrace (TraceType::CsrRead, csr_addr, *data);
     }
@@ -487,16 +491,16 @@ Xlen_t RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data, PrivMode mode)
  * \param env RISC-V environment
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data)
+CsrAccResult RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data)
 {
-  Xlen_t csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, GetPrivMode());
-  if (csr_status == 0) {
+  CsrAccResult result = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, GetPrivMode());
+  if (result == CsrAccResult::Normal) {
     if (IsDebugTrace() == true) {
       GetTrace()->RecordTrace (TraceType::CsrRead, csr_addr, *data);
     }
   }
 
-  return csr_status;
+  return result;
 }
 
 
@@ -506,11 +510,11 @@ Xlen_t RiscvPeThread::CSRRead (Addr_t csr_addr, Xlen_t *data)
  * \param env RISC-V environment
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data)
+CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data)
 {
-  Xlen_t csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, GetPrivMode());
+  CsrAccResult result = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, GetPrivMode());
 
-  return csr_status;
+  return result;
 }
 
 
@@ -520,9 +524,9 @@ Xlen_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data)
  * \param env RISC-V environment
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode)
+CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mode)
 {
-  Xlen_t csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, mode);
+  CsrAccResult csr_status = m_csr_env->Riscv_Read_CSR<Xlen_t> (csr_addr, data, mode);
 
   return csr_status;
 }
@@ -538,15 +542,16 @@ Xlen_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Xlen_t *data, PrivMode mo
  * \retval otherwise can be written
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRWrite (Addr_t csr_addr, Xlen_t data)
+CsrAccResult RiscvPeThread::CSRWrite (Addr_t csr_addr, Xlen_t data)
 {
-  if (m_csr_env->Riscv_Write_CSR<Xlen_t> (csr_addr, data, GetPrivMode()) != 0) {
-    return -1;
+  CsrAccResult result = m_csr_env->Riscv_Write_CSR<Xlen_t> (csr_addr, data, GetPrivMode());
+  if (result == CsrAccResult::PrivError) {
+    return CsrAccResult::PrivError;
   }
   if (IsDebugTrace() == true) {
     GetTrace()->RecordTrace (TraceType::CsrWrite, csr_addr, data);
   }
-  return 0;
+  return result;
 }
 
 
@@ -560,15 +565,16 @@ Xlen_t RiscvPeThread::CSRWrite (Addr_t csr_addr, Xlen_t data)
  * \retval otherwise can be written
  */
 template <typename Xlen_t>
-Xlen_t RiscvPeThread::CSRWrite (Addr_t csr_addr, Xlen_t data, PrivMode mode)
+CsrAccResult RiscvPeThread::CSRWrite (Addr_t csr_addr, Xlen_t data, PrivMode mode)
 {
-  if (m_csr_env->Riscv_Write_CSR<Xlen_t> (csr_addr, data, mode) != 0) {
-    return -1;
+  CsrAccResult result = m_csr_env->Riscv_Write_CSR<Xlen_t> (csr_addr, data, mode);
+  if (result == CsrAccResult::PrivError) {
+    return result;
   }
   if (IsDebugTrace() == true) {
     GetTrace()->RecordTrace (TraceType::CsrWrite, csr_addr, data);
   }
-  return 0;
+  return result;
 }
 
 
@@ -1507,33 +1513,33 @@ template MemResult RiscvPeThread::StoreToBus (Addr_t addr, UHWord_t data);
 template MemResult RiscvPeThread::StoreToBus (Addr_t addr, Byte_t   data);
 template MemResult RiscvPeThread::StoreToBus (Addr_t addr, UByte_t  data);
 
-template Word_t  RiscvPeThread::CSRWrite       (Addr_t csr_addr, Word_t  data);
-template Word_t  RiscvPeThread::CSRWrite       (Addr_t csr_addr, Word_t  data, PrivMode mode);
-template Word_t  RiscvPeThread::CSRRead        (Addr_t csr_addr, Word_t *data, PrivMode mode);
-template Word_t  RiscvPeThread::CSRRead        (Addr_t csr_addr, Word_t *data);
-template Word_t  RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Word_t *data);
-template Word_t  RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Word_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRWrite       (Addr_t csr_addr, Word_t  data);
+template CsrAccResult RiscvPeThread::CSRWrite       (Addr_t csr_addr, Word_t  data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead        (Addr_t csr_addr, Word_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead        (Addr_t csr_addr, Word_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Word_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, Word_t *data, PrivMode mode);
 
-template UWord_t RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UWord_t data);
-template UWord_t RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UWord_t data, PrivMode mode);
-template UWord_t RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UWord_t *data, PrivMode mode);
-template UWord_t RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UWord_t *data);
-template UWord_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UWord_t *data);
-template UWord_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UWord_t data);
+template CsrAccResult RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UWord_t data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UWord_t *data, PrivMode mode);
 
-template DWord_t  RiscvPeThread::CSRWrite       (Addr_t csr_addr, DWord_t data);
-template DWord_t  RiscvPeThread::CSRWrite       (Addr_t csr_addr, DWord_t data, PrivMode mode);
-template DWord_t  RiscvPeThread::CSRRead        (Addr_t csr_addr, DWord_t *data, PrivMode mode);
-template DWord_t  RiscvPeThread::CSRRead        (Addr_t csr_addr, DWord_t *data);
-template DWord_t  RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, DWord_t *data);
-template DWord_t  RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, DWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRWrite       (Addr_t csr_addr, DWord_t data);
+template CsrAccResult RiscvPeThread::CSRWrite       (Addr_t csr_addr, DWord_t data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead        (Addr_t csr_addr, DWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead        (Addr_t csr_addr, DWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, DWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, DWord_t *data, PrivMode mode);
 
-template UDWord_t RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UDWord_t data);
-template UDWord_t RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UDWord_t data, PrivMode mode);
-template UDWord_t RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UDWord_t *data, PrivMode mode);
-template UDWord_t RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UDWord_t *data);
-template UDWord_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UDWord_t *data);
-template UDWord_t RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UDWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UDWord_t data);
+template CsrAccResult RiscvPeThread::CSRWrite 		 (Addr_t csr_addr, UDWord_t data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UDWord_t *data, PrivMode mode);
+template CsrAccResult RiscvPeThread::CSRRead  		 (Addr_t csr_addr, UDWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UDWord_t *data);
+template CsrAccResult RiscvPeThread::CSRReadNoTrace (Addr_t csr_addr, UDWord_t *data, PrivMode mode);
 
 template void RiscvPeThread::GenerateException (ExceptCode code, Word_t tval);
 template void RiscvPeThread::GenerateException (ExceptCode code, UWord_t tval);

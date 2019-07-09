@@ -84,7 +84,7 @@ sysreg_rw_c_fp.printf("\n\n")
 if sysreg_type == 'Xlen_t' then
   sysreg_rw_c_fp.printf("template <typename Xlen_t>");
 end
-sysreg_rw_c_fp.printf("%s CsrEnv::%s_Read_CSR (Addr_t addr, %s *data, PrivMode mode)\n{\n", sysreg_type, arch_name, sysreg_type)
+sysreg_rw_c_fp.printf("CsrAccResult CsrEnv::%s_Read_CSR (Addr_t addr, %s *data, PrivMode mode)\n{\n", arch_name, sysreg_type)
 sysreg_rw_c_fp.printf("  switch (addr) {\n")
 
 $sysreg_table.each {|sysreg_info|
@@ -102,7 +102,7 @@ $sysreg_table.each {|sysreg_info|
 
 sysreg_rw_c_fp.printf("    default : Error_CSR_Read (addr); *data = 0x0;\n")
 sysreg_rw_c_fp.printf("  }\n")
-sysreg_rw_c_fp.printf("  return -1;\n")
+sysreg_rw_c_fp.printf("  return CsrAccResult::AddrError;\n")
 sysreg_rw_c_fp.printf("}\n")
 
 
@@ -115,7 +115,7 @@ sysreg_rw_c_fp.printf("\n\n")
 if sysreg_type == 'Xlen_t' then
   sysreg_rw_c_fp.printf("template <typename Xlen_t>")
 end
-sysreg_rw_c_fp.printf("%s CsrEnv::%s_Write_CSR (Addr_t addr, %s data, PrivMode mode)\n{\n", sysreg_type, arch_name, sysreg_type)
+sysreg_rw_c_fp.printf("CsrAccResult CsrEnv::%s_Write_CSR (Addr_t addr, %s data, PrivMode mode)\n{\n", arch_name, sysreg_type)
 sysreg_rw_c_fp.printf("  switch (addr) {\n")
 
 $sysreg_table.each {|sysreg_info|
@@ -133,7 +133,7 @@ $sysreg_table.each {|sysreg_info|
 
 sysreg_rw_c_fp.printf("    default : Error_CSR_Write (addr); break;\n")
 sysreg_rw_c_fp.printf("  }\n")
-sysreg_rw_c_fp.printf("  return -1;\n")
+sysreg_rw_c_fp.printf("  return CsrAccResult::AddrError;\n")
 sysreg_rw_c_fp.printf("}\n")
 
 sysreg_rw_c_fp.puts("\n\nvoid CsrEnv::Error_CSR_Read (Addr_t addr)\n{\n")
@@ -145,11 +145,11 @@ sysreg_rw_c_fp.puts("  m_pe_thread->DebugPrint (\"<Error: CSR Write Address \%03
 if sysreg_type == 'Xlen_t' then
   ["Word_t", "DWord_t", "UWord_t", "UDWord_t"].each {|type|
     sysreg_rw_c_fp.printf("template " \
-                          "%s CsrEnv::%s_Read_CSR  (Addr_t addr, %s *data, PrivMode mode);\n",
-                          type, arch_name, type)
+                          "CsrAccResult CsrEnv::%s_Read_CSR  (Addr_t addr, %s *data, PrivMode mode);\n",
+                          arch_name, type)
     sysreg_rw_c_fp.printf("template " \
-                          "%s CsrEnv::%s_Write_CSR (Addr_t addr, %s data,  PrivMode mode);\n",
-                          type, arch_name, type)
+                          "CsrAccResult CsrEnv::%s_Write_CSR (Addr_t addr, %s data,  PrivMode mode);\n",
+                          arch_name, type)
   }
 end
 
@@ -171,6 +171,7 @@ sysreg_impl_h_fp.printf("#include <string>\n")
 sysreg_impl_h_fp.printf("#include <stdint.h>\n")
 
 sysreg_impl_h_fp.printf("enum class PrivMode;\n")
+sysreg_impl_h_fp.printf("enum class CsrAccResult;\n")
 sysreg_impl_h_fp.printf("class %sPeThread;\n", arch_name.capitalize)
 sysreg_impl_h_fp.printf("class CsrEnv {\n")
 sysreg_impl_h_fp.printf(" private:\n")
@@ -240,16 +241,16 @@ $sysreg_table.each {|sysreg_info|
   if sysreg_type == 'Xlen_t' then
     sysreg_impl_h_fp.printf("  template <typename %s>", sysreg_type)
   end
-  sysreg_impl_h_fp.printf(" %s Read_%s (%s *data, PrivMode mode);\n",
-                          sysreg_type, sysreg_info[SYSREG::NAME].upcase, sysreg_type)
+  sysreg_impl_h_fp.printf(" CsrAccResult Read_%s (%s *data, PrivMode mode);\n",
+                          sysreg_info[SYSREG::NAME].upcase, sysreg_type)
 }
 
 $sysreg_table.each {|sysreg_info|
   if sysreg_type == 'Xlen_t' then
     sysreg_impl_h_fp.printf("  template <typename %s>", sysreg_type)
   end
-  sysreg_impl_h_fp.printf(" %s Write_%s (%s data, PrivMode mode);\n",
-                          sysreg_type, sysreg_info[SYSREG::NAME].upcase, sysreg_type)
+  sysreg_impl_h_fp.printf(" CsrAccResult Write_%s (%s data, PrivMode mode);\n",
+                          sysreg_info[SYSREG::NAME].upcase, sysreg_type)
 }
 
 sysreg_impl_h_fp.printf("public:\n\n")
@@ -259,13 +260,13 @@ sysreg_impl_h_fp.printf("  std::string GetCSRName (Addr_t addr);\n")
 if sysreg_type == 'Xlen_t' then
   sysreg_impl_h_fp.printf("  template <typename %s> ", sysreg_type)
 end
-sysreg_impl_h_fp.printf("%s %s_Read_CSR  (Addr_t addr, %s *data, PrivMode mode);\n",
-                        sysreg_type, arch_name, sysreg_type)
+sysreg_impl_h_fp.printf("CsrAccResult %s_Read_CSR  (Addr_t addr, %s *data, PrivMode mode);\n",
+                        arch_name, sysreg_type)
 if sysreg_type == 'Xlen_t' then
 sysreg_impl_h_fp.printf("  template <typename %s> ", sysreg_type)
 end
-sysreg_impl_h_fp.printf("%s %s_Write_CSR (Addr_t addr, %s data,  PrivMode mode);\n",
-                        sysreg_type, arch_name, sysreg_type)
+sysreg_impl_h_fp.printf("CsrAccResult %s_Write_CSR (Addr_t addr, %s data,  PrivMode mode);\n",
+                        arch_name, sysreg_type)
 
 # generate Read_Write Error methods for CSR
 
@@ -343,16 +344,16 @@ gen_header(sysreg_impl_template_fp)
 $sysreg_table.each {|sysreg_info|
   ["Word_t", "DWord_t", "UWord_t", "UDWord_t"].each {|type|
     sysreg_impl_template_fp.printf("template " \
-                                   " %s CsrEnv::Read_%s (%s *data, PrivMode mode);\n",
-                                   type, sysreg_info[SYSREG::NAME].upcase, type)
+                                   " CsrAccResult CsrEnv::Read_%s (%s *data, PrivMode mode);\n",
+                                   sysreg_info[SYSREG::NAME].upcase, type)
   }
 }
 
 $sysreg_table.each {|sysreg_info|
   ["Word_t", "DWord_t", "UWord_t", "UDWord_t"].each {|type|
     sysreg_impl_template_fp.printf("template " \
-                                   " %s CsrEnv::Write_%s (%s data, PrivMode mode);\n",
-                                   type, sysreg_info[SYSREG::NAME].upcase, type)
+                                   " CsrAccResult CsrEnv::Write_%s (%s data, PrivMode mode);\n",
+                                   sysreg_info[SYSREG::NAME].upcase, type)
   }
 }
 

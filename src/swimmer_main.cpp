@@ -95,6 +95,7 @@ int main (int argc, char *argv[])
   cmd_line.add<uint64_t>   ("logstart"       , '\0', "cycle of log start"                                      , false, 0 );
   cmd_line.add<uint64_t>   ("printstep"      , '\0', "print number of steps each cycle"                        , false, 0 );
   cmd_line.add<std::string>("signature"      , '\0', "Generate Signature and filename "                        , false, "");
+  cmd_line.add             ("protect-misa"   , '\0', "Protect to write MISA."                                             );
 
 #endif // defined ARCH_RISCV
 
@@ -144,10 +145,10 @@ int main (int argc, char *argv[])
 
   uint64_t misa_value = (1 << ('u' - 'a')) | (1 << ('s' - 'a'));
   for(size_t idx = 4; idx < arch_str.length(); idx++) {
-      if (arch_str[idx] == 'g') {
-          arch_str += "imafd";
-      }
-      misa_value |= 1 << (arch_str[idx] - 'a');
+    if (arch_str[idx] == 'g') {
+      arch_str += "imafd";
+    }
+    misa_value |= 1 << (arch_str[idx] - 'a');
   }
 
   bool is_trace_hier         = cmd_line.exist("trace-hier");
@@ -162,6 +163,11 @@ int main (int argc, char *argv[])
   std::string pyscr_filename = "";
   if (cmd_line.exist("py-scr")) {
     pyscr_filename = cmd_line.get<std::string>("py-scr");
+  }
+
+  bool is_misa_writable = true;
+  if (cmd_line.exist("protect-misa")) {
+    is_misa_writable = false;
   }
 
 #endif // defined ARCH_RISCV
@@ -219,7 +225,7 @@ int main (int argc, char *argv[])
   } else {
 
     if (is_cmd_hexfile || is_cmd_binfile) {
-      RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, misa_value, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str);
+      RiscvPeThread *m_chip = new RiscvPeThread (debug_fp, bit_mode, misa_value, PrivMode::PrivUser, is_stop_host, is_debug_trace, g_uart_fp, is_trace_hier, trace_hier_str, is_misa_writable);
 
       m_chip->SetPC (init_pc);
       m_chip->SetMaxCycle (max_sim_inst);
