@@ -199,10 +199,18 @@ RiscvPeThread::~RiscvPeThread ()
 MemResult RiscvPeThread::FetchMemory (Addr_t addr, Word_t *data)
 {
   Byte_t byte_data[4];
-  Addr_t phy_pc;
+  Addr_t phy_pc, phy_pc2;
   MemResult result = ConvertVirtualAddress (&phy_pc, addr, MemAccType::FetchMemType);
   if (result == MemResult::MemTlbError) {
     return result;
+  }
+
+  if (addr & 0x2) {
+    // HalfWord Fetch
+    MemResult result = ConvertVirtualAddress (&phy_pc2, addr + 2, MemAccType::FetchMemType);
+    if (result == MemResult::MemTlbError) {
+      return result;
+    }
   }
 
   UpdateL1Icache (phy_pc);
@@ -211,8 +219,8 @@ MemResult RiscvPeThread::FetchMemory (Addr_t addr, Word_t *data)
 
   if (addr & 0x2) {
     // HalfWord Fetch
-    result = LoadMemHWord (phy_pc + 0, &byte_data[0]);
-    result = LoadMemHWord (phy_pc + 2, &byte_data[2]);
+    result = LoadMemHWord (phy_pc , &byte_data[0]);
+    result = LoadMemHWord (phy_pc2, &byte_data[2]);
   } else {
     // Word Fetch
     result = LoadMemWord (phy_pc, byte_data);
@@ -1177,16 +1185,22 @@ MemResult RiscvPeThread::WalkPageTable (Addr_t *paddr, Addr_t vaddr, MemAccType 
     Addr_t va_vpn_i = (vaddr >> vpn_idx[level]) & ((1 << vpn_len[level]) - 1);
     pte_addr += (va_vpn_i * PTESIZE);
 
+    MemResult mem_result;
     if (m_bit_mode == RiscvBitMode_t::Bit64) {
-      LoadMemoryDebug<UDWord_t> (pte_addr, &pte_val);
+      mem_result = LoadMemoryDebug<UDWord_t> (pte_addr, &pte_val);
     } else {
       pte_addr &= 0x0FFFFFFFFULL;
       Word_t pte_val_word;
-      LoadMemoryDebug<Word_t> (pte_addr, &pte_val_word);
+      mem_result = LoadMemoryDebug<Word_t> (pte_addr, &pte_val_word);
       pte_val = pte_val_word;
     }
 
     DebugPrint ("<Info: VAddr = 0x%016lx PTEAddr = 0x%016x : PPTE = 0x%016x>\n", vaddr, pte_addr, pte_val);
+
+    if (mem_result == MemResult::MemNotDefined) {
+      GenerateException (ExceptCode::Except_LoadAccessFault, vaddr);
+      return mem_result;
+    }
 
     // 3. If pte:v = 0, or if pte:r = 0 and pte:w = 1, stop and raise a page-fault exception.
     if ((pte_val & 0x01) == 0 ||
