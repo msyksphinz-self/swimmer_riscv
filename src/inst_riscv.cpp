@@ -363,6 +363,10 @@ void InstEnv::RISCV_INST_LB (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   Word_t res_word = ExtendSign (res, 7);
 
@@ -388,6 +392,10 @@ void InstEnv::RISCV_INST_LH (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -418,6 +426,10 @@ void InstEnv::RISCV_INST_LW (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteGReg (rd_addr, res);
 }
@@ -441,6 +453,10 @@ void InstEnv::RISCV_INST_LBU (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -467,6 +483,10 @@ void InstEnv::RISCV_INST_LHU (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -496,6 +516,10 @@ void InstEnv::RISCV_INST_SB (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
 }
 
@@ -521,6 +545,10 @@ void InstEnv::RISCV_INST_SH (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 }
 
 
@@ -542,6 +570,10 @@ void InstEnv::RISCV_INST_SW (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -859,6 +891,10 @@ void InstEnv::RISCV_INST_LR_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->SetLoadReservation(mem_addr);
   m_pe_thread->WriteGReg (rd_addr, res);
@@ -891,6 +927,10 @@ void InstEnv::RISCV_INST_SC_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
   m_pe_thread->WriteGReg<Word_t> (rd_addr, 0x0);
 
   m_pe_thread->ClearLoadReservation();
@@ -918,6 +958,10 @@ void InstEnv::RISCV_INST_AMOSWAP_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   except = m_pe_thread->StoreToBus (mem_addr, rs2_val);
   if (except == MemResult::MemMisAlign) {
@@ -926,6 +970,10 @@ void InstEnv::RISCV_INST_AMOSWAP_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -954,6 +1002,10 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = mem + rs2_val;
 
@@ -964,6 +1016,10 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -992,6 +1048,10 @@ void InstEnv::RISCV_INST_AMOXOR_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = mem ^ rs2_val;
 
@@ -1002,6 +1062,10 @@ void InstEnv::RISCV_INST_AMOXOR_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1031,6 +1095,10 @@ void InstEnv::RISCV_INST_AMOAND_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = mem & rs2_val;
 
@@ -1041,6 +1109,10 @@ void InstEnv::RISCV_INST_AMOAND_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1070,6 +1142,10 @@ void InstEnv::RISCV_INST_AMOOR_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = mem | rs2_val;
 
@@ -1080,6 +1156,10 @@ void InstEnv::RISCV_INST_AMOOR_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1109,6 +1189,10 @@ void InstEnv::RISCV_INST_AMOMIN_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = (mem < rs2_val) ? mem : rs2_val;
 
@@ -1119,6 +1203,10 @@ void InstEnv::RISCV_INST_AMOMIN_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1148,6 +1236,10 @@ void InstEnv::RISCV_INST_AMOMAX_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   Word_t ret = (mem < rs2_val) ? rs2_val : mem;
 
@@ -1158,6 +1250,10 @@ void InstEnv::RISCV_INST_AMOMAX_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1187,6 +1283,10 @@ void InstEnv::RISCV_INST_AMOMINU_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   UWord_t mem_u = static_cast<UWord_t>(mem);
   UWord_t ret = (mem_u < rs2_val) ? mem_u : rs2_val;
@@ -1198,6 +1298,10 @@ void InstEnv::RISCV_INST_AMOMINU_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1227,6 +1331,10 @@ void InstEnv::RISCV_INST_AMOMAXU_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
   UWord_t mem_u = static_cast<UWord_t>(mem);
   UWord_t ret = (mem_u < rs2_val) ? rs2_val : mem_u;
@@ -1238,6 +1346,10 @@ void InstEnv::RISCV_INST_AMOMAXU_W (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -1270,6 +1382,10 @@ void InstEnv::RISCV_INST_FLW (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   UDWord_t res_64= static_cast<UDWord_t>(res) | 0xffffffff00000000ULL;
   m_pe_thread->WriteFReg<UDWord_t> (rd_addr, res_64);
@@ -1299,6 +1415,10 @@ void InstEnv::RISCV_INST_FSW (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -1440,6 +1560,10 @@ void InstEnv::RISCV_INST_FLD (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
 
@@ -1471,6 +1595,10 @@ void InstEnv::RISCV_INST_FSD (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -2057,6 +2185,10 @@ void InstEnv::RISCV_INST_LWU (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteGReg (rd_addr, res);
 }
@@ -2084,6 +2216,10 @@ void InstEnv::RISCV_INST_LD (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -2115,6 +2251,10 @@ void InstEnv::RISCV_INST_SD (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -2339,6 +2479,11 @@ void InstEnv::RISCV_INST_LR_D (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
+
   m_pe_thread->SetLoadReservation(mem_addr);
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
@@ -2375,6 +2520,10 @@ void InstEnv::RISCV_INST_SC_D (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, 0x0);
 }
 
@@ -2393,11 +2542,15 @@ void InstEnv::RISCV_INST_AMOSWAP_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2408,6 +2561,10 @@ void InstEnv::RISCV_INST_AMOSWAP_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
   m_pe_thread->WriteGReg (rd_addr, mem);
@@ -2428,11 +2585,15 @@ void InstEnv::RISCV_INST_AMOADD_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2466,11 +2627,15 @@ void InstEnv::RISCV_INST_AMOXOR_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2483,6 +2648,10 @@ void InstEnv::RISCV_INST_AMOXOR_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2504,11 +2673,15 @@ void InstEnv::RISCV_INST_AMOAND_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2521,6 +2694,10 @@ void InstEnv::RISCV_INST_AMOAND_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2542,11 +2719,15 @@ void InstEnv::RISCV_INST_AMOOR_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2559,6 +2740,10 @@ void InstEnv::RISCV_INST_AMOOR_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2580,11 +2765,15 @@ void InstEnv::RISCV_INST_AMOMIN_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2597,6 +2786,10 @@ void InstEnv::RISCV_INST_AMOMIN_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2618,11 +2811,15 @@ void InstEnv::RISCV_INST_AMOMAX_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2635,6 +2832,10 @@ void InstEnv::RISCV_INST_AMOMAX_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2656,11 +2857,15 @@ void InstEnv::RISCV_INST_AMOMINU_D (InstWord_t inst_hex)
   DWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2674,6 +2879,10 @@ void InstEnv::RISCV_INST_AMOMINU_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2695,11 +2904,15 @@ void InstEnv::RISCV_INST_AMOMAXU_D (InstWord_t inst_hex)
   UDWord_t mem;
   except = m_pe_thread->LoadFromBus (mem_addr, &mem);
   if (except == MemResult::MemMisAlign) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadAddrMisalign, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAddrMisalign, mem_addr);
     return;
   }
   if (except == MemResult::MemTlbError) {
-    m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2712,6 +2925,10 @@ void InstEnv::RISCV_INST_AMOMAXU_D (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 
@@ -2904,6 +3121,10 @@ void InstEnv::RISCV_INST_C_FLD (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteFReg<DWord_t> (rd_addr, res);
 }
@@ -2927,6 +3148,10 @@ void InstEnv::RISCV_INST_C_LD (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -2955,6 +3180,10 @@ void InstEnv::RISCV_INST_C_LW (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteGReg<Word_t> (rd_addr, res_32);
 }
@@ -2979,6 +3208,10 @@ void InstEnv::RISCV_INST_C_FLW (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -3008,6 +3241,10 @@ void InstEnv::RISCV_INST_C_SW (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 }
 
 
@@ -3032,6 +3269,10 @@ void InstEnv::RISCV_INST_C_FSW (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 
 }
 
@@ -3054,6 +3295,10 @@ void InstEnv::RISCV_INST_C_SD (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -3388,6 +3633,10 @@ void InstEnv::RISCV_INST_C_FLDSP (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteFReg<Word_t> (rd_addr, res_32);
 }
@@ -3413,6 +3662,10 @@ void InstEnv::RISCV_INST_C_LWSP (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteGReg<Word_t> (rd_addr, res_32);
 }
@@ -3436,6 +3689,10 @@ void InstEnv::RISCV_INST_C_FLWSP (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
     return;
   }
 
@@ -3516,6 +3773,10 @@ void InstEnv::RISCV_INST_C_SWSP (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+    return;
+  }
 }
 
 
@@ -3536,6 +3797,10 @@ void InstEnv::RISCV_INST_C_FSWSP (InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }
@@ -3560,6 +3825,10 @@ void InstEnv::RISCV_INST_C_LDSP(InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_LoadPageFault, mem_addr);
     return;
   }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_LoadAccessFault, mem_addr);
+    return;
+  }
 
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
@@ -3582,6 +3851,10 @@ void InstEnv::RISCV_INST_C_SDSP(InstWord_t inst_hex)
   }
   if (except == MemResult::MemTlbError) {
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
+    return;
+  }
+  if (except == MemResult::MemNotDefined) {
+    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
     return;
   }
 }

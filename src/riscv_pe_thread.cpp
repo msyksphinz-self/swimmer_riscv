@@ -282,6 +282,8 @@ ExecStatus RiscvPeThread::StepExec (bool is_resume_break)
 
   if (fetch_res == MemResult::MemNotDefined) {
     DebugPrint ("<Info: Memory 0x%08x is not defined.>\n", fetch_pc);
+    GenerateException (ExceptCode::Except_InstAccessFault, inst_hex);
+    return ExecStatus::ExecIllegal;
   }
 
   if (fetch_res == MemResult::MemTlbError) {
