@@ -1028,15 +1028,15 @@ CsrAccResult CsrEnv::Read_MISA (Xlen_t *data, PrivMode mode)
   return CsrAccResult::Normal;
 }
 template <typename Xlen_t>
-CsrAccResult CsrEnv::Read_MARCHID (Xlen_t *data, PrivMode mode) { return CsrAccResult::Normal; }
+CsrAccResult CsrEnv::Read_MARCHID (Xlen_t *data, PrivMode mode) { *data = 0x0; return CsrAccResult::Normal; }
 template <typename Xlen_t>
-CsrAccResult CsrEnv::Read_MVENDORID (Xlen_t *data, PrivMode mode) { return CsrAccResult::Normal; }
+CsrAccResult CsrEnv::Read_MVENDORID (Xlen_t *data, PrivMode mode) { *data = 0x0; return CsrAccResult::Normal; }
 template <typename Xlen_t>
-CsrAccResult CsrEnv::Read_HPTBR (Xlen_t *data, PrivMode mode) { return CsrAccResult::Normal; }
+CsrAccResult CsrEnv::Read_HPTBR (Xlen_t *data, PrivMode mode) { *data = 0x0; return CsrAccResult::Normal; }
 template <typename Xlen_t>
-CsrAccResult CsrEnv::Read_HIDELEG (Xlen_t *data, PrivMode mode) { return CsrAccResult::Normal; }
+CsrAccResult CsrEnv::Read_HIDELEG (Xlen_t *data, PrivMode mode) { *data = 0x0; return CsrAccResult::Normal; }
 template <typename Xlen_t>
-CsrAccResult CsrEnv::Read_MCYCLE (Xlen_t *data, PrivMode mode) { return CsrAccResult::Normal; }
+CsrAccResult CsrEnv::Read_MCYCLE (Xlen_t *data, PrivMode mode) { *data = 0x0; return CsrAccResult::Normal; }
 
 template <typename Xlen_t>
 CsrAccResult CsrEnv::Read_SIDELEG (Xlen_t *data, PrivMode mode)
