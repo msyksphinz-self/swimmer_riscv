@@ -117,7 +117,9 @@ int32_t RiscvPeThread::LoadBinary (std::string path_exec, std::string filename, 
       dtb_path_buf[bytes] = '\0';
 
     std::string dtb_path_str = dtb_path_buf;
-    std::string dtb_path_str_replace = std::regex_replace(dtb_path_str, std::regex("/[^/]+$"), "/riscv64.dtb");
+    int slash_pos = dtb_path_str.rfind("/");
+    std::string dtb_path_str_dir = dtb_path_str.substr(0, slash_pos);
+    std::string dtb_path_str_replace = dtb_path_str_dir + "/riscv64.dtb";
 
     FILE *dtb_fp;
     if ((dtb_fp = fopen(dtb_path_str_replace.c_str(), "r")) == NULL) {
