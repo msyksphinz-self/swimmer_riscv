@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 cmake_policy(SET CMP0015 NEW) # link_directories() relative path support
 
 project (swimmer_riscv)
