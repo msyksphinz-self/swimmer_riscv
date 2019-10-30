@@ -11,7 +11,8 @@ compile_options = []
 compile_options = compile_options + ["-DARCH_RISCV"]
 compile_options = compile_options + ["-I../vendor/cmdline/"]
 compile_options = compile_options + ["-I../vendor/softfloat/SoftFloat-3d/source/include/"]
-compile_options = compile_options + ["-I."]
+compile_options = compile_options + ["-I../"]
+compile_options = compile_options + ["-I./"]
 compile_options = compile_options + ["-std=c++0x -fPIC"]
 compile_options = compile_options + [python_cflag]
 
@@ -19,6 +20,18 @@ link_options = []
 link_options = [python_ldflag]
 
 link_libs = ["-lbfd", "-lpython3.6m", "-lgmp", "-lgmpxx"]
+
+make_target :gen_riscv_arch_info do
+  depends ["../script/gen_arch_table.rb", "../script/gen_decode_table.rb", "../script/gen_operand_table.rb", "../script/gen_inst_mnemonic.rb", "riscv_arch_table.rb"]
+  executes ["cd ../src && ruby -I../script/ ../script/gen_arch_table.rb riscv"]
+end
+
+
+make_target :gen_riscv_csr_info do
+  depends ["../script/gen_sysreg_table.rb",  "./riscv_spr_table.rb"]
+  executes ["cd ../src && ruby -I../script/ ../script/gen_sysreg_table.rb riscv"]
+end
+
 
 cedar_cpp_lists = [
   "../src/riscv_pe_thread.cpp",
@@ -48,7 +61,7 @@ cedar_cpp_lists = [
 c_options = compile_options.join(' ').to_s
 l_options = link_options.join(' ').to_s
 
-make_library "libriscv_cedar.a", cedar_cpp_lists, compile_options, []
+make_library "libriscv_cedar.a", cedar_cpp_lists, compile_options, [], [:gen_riscv_arch_info, :gen_riscv_csr_info]
 
 make_target :config_hpp do
   executes ["sed 's/@VERSION@/#{build_date}/g' config.h.in |
@@ -65,7 +78,8 @@ swimmer_cpp_lists = [
 
 make_execute("swimmer_riscv", swimmer_cpp_lists, ["libriscv_cedar.a", "../vendor/softfloat/build/libsoftfloat.a"],
              compile_options, link_options,
-             link_libs)
+             link_libs,
+             [:config_hpp])
 
 if ARGV.length == 0 then
   exec_target "swimmer_riscv"
