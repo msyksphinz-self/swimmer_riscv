@@ -1,0 +1,14 @@
+# Object Files
+*.o
+
+# Binary / Library
+swimmer_riscv
+libriscv_cedar.a
+libsoftfloat.a
+
+# CMake
+CMakeFiles
+Makefile
+CMakeCache.txt
+cmake_build.log
+cmake_install.cmake

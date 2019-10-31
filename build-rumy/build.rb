@@ -75,8 +75,9 @@ swimmer_cpp_lists = [
   "../src/python3_env.cpp"
 ]
 
+external_target "../vendor/softfloat/build-rumy/libsoftfloat.a", "../vendor/softfloat/build-rumy/"
 
-make_execute("swimmer_riscv", swimmer_cpp_lists, ["libriscv_cedar.a", "../vendor/softfloat/build/libsoftfloat.a"],
+make_execute("swimmer_riscv", swimmer_cpp_lists, ["libriscv_cedar.a", "../vendor/softfloat/build-rumy/libsoftfloat.a"],
              compile_options, link_options,
              link_libs,
              [:config_hpp])
