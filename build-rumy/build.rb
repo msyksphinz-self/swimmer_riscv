@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 
+load "msyksphinz_env.rb"
 load "rumy-cpp.rb"
 
 python_cflag  = `python3.6m-config --cflags`.sub("\n", "")
