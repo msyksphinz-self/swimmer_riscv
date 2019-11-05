@@ -1,0 +1,35 @@
+- "libriscv_cedar.a" :
+  - src_lists :
+    - "../src/riscv_pe_thread.cpp"
+    - "../src/riscv_syscall.cpp"
+    - "../src/riscv_fds.cpp"
+    - "../src/riscv_clint.cpp"
+    - "../src/env.cpp"
+    - "../src/inst_category_riscv.cpp"
+    - "../src/trace.cpp"
+    - "../src/inst_print_riscv.cpp"
+    - "../src/inst_mnemonic_riscv.cpp"
+    - "../src/inst_riscv_init.cpp"
+    - "../src/inst_decoder_riscv.cpp"
+    - "../src/inst_riscv.cpp"
+    - "../src/inst_ops_riscv.cpp"
+    - "../src/inst_operand_riscv.cpp"
+    - "../src/dec_utils_riscv.cpp"
+    - "../src/riscv_sysreg_rw.cpp"
+    - "../src/riscv_sysreg_impl.cpp"
+    - "../src/riscv_sysreg_str.cpp"
+    - "../src/riscv_page_table.cpp"
+    - "../src/memory_block.cpp"
+    - "../src/mem_body.cpp"
+    - "../src/gdb_env.cpp"
+  - compile_options :
+    - "-DARCH_RISCV"
+    - "-I../vendor/cmdline/"
+    - "-I../vendor/softfloat/SoftFloat-3d/source/include/"
+    - "-I../"
+    - "-I./"
+    - "-std=c++0x"
+    - "-fPIC"
+  - depends :
+    - gen_riscv_arch_info
+    - gen_riscv_csr_info
