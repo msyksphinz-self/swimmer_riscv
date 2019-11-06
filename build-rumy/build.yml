@@ -1,4 +1,60 @@
+- top :
+   - "swimmer_riscv"
+
+- "swimmer_riscv" :
+  - type :
+    - "bin"
+  - src_lists :
+    - "../src/swimmer_main.cpp"
+    - "../src/swimmer_util.cpp"
+    - "../src/riscv_bfd_env.cpp"
+    - "../src/python3_env.cpp"
+  - compile_options :
+    - "-DARCH_RISCV"
+    - "-I../vendor/cmdline/"
+    - "-I../vendor/softfloat/SoftFloat-3d/source/include/"
+    - "-I../"
+    - "-I./"
+    - "-std=c++0x"
+    - "-fPIC"
+    - "-I/usr/include/python3.6m"
+    - "-Wno-unused-result"
+    - "-Wsign-compare"
+    - "-g"
+    - "-fdebug-prefix-map=/build/python3.6-tym8xC/python3.6-3.6.8=."
+    - "-specs=/usr/share/dpkg/no-pie-compile.specs"
+    - "-fstack-protector"
+    - "-Wformat"
+    - "-Werror=format-security"
+    - "-DNDEBUG"
+    - "-g"
+    - "-fwrapv"
+    - "-O3"
+    - "-Wall"
+  - link_options :
+    - "-L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu"
+    - "-L/usr/lib"
+    - "-lpython3.6m"
+    - "-lpthread"
+    - "-ldl"
+    - "-lutil"
+    - "-lm"
+    - "-Xlinker"
+    - "-export-dynamic"
+    - "-Wl,-O1"
+    - "-Wl,-Bsymbolic-functions"
+  - link_libs :
+    - "-lbfd"
+    - "-lpython3.6m"
+    - "-lgmp"
+    - "-lgmpxx"
+  - lib_lists :
+    - "libriscv_cedar.a"
+    - "../vendor/softfloat/build-rumy/libsoftfloat.a"
+
 - "libriscv_cedar.a" :
+  - type :
+    - "lib"
   - src_lists :
     - "../src/riscv_pe_thread.cpp"
     - "../src/riscv_syscall.cpp"
