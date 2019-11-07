@@ -1,6 +1,33 @@
 - top :
    - "swimmer_riscv"
 
+- gen_riscv_arch_info :
+  - type :
+    - "custom"
+  - depends :
+    - "../script/gen_arch_table.rb"
+    - "../script/gen_decode_table.rb"
+    - "../script/gen_operand_table.rb"
+    - "../script/gen_inst_mnemonic.rb"
+    - "riscv_arch_table.rb"
+  - executes :
+    - "cd ../src && ruby -I../script/ ../script/gen_arch_table.rb riscv"
+
+- config_hpp :
+  - type :
+    - "custom"
+  - executes :
+    - "sed 's/@VERSION@/#{build_date}/g' config.h.in | sed 's/@REVISION@/#{build_version}/g' > config.hpp"
+
+- gen_riscv_csr_info :
+  - type :
+    - "custom"
+  - depends :
+    - "../script/gen_sysreg_table.rb"
+    - "./riscv_spr_table.rb"
+  - executes :
+    - "cd ../src && ruby -I../script/ ../script/gen_sysreg_table.rb riscv"
+
 - "swimmer_riscv" :
   - type :
     - "bin"
@@ -51,6 +78,8 @@
   - lib_lists :
     - "libriscv_cedar.a"
     - "../vendor/softfloat/build-rumy/libsoftfloat.a"
+  - depends :
+    - config_hpp
 
 - "libriscv_cedar.a" :
   - type :
