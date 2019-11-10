@@ -83,12 +83,7 @@ make_execute("swimmer_riscv", swimmer_cpp_lists, ["libriscv_cedar.a", "../vendor
              link_libs,
              [:config_hpp])
 
-if ARGV.length == 0 then
-  exec_target "swimmer_riscv"
-elsif ARGV[0] == "clean" then
-  clean_target "swimmer_riscv"
-elsif ARGV[0] == "draw" then
-  draw_target "swimmer_riscv"
-else
-  instance_eval("exec_target ARGV[0]")
+make_target :all do
+  global
+  depends ["swimmer_riscv"]
 end
