@@ -4,6 +4,22 @@ load "rumy-test.rb"
 
 target   = "./swimmer_riscv"
 opts     = "--init_pc 0x80000000 --debug --stop-host --max 50000"
-bit_mode = 32
 
-add_test :rv32ui_p_simple, "#{target} #{opts} --arch rv#{bit_mode}imafdc --binfile /home/masayuki/work/riscv/riscv-tools/riscv-tests/isa/rv32ui-p-simple"
+isa_dir = ENV["RISCV"] + "/riscv64-unknown-elf/share/riscv-tests/isa"
+
+test_pats = Array.new
+dir = Dir.open(isa_dir)
+dir.each {|file|
+  if not file.include?(".dump") then
+    test_pats.push(file)
+  end
+}
+
+test_pats.each{|pat|
+  if pat.include?("rv64") then
+    arch = "rv64imafdc"
+  else
+    arch = "rv32imafdc"
+  end
+  add_test pat, "#{target} #{opts} --arch #{arch} --binfile #{isa_dir}/#{pat}", "#{pat}.log"
+}
