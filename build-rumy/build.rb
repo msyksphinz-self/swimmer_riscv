@@ -78,10 +78,15 @@ swimmer_cpp_lists = [
 
 external_target "../vendor/softfloat/build-rumy/libsoftfloat.a", "../vendor/softfloat/build-rumy/"
 
+make_target "riscv64.dtb" do
+  executes ["dtc -I dts -O dtb -o riscv64.dtb riscv64.dts"]
+  depends ["riscv64.dts"]
+end
+
 make_execute("swimmer_riscv", swimmer_cpp_lists, ["libriscv_cedar.a", "../vendor/softfloat/build-rumy/libsoftfloat.a"],
              compile_options, link_options,
              link_libs,
-             [:config_hpp])
+             [:config_hpp, "riscv64.dtb"])
 
 make_target :all do
   global
