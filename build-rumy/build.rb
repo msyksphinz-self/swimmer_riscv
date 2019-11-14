@@ -67,6 +67,7 @@ make_library "libriscv_cedar.a", cedar_cpp_lists, compile_options, [], [:gen_ris
 make_target :config_hpp do
   executes ["sed 's/@VERSION@/#{build_date}/g' config.h.in |
              sed 's/@REVISION@/#{build_version}/g' > config.hpp"]
+  depends ["config.h.in"]
 end
 
 swimmer_cpp_lists = [
