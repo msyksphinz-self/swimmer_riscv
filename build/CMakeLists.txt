@@ -10,15 +10,15 @@ execute_process (COMMAND git rev-parse --short HEAD OUTPUT_VARIABLE CMAKE_REVISI
 
 option (USE_PERF "Use Google Profiler" OFF)
 
-# set(CMAKE_VERBOSE_MAKEFILE true)
+set(CMAKE_VERBOSE_MAKEFILE true)
 
 # Add Python Option
-execute_process(COMMAND python3.6m-config --cflags
+execute_process(COMMAND pkg-config --cflags python3
     RESULT_VARIABLE _RETVAL
     OUTPUT_VARIABLE PYTHON_CFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-execute_process(COMMAND python3.6m-config --ldflags
+execute_process(COMMAND pkg-config --libs python3
     RESULT_VARIABLE _RETVAL
     OUTPUT_VARIABLE PYTHON_LDFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -36,7 +36,7 @@ set (CMAKE_LD_FLAGS  "${CMAKE_LD_FLAGS}  -std=c++0x -fpic")
 
 set (CMAKE_C_FLAGS   "      ${CMAKE_C_FLAGS}   ${PYTHON_CFLAGS} ")
 set (CMAKE_CXX_FLAGS "      ${CMAKE_CXX_FLAGS} ${PYTHON_CFLAGS} ")
-set (CMAKE_EXE_LINKER_FLAGS ${PYTHON_LDFLAGS})
+set (CMAKE_EXE_LINKER_FLAGS "${PYTHON_LDFLAGS} -ldl -lutil")
 
 include_directories ("../vendor/cmdline/")
 include_directories ($ENV{RISCV}/include/fesvr/)
@@ -110,6 +110,8 @@ target_link_libraries (swimmer_riscv riscv_cedar)
 target_link_libraries (swimmer_riscv ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries (swimmer_riscv bfd)
 target_link_libraries (swimmer_riscv python3.6m)
+target_link_libraries (swimmer_riscv dl)
+target_link_libraries (swimmer_riscv util)
 
 # Device Tree
 
