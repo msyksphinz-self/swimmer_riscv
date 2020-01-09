@@ -129,6 +129,17 @@ enum class CsrAccResult {
   IgnoreWrite = 3
 };
 
+enum class RvvSEW {
+  SEW_8BIT    = 0,
+  SEW_16BIT   = 1,
+  SEW_32BIT   = 2,
+  SEW_64BIT   = 3,
+  SEW_128BIT  = 4,
+  SEW_256BIT  = 5,
+  SEW_512BIT  = 6,
+  SEW_1024BIT = 7
+};
+
 
 class RiscvDec;
 
@@ -257,7 +268,23 @@ class RiscvPeThread : public EnvBase
   bool m_cpu_wait = false;
   uint64_t m_count_timer = 0;
 
+
+  /*
+   * Vector Constant Parameters
+   */
+  const int32_t RVV_ELEN = 32;  // The maximum size of a single vector element in bits, ELEN, which must be a power of 2.
+  const int32_t RVV_VLEN = 512; // The number of bits in a vector register, VLEN ≥ ELEN, which must be a power of 2.
+  const int32_t RVV_SLEN = 32;  // The striping distance in bits, SLEN, which must be VLEN ≥ SLEN ≥ 32, and which must be a power of 2.
+
+  uint8_t m_rvv_vediv = 1;
+  RvvSEW  m_rvv_vsew  = RvvSEW::SEW_8BIT;
+  uint8_t m_rvv_vlmul = 0;
+
  public:
+  int32_t get_ELEN() { return RVV_ELEN; }
+  int32_t get_VLEN() { return RVV_VLEN; }
+  int32_t get_SLEN() { return RVV_SLEN; }
+
   void PrintInst (uint32_t inst_hex, InstId_t inst_idx,
                   char *str_out, const uint32_t length);
 
@@ -328,6 +355,12 @@ class RiscvPeThread : public EnvBase
     CSRReadNoTrace (SYSREG_ADDR_MSTATUS, &mstatus, PrivMode::PrivMachine);
     uint8_t fs = ExtractBitField (mstatus, SYSREG_MSTATUS_FS_MSB, SYSREG_MSTATUS_FS_LSB);
     return (fs != 0);
+  }
+
+  inline bool IsVECAvailable () {
+    UDWord_t mstatus;
+    CSRReadNoTrace (SYSREG_ADDR_MSTATUS, &mstatus, PrivMode::PrivMachine);
+    return ExtractBitField (mstatus, 'V'-'A', 'V'-'A');
   }
 
   std::string PrintPrivMode(PrivMode priv) {

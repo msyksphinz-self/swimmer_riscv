@@ -57,6 +57,10 @@ $sysreg_table.push(Array[0x000,  'SRW',     'ustatus'      , Array[Array[xlen-1,
 $sysreg_table.push(Array[0x004,  'SRW',     'uie'          , Array[Array[xlen-1, 0, 'uie'           , 'RW', 0]]])
 $sysreg_table.push(Array[0x005,  'SRW',     'utvec'        , Array[Array[xlen-1, 0, 'utvec'         , 'RW', 0]]])
 
+$sysreg_table.push(Array[0x008,  'URW',     'vstart'       , Array[Array[xlen-1, 0, 'vstart'        , 'RW', 0]]])
+$sysreg_table.push(Array[0x009,  'URW',     'vxsat'        , Array[Array[xlen-1, 0, 'vxsat'         , 'RW', 0]]])
+$sysreg_table.push(Array[0x00A,  'URW',     'vxrm'         , Array[Array[xlen-1, 0, 'vxrm'          , 'RW', 0]]])
+
 $sysreg_table.push(Array[0x040,  'SRW',     'uscratch'     , Array[Array[xlen-1, 0, 'uscratch'      , 'RW', 0]]])
 $sysreg_table.push(Array[0x041,  'SRW',     'uepc'         , Array[Array[xlen-1, 0, 'uepc'          , 'RW', 0]]])
 $sysreg_table.push(Array[0x042,  'SRO',     'ucause'       , Array[Array[xlen-1, 0, 'ucause'        , 'RW', 0]]])
@@ -375,6 +379,14 @@ $sysreg_table.push(Array[0x7a1,  'MRW',     'tdata1'  , Array[Array[xlen-1,  xle
                                                              ]])
 $sysreg_table.push(Array[0x7a2,  'MRW',     'tdata2'  , Array[Array[xlen-1, 0, 'tdata2'  , 'RW', 0]]])
 $sysreg_table.push(Array[0x7a3,  'MRW',     'tdata3'  , Array[Array[xlen-1, 0, 'tdata3'  , 'RW', 0]]])
+
+$sysreg_table.push(Array[0xC20, 'URO', 'vl',    Array[Array[xlen-1, 0, 'vl',    'RO', 0]]])
+$sysreg_table.push(Array[0xC21, 'URO', 'vtype', Array[Array[xlen-1, xlen-1, 'vill', 'RO', 0],
+                                                      Array[6, 5, 'vediv', 'RO', 0],
+                                                      Array[4, 2, 'vsew',  'RO', 0],
+                                                      Array[1, 0, 'vlmul', 'RO', 0]]])
+$sysreg_table.push(Array[0xC22, 'URO', 'vlenb', Array[Array[xlen-1, 0, 'vlenb', 'RO', 0]]])
+
 
 # $sysreg_table.push(Array[0x7b0,  'MRW',     'dcsr'      , Array[Array[xlen-1, 0, 'dcsr'      , 'RW', 0]]])
 # $sysreg_table.push(Array[0x7b1,  'MRW',     'dpc'       , Array[Array[xlen-1, 0, 'dpc'       , 'RW', 0]]])

@@ -80,6 +80,7 @@ add_library (riscv_cedar
   ../src/inst_riscv_init.cpp
   ../src/inst_decoder_riscv.cpp
   ../src/inst_riscv.cpp
+  ../src/inst_riscv_vector.cpp
   ../src/inst_ops_riscv.cpp
   ../src/inst_operand_riscv.cpp
   ../src/dec_utils_riscv.cpp

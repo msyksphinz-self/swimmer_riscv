@@ -52,6 +52,27 @@ CsrAccResult CsrEnv::Read_UTVEC (Xlen_t *data, PrivMode mode)
 
 
 template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VSTART (Xlen_t *data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VXSAT (Xlen_t *data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VXRM (Xlen_t *data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
 CsrAccResult CsrEnv::Read_USCRATCH (Xlen_t *data, PrivMode mode)
 {
   return CsrAccResult::Normal;
@@ -1288,6 +1309,30 @@ CsrAccResult CsrEnv::Read_TDATA3 (Xlen_t *data, PrivMode mode)
 
 
 template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VL (Xlen_t *data, PrivMode mode)
+{
+  *data = vl.vl;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VTYPE (Xlen_t *data, PrivMode mode)
+{
+  *data = vtype.vtype;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Read_VLENB (Xlen_t *data, PrivMode mode)
+{
+  *data = m_pe_thread->get_VLEN() / 8;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_FFLAGS (Xlen_t data, PrivMode mode)
 {
   // m_pe_thread->InfoPrint ("<Info: update Write_FFLAGS>\n");
@@ -1317,6 +1362,27 @@ CsrAccResult CsrEnv::Write_FCSR (Xlen_t data, PrivMode mode)
   mstatus.bit_mstatus.SD  = 1;
   fcsr.bit_fcsr.fflags = ExtractBitField (data, 4, 0);
   fcsr.bit_fcsr.frm  = ExtractBitField (data, 7, 5);
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VSTART (Xlen_t data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VXSAT (Xlen_t data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VXRM (Xlen_t data, PrivMode mode)
+{
   return CsrAccResult::Normal;
 }
 
@@ -2282,6 +2348,31 @@ template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_TDATA3 (Xlen_t data, PrivMode mode)
 {
   tdata3.tdata3 = data;
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VL (Xlen_t data, PrivMode mode)
+{
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VTYPE (Xlen_t data, PrivMode mode)
+{
+  vtype.vtype = data;
+  DWord_t vl = m_pe_thread->get_VLEN() * vtype.bit_vtype.vlmul / vtype.bit_vtype.vsew;
+  Write_VL (vl, mode);
+
+  return CsrAccResult::Normal;
+}
+
+
+template <typename Xlen_t>
+CsrAccResult CsrEnv::Write_VLENB (Xlen_t data, PrivMode mode)
+{
   return CsrAccResult::Normal;
 }
 

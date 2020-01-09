@@ -1869,5 +1869,36 @@
         "func_suffix":"",
         "impl":[""],
         "inst_ctrl":["RD_R3", "R1_R1"]
-    } // RV64/RV128
+    }, // RV64/RV128
+
+    //
+    // RVV : Vector Extension
+    //
+    {
+        "name":"vsetvli r[11:7],r[19:15],h[30:20]",
+        "length":"32", "dlength":"32",
+        "field":["0XXXX", "XX", "XXXXX", "XXXXX", "111", "XXXXX", "10101", "11"],
+        "category":"VECTOR",
+        "func_suffix":"",
+        "impl":[""],
+        "inst_ctrl":[]
+    },
+    {
+        "name":"vsetvl  r[11:7],r[19:15],r[24:20]",
+        "length":"32", "dlength":"32",
+        "field":["10000", "00", "XXXXX", "XXXXX", "111", "XXXXX", "10101", "11"],
+        "category":"VECTOR",
+        "func_suffix":"",
+        "impl":[""],
+        "inst_ctrl":[]
+    },
+    {
+        "name":"vlb.v   v[11:7],(r[19:15])",
+        "length":"32", "dlength":"32",
+        "field":["00010", "0X", "00000", "XXXXX", "000", "XXXXX", "00001", "11"],
+        "category":"VECTOR",
+        "func_suffix":"",
+        "impl":[""],
+        "inst_ctrl":[]
+    }
 ]
