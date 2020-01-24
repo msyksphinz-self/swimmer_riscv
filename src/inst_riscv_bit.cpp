@@ -38,6 +38,89 @@
 #include "inst_ops.hpp"
 #include "riscv_sysreg_bitdef.hpp"
 
+
+uint32_t shuffle32_stage(uint32_t src, uint32_t maskL, uint32_t maskR, int N)
+{
+  uint32_t x = src & ~(maskL | maskR);
+  x |= ((src << N) & maskL) | ((src >> N) & maskR);
+  return x;
+}
+
+uint32_t shfl32(uint32_t rs1, uint32_t rs2)
+{
+  uint32_t x = rs1;
+  int shamt = rs2 & 15;
+  if (shamt & 8) x = shuffle32_stage(x, 0x00ff0000, 0x0000ff00, 8);
+  if (shamt & 4) x = shuffle32_stage(x, 0x0f000f00, 0x00f000f0, 4);
+  if (shamt & 2) x = shuffle32_stage(x, 0x30303030, 0x0c0c0c0c, 2);
+  if (shamt & 1) x = shuffle32_stage(x, 0x44444444, 0x22222222, 1);
+  return x;
+}
+
+
+uint32_t unshfl32(uint32_t rs1, uint32_t rs2)
+{
+  uint32_t x = rs1;
+  int shamt = rs2 & 15;
+  if (shamt & 1) x = shuffle32_stage(x, 0x44444444, 0x22222222, 1);
+  if (shamt & 2) x = shuffle32_stage(x, 0x30303030, 0x0c0c0c0c, 2);
+  if (shamt & 4) x = shuffle32_stage(x, 0x0f000f00, 0x00f000f0, 4);
+  if (shamt & 8) x = shuffle32_stage(x, 0x00ff0000, 0x0000ff00, 8);
+  return x;
+}
+
+
+uint64_t shuffle64_stage(uint64_t src, uint64_t maskL, uint64_t maskR, int N)
+{
+  uint64_t x = src & ~(maskL | maskR);
+  x |= ((src << N) & maskL) | ((src >> N) & maskR);
+  return x;
+}
+
+
+uint64_t shfl64(uint64_t rs1_val, uint64_t rs2_val)
+{
+  uint64_t x = rs1_val;
+  int shamt = rs2_val & 31;
+  if (shamt & 16) x = shuffle64_stage(x, 0x0000ffff00000000LL,
+                                      0x00000000ffff0000LL, 16);
+  if (shamt & 8) x = shuffle64_stage(x, 0x00ff000000ff0000LL,
+                                     0x0000ff000000ff00LL, 8);
+  if (shamt & 4) x = shuffle64_stage(x, 0x0f000f000f000f00LL,
+                                     0x00f000f000f000f0LL, 4);
+  if (shamt & 2) x = shuffle64_stage(x, 0x3030303030303030LL,
+                                     0x0c0c0c0c0c0c0c0cLL, 2);
+  if (shamt & 1) x = shuffle64_stage(x, 0x4444444444444444LL,
+                                     0x2222222222222222LL, 1);
+  return x;
+}
+
+
+uint64_t unshfl64(uint64_t rs1_val, uint64_t rs2_val)
+{
+  uint64_t x = rs1_val;
+  int shamt = rs2_val & 31;
+  if (shamt & 1) x = shuffle64_stage(x, 0x4444444444444444LL,
+                                     0x2222222222222222LL, 1);
+  if (shamt & 2) x = shuffle64_stage(x, 0x3030303030303030LL,
+                                     0x0c0c0c0c0c0c0c0cLL, 2);
+  if (shamt & 4) x = shuffle64_stage(x, 0x0f000f000f000f00LL,
+                                     0x00f000f000f000f0LL, 4);
+  if (shamt & 8) x = shuffle64_stage(x, 0x00ff000000ff0000LL,
+                                     0x0000ff000000ff00LL, 8);
+  if (shamt & 16) x = shuffle64_stage(x, 0x0000ffff00000000LL,
+                                      0x00000000ffff0000LL, 16);
+  return x;
+}
+
+
+UDWord_t slo(UDWord_t rs1, UDWord_t rs2, int xlen)
+{
+  int shamt = rs2 & (xlen - 1);
+  return ~(~rs1 << shamt);
+}
+
+
 void InstEnv::RISCV_INST_ANDN (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
@@ -267,7 +350,7 @@ void InstEnv::RISCV_INST_GORC (InstWord_t inst_hex)
 
   DWord_t res = 0;
 
-  if (m_pe_thread->GetBitModeInt() == 32) {
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
     uint32_t x = rs1_val;
     int shamt = rs2_val & 31;
     if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
@@ -277,7 +360,7 @@ void InstEnv::RISCV_INST_GORC (InstWord_t inst_hex)
     if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
 
     res = 1 & (rs1_val >> shamt);
-  } else if (m_pe_thread->GetBitModeInt() == 64) {
+  } else if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
     uint64_t x = rs1_val;
     int shamt = rs2_val & 63;
     if (shamt & 1) x |= ((x & 0x5555555555555555LL) << 1) |
@@ -435,7 +518,7 @@ void InstEnv::RISCV_INST_GORCI (InstWord_t inst_hex)
   int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
 
   DWord_t res = 0;
-  if (m_pe_thread->GetBitModeInt() == 32) {
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
     uint32_t x = rs1_val;
     int shamt = imm & 31;
     if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
@@ -445,7 +528,7 @@ void InstEnv::RISCV_INST_GORCI (InstWord_t inst_hex)
     if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
 
     res = 1 & (rs1_val >> shamt);
-  } else if (m_pe_thread->GetBitModeInt() == 64) {
+  } else if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
     uint64_t x = rs1_val;
     int shamt = imm & 63;
     if (shamt & 1) x |= ((x & 0x5555555555555555LL) << 1) |
@@ -641,30 +724,6 @@ void InstEnv::RISCV_INST_PCNT (InstWord_t inst_hex)
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
 
-uint64_t shuffle64_stage(uint64_t src, uint64_t maskL, uint64_t maskR, int N)
-{
-  uint64_t x = src & ~(maskL | maskR);
-  x |= ((src << N) & maskL) | ((src >> N) & maskR);
-  return x;
-}
-
-uint64_t shfl64(uint64_t rs1, uint64_t rs2)
-{
-  uint64_t x = rs1;
-  int shamt = rs2 & 31;
-  if (shamt & 16) x = shuffle64_stage(x, 0x0000ffff00000000LL,
-                                      0x00000000ffff0000LL, 16);
-  if (shamt & 8) x = shuffle64_stage(x, 0x00ff000000ff0000LL,
-                                     0x0000ff000000ff00LL, 8);
-  if (shamt & 4) x = shuffle64_stage(x, 0x0f000f000f000f00LL,
-                                     0x00f000f000f000f0LL, 4);
-  if (shamt & 2) x = shuffle64_stage(x, 0x3030303030303030LL,
-                                     0x0c0c0c0c0c0c0c0cLL, 2);
-  if (shamt & 1) x = shuffle64_stage(x, 0x4444444444444444LL,
-                                     0x2222222222222222LL, 1);
-  return x;
-}
-
 void InstEnv::RISCV_INST_BMATFLIP (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
@@ -709,85 +768,470 @@ void InstEnv::RISCV_INST_SEXT_H (InstWord_t inst_hex)
   m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
 
+UDWord_t crc32(UDWord_t x, int nbits)
+{
+  for (int i = 0; i < nbits; i++)
+    x = (x >> 1) ^ (0xEDB88320 & ~((x&1)-1));
+  return x;
+}
+UDWord_t crc32_c(UDWord_t x, int nbits)
+{
+  for (int i = 0; i < nbits; i++)
+    x = (x >> 1) ^ (0x82F63B78 & ~((x&1)-1));
+  return x;
+}
+
 
 void InstEnv::RISCV_INST_CRC32_B (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32(rs1_val, 8);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32_H (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32(rs1_val, 16);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32_W (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32(rs1_val, 32);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32_D (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32(rs1_val, 64);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32C_B (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32_c(rs1_val, 8);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32C_H (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32_c(rs1_val, 16);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32C_W (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32_c(rs1_val, 32);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CRC32C_D (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+
+  DWord_t res = crc32_c(rs1_val, 64);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CLMUL (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = 0;
+  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++)
+    if ((rs2_val >> i) & 1)
+      res ^= rs1_val << i;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CLMULR (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = 0;
+  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++)
+    if ((rs2_val >> i) & 1)
+      res ^= rs1_val >> (m_pe_thread->GetBitModeInt()-i-1);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_CLMULH (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = 0;
+  for (int i = 1; i < m_pe_thread->GetBitModeInt(); i++)
+    if ((rs2_val >> i) & 1)
+      res ^= rs1_val >> (m_pe_thread->GetBitModeInt()-i);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_MIN (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  DWord_t res = (DWord_t)rs1_val < (DWord_t)rs2_val ? rs1_val : rs2_val;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_MAX (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  DWord_t res = (DWord_t)rs1_val > (DWord_t)rs2_val ? rs1_val : rs2_val;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_MINU (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = (UDWord_t)rs1_val < (UDWord_t)rs2_val ? rs1_val : rs2_val;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_MAXU (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = (UDWord_t)rs1_val > (UDWord_t)rs2_val ? rs1_val : rs2_val;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_SHFL (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
+    UDWord_t res = shfl32(rs1_val, rs2_val);
+    m_pe_thread->WriteGReg<Word_t> (rd_addr, res);
+  } else {
+    UDWord_t res = shfl64(rs1_val, rs2_val);
+    m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
+  }
 }
+
+
 void InstEnv::RISCV_INST_UNSHFL (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
+    UDWord_t res = unshfl32(rs1_val, rs2_val);
+    m_pe_thread->WriteGReg<Word_t> (rd_addr, res);
+  } else {
+    UDWord_t res = unshfl64(rs1_val, rs2_val);
+    m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
+  }
 }
+
+
 void InstEnv::RISCV_INST_BDEP (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = 0;
+  for (int i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
+    if ((rs2_val >> i) & 1) {
+      if ((rs1_val >> j) & 1)
+        res |= UDWord_t(1) << i;
+      j++;
+    }
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_BEXT (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t res = 0;
+  for (int i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
+    if ((rs2_val >> i) & 1) {
+      if ((rs1_val >> i) & 1)
+        res |= UDWord_t(1) << j;
+      j++;
+    }
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_PACK (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+
+  UDWord_t lower = (rs1_val << m_pe_thread->GetBitModeInt()/2) >> m_pe_thread->GetBitModeInt()/2;
+  UDWord_t upper = rs2_val << m_pe_thread->GetBitModeInt()/2;
+  UDWord_t res = lower | upper;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_PACKU (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t lower = rs1_val >> m_pe_thread->GetBitModeInt()/2;
+  UDWord_t upper = (rs2_val >> m_pe_thread->GetBitModeInt()/2) << m_pe_thread->GetBitModeInt()/2;
+  UDWord_t res = lower | upper;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+uint64_t bmatflip(uint64_t rs1)
+{
+  uint64_t x = rs1;
+  x = shfl64(x, 31);
+  x = shfl64(x, 31);
+  x = shfl64(x, 31);
+  return x;
+}
+
+
 void InstEnv::RISCV_INST_BMATOR (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  // transpose of rs2
+  uint64_t rs2t = bmatflip(rs2_val);
+  uint8_t u[8]; // rows of rs1
+  uint8_t v[8]; // cols of rs2
+  for (int i = 0; i < 8; i++) {
+    u[i] = rs1_val >> (i*8);
+    v[i] = rs2t >> (i*8);
+  }
+  uint64_t res = 0;
+  for (int i = 0; i < 64; i++) {
+    if ((u[i / 8] & v[i % 8]) != 0)
+      res |= 1LL << i;
+  }
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
+UDWord_t pcnt(UDWord_t rs1, unsigned int xlen)
+{
+  int count = 0;
+  for (int index = 0; index < xlen; index++)
+    count += (rs1 >> index) & 1;
+  return count;
+}
+
+
 void InstEnv::RISCV_INST_BMATXOR (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  // transpose of rs2
+  uint64_t rs2t = bmatflip(rs2_val);
+  uint8_t u[8]; // rows of rs1
+  uint8_t v[8]; // cols of rs2
+  for (int i = 0; i < 8; i++) {
+    u[i] = rs1_val >> (i*8);
+    v[i] = rs2t >> (i*8);
+  }
+  uint64_t res = 0;
+  for (int i = 0; i < 64; i++) {
+    if (pcnt(u[i / 8] & v[i % 8], m_pe_thread->GetBitModeInt()) & 1)
+      res |= 1LL << i;
+  }
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_PACKH (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t lower = rs1_val & 255;
+  UDWord_t upper = (rs2_val & 255) << 8;
+  UDWord_t res = lower | upper;
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_BFP (InstWord_t inst_hex)
 {
+  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+
+  DWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs1_addr));
+  DWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<DWord_t> (rs2_addr));
+
+  UDWord_t cfg = rs2_val >> (m_pe_thread->GetBitModeInt()/2);
+  if ((cfg >> 30) == 2)
+    cfg = cfg >> 16;
+  int len = (cfg >> 8) & (m_pe_thread->GetBitModeInt()/2-1);
+  int off = cfg & (m_pe_thread->GetBitModeInt()-1);
+  len = len ? len : m_pe_thread->GetBitModeInt()/2;
+  UDWord_t mask = slo(0, len, m_pe_thread->GetBitModeInt()) << off;
+  UDWord_t data = rs2_val << off;
+  DWord_t res = (data & mask) | (rs1_val & ~mask);
+
+  m_pe_thread->WriteGReg<DWord_t> (rd_addr, res);
 }
+
+
 void InstEnv::RISCV_INST_SHFLI (InstWord_t inst_hex)
 {
 }
+
+
 void InstEnv::RISCV_INST_UNSHFLI (InstWord_t inst_hex)
 {
 }
