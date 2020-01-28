@@ -1004,10 +1004,10 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
-  if (except == MemResult::MemNotDefined) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
-    return;
-  }
+  // if (except == MemResult::MemNotDefined) {
+  //   m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+  //   return;
+  // }
 
   Word_t ret = mem + rs2_val;
 
@@ -1020,10 +1020,10 @@ void InstEnv::RISCV_INST_AMOADD_W (InstWord_t inst_hex)
     m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOPageFault, mem_addr);
     return;
   }
-  if (except == MemResult::MemNotDefined) {
-    m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
-    return;
-  }
+  // if (except == MemResult::MemNotDefined) {
+  //   m_pe_thread->GenerateException (ExceptCode::Except_StoreAMOAccessFault, mem_addr);
+  //   return;
+  // }
 
   m_pe_thread->WriteGReg (rd_addr, mem);
 }

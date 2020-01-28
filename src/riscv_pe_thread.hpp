@@ -449,4 +449,22 @@ class RiscvPeThread : public EnvBase
     return m_is_misa_writable;
   }
 
+  UDWord_t crc32(UDWord_t x, int nbits)
+  {
+    for (int i = 0; i < nbits; i++)
+      x = (x >> 1) ^ (0xEDB88320 & ~((x&1)-1));
+    return x;
+  }
+
+  UDWord_t crc32_c(UDWord_t x, int nbits)
+  {
+    for (int i = 0; i < nbits; i++) {
+      // DebugPrint("x >> 1 = %016x\n", (x >> 1));
+      // DebugPrint("modif  = %016x\n", ~((x&1)-1));
+      x = (x >> 1) ^ (0x82f63b78 & ~((x&1)-1));
+      // DebugPrint("crc32c.d %d x = %016x\n", i, x);
+    }
+    return x;
+  }
+
 };
