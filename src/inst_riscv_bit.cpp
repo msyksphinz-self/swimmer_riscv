@@ -70,35 +70,35 @@ uint32_t unshfl32(uint32_t rs1, uint32_t rs2)
 }
 
 
-uint64_t shuffle64_stage(uint64_t src, uint64_t maskL, uint64_t maskR, int N)
+UDWord_t shuffle64_stage(UDWord_t src, UDWord_t maskL, UDWord_t maskR, int N)
 {
-  uint64_t x = src & ~(maskL | maskR);
+  UDWord_t x = src & ~(maskL | maskR);
   x |= ((src << N) & maskL) | ((src >> N) & maskR);
   return x;
 }
 
 
-uint64_t shfl64(uint64_t rs1_val, uint64_t rs2_val)
+UDWord_t shfl64(UDWord_t rs1_val, UDWord_t rs2_val)
 {
-  uint64_t x = rs1_val;
+  UDWord_t x = rs1_val;
   int shamt = rs2_val & 31;
   if (shamt & 16) x = shuffle64_stage(x, 0x0000ffff00000000LL,
                                       0x00000000ffff0000LL, 16);
-  if (shamt & 8) x = shuffle64_stage(x, 0x00ff000000ff0000LL,
-                                     0x0000ff000000ff00LL, 8);
-  if (shamt & 4) x = shuffle64_stage(x, 0x0f000f000f000f00LL,
-                                     0x00f000f000f000f0LL, 4);
-  if (shamt & 2) x = shuffle64_stage(x, 0x3030303030303030LL,
-                                     0x0c0c0c0c0c0c0c0cLL, 2);
-  if (shamt & 1) x = shuffle64_stage(x, 0x4444444444444444LL,
-                                     0x2222222222222222LL, 1);
+  if (shamt &  8) x = shuffle64_stage(x, 0x00ff000000ff0000LL,
+                                      0x0000ff000000ff00LL, 8);
+  if (shamt &  4) x = shuffle64_stage(x, 0x0f000f000f000f00LL,
+                                      0x00f000f000f000f0LL, 4);
+  if (shamt &  2) x = shuffle64_stage(x, 0x3030303030303030LL,
+                                      0x0c0c0c0c0c0c0c0cLL, 2);
+  if (shamt &  1) x = shuffle64_stage(x, 0x4444444444444444LL,
+                                      0x2222222222222222LL, 1);
   return x;
 }
 
 
-uint64_t unshfl64(uint64_t rs1_val, uint64_t rs2_val)
+UDWord_t unshfl64(UDWord_t rs1_val, UDWord_t rs2_val)
 {
-  uint64_t x = rs1_val;
+  UDWord_t x = rs1_val;
   int shamt = rs2_val & 31;
   if (shamt & 1) x = shuffle64_stage(x, 0x4444444444444444LL,
                                      0x2222222222222222LL, 1);
@@ -351,32 +351,32 @@ void InstEnv::RISCV_INST_GORC (InstWord_t inst_hex)
   DWord_t res = 0;
 
   if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
-    uint32_t x = rs1_val;
+    UWord_t x = rs1_val;
     int shamt = rs2_val & 31;
-    if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
-    if (shamt & 2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
+    if (shamt &  1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
+    if (shamt &  2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
+    if (shamt &  4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
+    if (shamt &  8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
     if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
 
-    res = 1 & (rs1_val >> shamt);
+    res = x;
   } else if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
-    uint64_t x = rs1_val;
+    UDWord_t x = rs1_val;
     int shamt = rs2_val & 63;
-    if (shamt & 1) x |= ((x & 0x5555555555555555LL) << 1) |
-                        ((x & 0xAAAAAAAAAAAAAAAALL) >> 1);
-    if (shamt & 2) x |= ((x & 0x3333333333333333LL) << 2) |
-                        ((x & 0xCCCCCCCCCCCCCCCCLL) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F0F0F0F0FLL) << 4) |
-                        ((x & 0xF0F0F0F0F0F0F0F0LL) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF00FF00FFLL) << 8) |
-                        ((x & 0xFF00FF00FF00FF00LL) >> 8);
+    if (shamt &  1) x |= ((x & 0x5555555555555555LL) << 1) |
+                         ((x & 0xAAAAAAAAAAAAAAAALL) >> 1);
+    if (shamt &  2) x |= ((x & 0x3333333333333333LL) << 2) |
+                         ((x & 0xCCCCCCCCCCCCCCCCLL) >> 2);
+    if (shamt &  4) x |= ((x & 0x0F0F0F0F0F0F0F0FLL) << 4) |
+                         ((x & 0xF0F0F0F0F0F0F0F0LL) >> 4);
+    if (shamt &  8) x |= ((x & 0x00FF00FF00FF00FFLL) << 8) |
+                         ((x & 0xFF00FF00FF00FF00LL) >> 8);
     if (shamt & 16) x |= ((x & 0x0000FFFF0000FFFFLL) << 16) |
                          ((x & 0xFFFF0000FFFF0000LL) >> 16);
     if (shamt & 32) x |= ((x & 0x00000000FFFFFFFFLL) << 32) |
                          ((x & 0xFFFFFFFF00000000LL) >> 32);
 
-    res = 1 & (rs1_val >> shamt);
+    res = x;
   }
 
   m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
@@ -519,32 +519,32 @@ void InstEnv::RISCV_INST_GORCI (InstWord_t inst_hex)
 
   DWord_t res = 0;
   if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
-    uint32_t x = rs1_val;
+    UWord_t x = rs1_val;
     int shamt = imm & 31;
-    if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
-    if (shamt & 2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
+    if (shamt &  1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
+    if (shamt &  2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
+    if (shamt &  4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
+    if (shamt &  8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
     if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
 
-    res = 1 & (rs1_val >> shamt);
+    res = x;
   } else if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
-    uint64_t x = rs1_val;
+    UDWord_t x = rs1_val;
     int shamt = imm & 63;
-    if (shamt & 1) x |= ((x & 0x5555555555555555LL) << 1) |
-                        ((x & 0xAAAAAAAAAAAAAAAALL) >> 1);
-    if (shamt & 2) x |= ((x & 0x3333333333333333LL) << 2) |
-                        ((x & 0xCCCCCCCCCCCCCCCCLL) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F0F0F0F0FLL) << 4) |
-                        ((x & 0xF0F0F0F0F0F0F0F0LL) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF00FF00FFLL) << 8) |
-                        ((x & 0xFF00FF00FF00FF00LL) >> 8);
+    if (shamt &  1) x |= ((x & 0x5555555555555555LL) << 1) |
+                         ((x & 0xAAAAAAAAAAAAAAAALL) >> 1);
+    if (shamt &  2) x |= ((x & 0x3333333333333333LL) << 2) |
+                         ((x & 0xCCCCCCCCCCCCCCCCLL) >> 2);
+    if (shamt &  4) x |= ((x & 0x0F0F0F0F0F0F0F0FLL) << 4) |
+                         ((x & 0xF0F0F0F0F0F0F0F0LL) >> 4);
+    if (shamt &  8) x |= ((x & 0x00FF00FF00FF00FFLL) << 8) |
+                         ((x & 0xFF00FF00FF00FF00LL) >> 8);
     if (shamt & 16) x |= ((x & 0x0000FFFF0000FFFFLL) << 16) |
                          ((x & 0xFFFF0000FFFF0000LL) >> 16);
     if (shamt & 32) x |= ((x & 0x00000000FFFFFFFFLL) << 32) |
                          ((x & 0xFFFFFFFF00000000LL) >> 32);
 
-    res = 1 & (rs1_val >> shamt);
+    res = x;
   }
 
   m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
@@ -739,7 +739,7 @@ void InstEnv::RISCV_INST_BMATFLIP (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
-  uint64_t x = rs1_val;
+  UDWord_t x = rs1_val;
   x = shfl64(x, 31);
   x = shfl64(x, 31);
   x = shfl64(x, 31);
@@ -1106,9 +1106,9 @@ void InstEnv::RISCV_INST_PACKU (InstWord_t inst_hex)
   m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
-uint64_t bmatflip(uint64_t rs1)
+UDWord_t bmatflip(UDWord_t rs1)
 {
-  uint64_t x = rs1;
+  UDWord_t x = rs1;
   x = shfl64(x, 31);
   x = shfl64(x, 31);
   x = shfl64(x, 31);
@@ -1126,14 +1126,14 @@ void InstEnv::RISCV_INST_BMATOR (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   // transpose of rs2
-  uint64_t rs2t = bmatflip(rs2_val);
+  UDWord_t rs2t = bmatflip(rs2_val);
   uint8_t u[8]; // rows of rs1
   uint8_t v[8]; // cols of rs2
   for (int i = 0; i < 8; i++) {
     u[i] = rs1_val >> (i*8);
     v[i] = rs2t >> (i*8);
   }
-  uint64_t res = 0;
+  UDWord_t res = 0;
   for (int i = 0; i < 64; i++) {
     if ((u[i / 8] & v[i % 8]) != 0)
       res |= 1LL << i;
@@ -1162,14 +1162,14 @@ void InstEnv::RISCV_INST_BMATXOR (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   // transpose of rs2
-  uint64_t rs2t = bmatflip(rs2_val);
+  UDWord_t rs2t = bmatflip(rs2_val);
   uint8_t u[8]; // rows of rs1
   uint8_t v[8]; // cols of rs2
   for (int i = 0; i < 8; i++) {
     u[i] = rs1_val >> (i*8);
     v[i] = rs2t >> (i*8);
   }
-  uint64_t res = 0;
+  UDWord_t res = 0;
   for (int i = 0; i < 64; i++) {
     if (pcnt(u[i / 8] & v[i % 8], m_pe_thread->GetBitModeInt()) & 1)
       res |= 1LL << i;
@@ -1225,9 +1225,9 @@ void InstEnv::RISCV_INST_SHFLI (InstWord_t inst_hex)
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
 
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
-  DWord_t imm      = ExtractBitField (inst_hex, 25, 20);
+  DWord_t  imm      = ExtractBitField (inst_hex, 25, 20);
 
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
     UDWord_t res = shfl32(rs1_val, imm);
     m_pe_thread->WriteGReg<Word_t> (rd_addr, res);
   } else {
@@ -1246,7 +1246,7 @@ void InstEnv::RISCV_INST_UNSHFLI (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
   DWord_t imm      = ExtractBitField (inst_hex, 25, 20);
 
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
+  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
     UDWord_t res = unshfl32(rs1_val, imm);
     m_pe_thread->WriteGReg<Word_t> (rd_addr, res);
   } else {
@@ -1531,17 +1531,14 @@ void InstEnv::RISCV_INST_GORCW (InstWord_t inst_hex)
 
   Word_t res_32 = 0;
 
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
-    uint32_t x = rs1_val;
-    int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
-    if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
-    if (shamt & 2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
-    if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
-
-    res_32 = 1 & (rs1_val >> shamt);
-  }
+  uint32_t x = rs1_val;
+  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  if (shamt &  1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
+  if (shamt &  2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
+  if (shamt &  4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
+  if (shamt &  8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
+  if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
+  res_32 = x;
 
   UDWord_t res = ExtendSign(res_32, 31);
   m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
@@ -1645,7 +1642,7 @@ void InstEnv::RISCV_INST_SBSETIW (InstWord_t inst_hex)
   UWord_t res_32   = rs1_val | (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
-  m_pe_thread->WriteGReg<UWord_t> (rd_addr, res);
+  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
 
@@ -1661,7 +1658,7 @@ void InstEnv::RISCV_INST_SBINVIW (InstWord_t inst_hex)
   UWord_t res_32 = rs1_val ^ (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
-  m_pe_thread->WriteGReg<UWord_t> (rd_addr, res);
+  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
 
@@ -1676,20 +1673,16 @@ void InstEnv::RISCV_INST_GORCIW (InstWord_t inst_hex)
   int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
 
   UWord_t res_32 = 0;
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
-    uint32_t x = rs1_val;
-    int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
-    if (shamt & 1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
-    if (shamt & 2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
-    if (shamt & 4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
-    if (shamt & 8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
-    if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
-
-    res_32 = 1 & (rs1_val >> shamt);
-  }
+  UWord_t x = rs1_val;
+  if (shamt &  1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
+  if (shamt &  2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
+  if (shamt &  4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
+  if (shamt &  8) x |= ((x & 0x00FF00FF) << 8) | ((x & 0xFF00FF00) >> 8);
+  if (shamt & 16) x |= ((x & 0x0000FFFF) << 16) | ((x & 0xFFFF0000) >> 16);
+  res_32 = x;
 
   UDWord_t res = ExtendSign(res_32, 31);
-  m_pe_thread->WriteGReg<UWord_t> (rd_addr, res);
+  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
 
@@ -1910,14 +1903,9 @@ void InstEnv::RISCV_INST_SHFLW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit64) {
-    UWord_t res_32 = shfl32(rs1_val, rs2_val);
-    UDWord_t res = ExtendSign(res_32, 31);
-    m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
-  } else {
-    UWord_t res_32 = shfl64(rs1_val, rs2_val);
-    m_pe_thread->WriteGReg<DWord_t> (rd_addr, res_32);
-  }
+  UWord_t res_32 = shfl32(rs1_val, rs2_val);
+  UDWord_t res = ExtendSign(res_32, 31);
+  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
 
@@ -1930,11 +1918,9 @@ void InstEnv::RISCV_INST_UNSHFLW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
-    UWord_t res_32 = unshfl32(rs1_val, rs2_val);
-    UDWord_t res = ExtendSign(res_32, 31);
-    m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
-  }
+  UWord_t res_32 = unshfl32(rs1_val, rs2_val);
+  UDWord_t res = ExtendSign(res_32, 31);
+  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
 }
 
 
