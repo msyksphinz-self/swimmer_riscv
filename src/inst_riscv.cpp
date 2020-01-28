@@ -3370,7 +3370,6 @@ void InstEnv::RISCV_INST_C_LI (InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_C_ADDI16SP (InstWord_t inst_hex)
 {
-  RegAddr_t rd_addr = RS_ADDR_SP;
   DWord_t   imm = ExtendSign ((ExtractBitField (inst_hex, 12,12) << 5) |
                               (ExtractBitField (inst_hex,  4, 3) << 3) |
                               (ExtractBitField (inst_hex,  5, 5) << 2) |
@@ -3380,7 +3379,7 @@ void InstEnv::RISCV_INST_C_ADDI16SP (InstWord_t inst_hex)
   UDWord_t rs_val = m_pe_thread->ReadGReg<DWord_t> (RS_ADDR_SP);
   UDWord_t res    = rs_val + (imm * 16);
 
-  m_pe_thread->WriteGReg<UDWord_t> (rd_addr, res);
+  m_pe_thread->WriteGReg<UDWord_t> (RS_ADDR_SP, res);
 }
 
 
