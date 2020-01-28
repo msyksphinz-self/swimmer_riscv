@@ -250,6 +250,9 @@ def compare_spike_swimmer ():
       stop_reading = True
       exit()
 
+    # if spike_log.mnemonic.find("addi") != -1:
+    #   continue
+
     # if swimmer_log.no != spike_log.no :
     #   print("//=========================================================")
     #   print("// Number Mismatched! Spike=%d Forest=%d" % (spike_log.no, swimmer_log.no))
@@ -290,7 +293,7 @@ def compare_spike_swimmer ():
         stop_reading = True
         exit()
 
-    if swimmer_log.no % 30 == 0:
+    if swimmer_log.no % 300 == 0:
       print("// No = %d / %d, PC=%016x, %s" % (spike_log.no, swimmer_log.no, swimmer_log.pc, spike_log.mnemonic),)
 
     swimmer_log_idx = swimmer_log_idx + 1
