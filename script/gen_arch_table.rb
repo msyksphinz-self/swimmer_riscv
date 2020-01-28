@@ -92,6 +92,10 @@ File.open("../build/riscv_arch_table.json") do |file|
   $arch_table = JSON.load(file)
 end
 
+File.open("../build/riscv_arch_b_table.json") do |file|
+  $arch_table = $arch_table + JSON.load(file)
+end
+
 require "gen_inst_list.rb"
 require "gen_decode_table.rb"
 require "gen_function_table.rb"
