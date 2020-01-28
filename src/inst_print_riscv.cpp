@@ -107,8 +107,8 @@ void RiscvPeThread::PrintInst (uint32_t inst_hex, InstId_t inst_idx,
         tmp_operand_bit = tmp_operand_bit / divide_base;
       }
       switch (type) {
-        case operandType::operandTypeReg         : sprintf (str_head, "r");  str_head +=1; break;
-        case operandType::operandTypeCompactReg  : sprintf (str_head, "r");  str_head +=1; break;
+        case operandType::operandTypeReg         : sprintf (str_head, "x");  str_head +=1; break;
+        case operandType::operandTypeCompactReg  : sprintf (str_head, "x");  str_head +=1; break;
         case operandType::operandTypeCompactFReg : sprintf (str_head, "f");  str_head +=1; break;
         case operandType::operandTypeXReg        : sprintf (str_head, "x");  str_head +=1; break;
         case operandType::operandTypeBit         :                                         break;
