@@ -41,6 +41,7 @@
 #include "inst_riscv__ALU.cpp"
 #include "inst_riscv__FPU.cpp"
 
+#include "inst_riscv__BIT.cpp"
 #include "inst_riscv_bit.cpp"
 
 InstEnv::InstEnv (RiscvPeThread *env)
