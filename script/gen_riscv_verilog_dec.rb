@@ -538,8 +538,11 @@ $arch_table.each_with_index {|inst_info, index|
       }
       byte_length = (byte_length / 4.0).ceil
       case (type)
-      when 'd' then
-        inst_print_fp.printf("r%%0%dd", byte_length)
+      when 'r' then
+        inst_print_fp.printf("x%%0%dd", byte_length)
+        total_bit = total_bit + 1 + byte_length
+      when 'f' then
+        inst_print_fp.printf("f%%0%dd", byte_length)
         total_bit = total_bit + 1 + byte_length
       when 'h' then
         inst_print_fp.printf("0x%%0%dx", byte_length)
