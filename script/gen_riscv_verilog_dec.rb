@@ -64,16 +64,32 @@ def gen_header(fp)
 end
 
 
-module DEC
-  FUNC_STR = $arch_list_def["TAIL"]
-  CURR_DEC = $arch_list_def["TAIL"] + 1
-  INST_NAME = $arch_list_def["TAIL"] + 2
-end
 
 func_str = "Dec_RISCV"
 inst_name = Array[]
 temp_arch_table = Array[]
 
+require '../build/riscv_arch_table.rb'
+require "json"
+
+def get_key_idx(key)
+  if $arch_list_def.key?(key) then
+    return $arch_list_def[key]
+  else
+    printf("ERROR: can't find key %s\n", key)
+    return -1
+  end
+end
+
+module DEC
+  FUNC_STR  = get_key_idx("TAIL")
+  CURR_DEC  = get_key_idx("TAIL") + 1
+  INST_NAME = get_key_idx("TAIL") + 2
+end
+
+File.open("../build/riscv_arch_table.json") do |file|
+  $arch_table = JSON.load(file)
+end
 
 ##
 ## === Architecture Operand Type Declaration ===
@@ -133,12 +149,12 @@ $arch_table.each_with_index {|inst_info, index|
   mnemonic = "    assign IC_INST_DEC[`" + mne + "] = "
 
   $decode_field_list.each{|decode_field|
-    if not inst_info[decode_field.field_idx].include?("X") then
+    if not inst_info["field"][decode_field.field_idx].include?("X") then
       if is_generate_and == true then
         mnemonic = mnemonic + " & ";
       end
       mnemonic = mnemonic + "(IC_INST[" + decode_field.field_msb.to_s + ":" + decode_field.field_lsb.to_s + "] == " + (decode_field.field_msb - decode_field.field_lsb + 1).to_s + "'b"
-      mnemonic = mnemonic + inst_info[decode_field.field_idx] + ")"
+      mnemonic = mnemonic + inst_info["field"][decode_field.field_idx] + ")"
       is_generate_and = true
     end
   }
