@@ -24,7 +24,7 @@ Swimmer-RISCV is tested on Ubuntu 18.04 LTS and CentOS 7.2 with GCC 8.1.0
 For Ubuntu, following packages are need to be install:
 
 ```sh
-sudo apt install -y libbfd-dev device-tree-compiler
+sudo apt install -y libbfd-dev device-tree-compiler python3-dev libpython3-dev pkg-config
 ```
 
 ### RISC-V Tools
