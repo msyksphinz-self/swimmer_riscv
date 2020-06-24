@@ -507,8 +507,17 @@ $arch_table.each_with_index {|inst_info, index|
     if is_generate_and == true then
       mnemonic = mnemonic + " & ";
     end
-    mnemonic = mnemonic + "(INST[ 6: 0] == 7'b"
+    mnemonic = mnemonic + "(INST[ 6: 2] == 5'b"
     mnemonic = mnemonic + inst_info["field"][$arch_list_def["OP"]] + ")"
+    is_generate_and = true
+  end
+
+  if not inst_info["field"][$arch_list_def["LD"]].include?("X") then
+    if is_generate_and == true then
+      mnemonic = mnemonic + " & ";
+    end
+    mnemonic = mnemonic + "(INST[ 1: 0] == 2'b"
+    mnemonic = mnemonic + inst_info["field"][$arch_list_def["LD"]] + ")"
     is_generate_and = true
   end
 
@@ -519,7 +528,7 @@ $arch_table.each_with_index {|inst_info, index|
   operands = inst_info["name"].split(" ")[1]
   opcode   = inst_info["name"].split(" ")[0]
 
-  inst_print_fp.printf("      $fwrite (F_HANDLE, \"%-10s", opcode.upcase)
+  inst_print_fp.printf("      $fwrite (fp, \"%-10s", opcode.upcase)
   total_bit = 0
   if operands != nil then
     operand_array = operands.split(/[,\(\)]/)
