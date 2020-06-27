@@ -772,7 +772,7 @@ void RiscvPeThread::PrintOperand (std::stringstream *operand_str)
       } else {
         RegAddr_t reg_addr = trace_addr;
         if (GetPrintRegStyle () == AbiRegType::AbiRegHardName) {
-          (*operand_str) << "r"  << std::dec << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(reg_addr);
+          (*operand_str) << "x"  << std::dec << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(reg_addr);
         } else {
           (*operand_str) << m_abi_regs[reg_addr];
         }
@@ -788,7 +788,7 @@ void RiscvPeThread::PrintOperand (std::stringstream *operand_str)
     case TraceType::GRegRead : {
       RegAddr_t reg_addr = trace_addr;
       if (GetPrintRegStyle () == AbiRegType::AbiRegHardName) {
-        (*operand_str) << "r"  << std::dec << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(reg_addr);
+        (*operand_str) << "x"  << std::dec << std::setw(2) << std::setfill('0') << static_cast<uint32_t>(reg_addr);
       } else {
         (*operand_str) << m_abi_regs[reg_addr];
       }
