@@ -149,6 +149,8 @@ class RiscvPeThread : public EnvBase
   RiscvDec *m_ptr_riscv_dec;
   std::unique_ptr<DWord_t []> m_regs;   // general register
   std::unique_ptr<DWord_t []> m_fregs;  // floating point registers
+  // std::unique_ptr<uint8_t []> m_vregs;  // Vector Registers
+  uint8_t* m_vregs;
   std::unique_ptr<CsrEnv>  m_csr_env;   // CSR system register information
   std::unique_ptr<RiscvPageTable> m_riscv_page_table;   // Page Table for RISC-V
   Addr_t m_load_reservation;
@@ -269,22 +271,7 @@ class RiscvPeThread : public EnvBase
   uint64_t m_count_timer = 0;
 
 
-  /*
-   * Vector Constant Parameters
-   */
-  const int32_t RVV_ELEN = 32;  // The maximum size of a single vector element in bits, ELEN, which must be a power of 2.
-  const int32_t RVV_VLEN = 512; // The number of bits in a vector register, VLEN ≥ ELEN, which must be a power of 2.
-  const int32_t RVV_SLEN = 32;  // The striping distance in bits, SLEN, which must be VLEN ≥ SLEN ≥ 32, and which must be a power of 2.
-
-  uint8_t m_rvv_vediv = 1;
-  RvvSEW  m_rvv_vsew  = RvvSEW::SEW_8BIT;
-  uint8_t m_rvv_vlmul = 0;
-
  public:
-  int32_t get_ELEN() { return RVV_ELEN; }
-  int32_t get_VLEN() { return RVV_VLEN; }
-  int32_t get_SLEN() { return RVV_SLEN; }
-
   void PrintInst (uint32_t inst_hex, InstId_t inst_idx,
                   char *str_out, const uint32_t length);
 
@@ -499,5 +486,32 @@ class RiscvPeThread : public EnvBase
     }
     return x;
   }
+
+  /*
+   * Vector Implementation
+   */
+ private:
+  int32_t m_elen = 32;  // The maximum size of a single vector element in bits, ELEN, which must be a power of 2.
+  int32_t m_vlen = 512; // The number of bits in a vector register, VLEN ≥ ELEN, which must be a power of 2.
+  int32_t m_slen = 32;  // The striping distance in bits, SLEN, which must be VLEN ≥ SLEN ≥ 32, and which must be a power of 2.
+
+  uint8_t m_rvv_vediv = 1;
+  RvvSEW  m_rvv_vsew  = RvvSEW::SEW_8BIT;
+  uint8_t m_rvv_vlmul = 0;
+
+ public:
+  void configure_vector(int32_t elen, int32_t vlen, int32_t slen) {
+    m_elen = elen;
+    m_vlen = vlen;
+    m_slen = slen;
+  }
+
+  template <class T> T    ReadVReg  (RegAddr_t, uint32_t);
+  template <class T> void WriteVReg (RegAddr_t, uint32_t, T data);
+
+  int32_t get_ELEN()  { return m_elen; }
+  int32_t get_VLEN()  { return m_vlen; }
+  int32_t get_VLENB() { return m_vlen / 8; }
+  int32_t get_SLEN()  { return m_slen; }
 
 };

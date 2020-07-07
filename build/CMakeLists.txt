@@ -91,6 +91,7 @@ add_library (riscv_cedar
   ../src/memory_block.cpp
   ../src/mem_body.cpp
   ../src/gdb_env.cpp
+  ../src/riscv_pe_vec_thread.cpp
 )
 
 # ../src/module_rom.cpp

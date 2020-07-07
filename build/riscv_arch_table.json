@@ -1891,16 +1891,5 @@
         "func_suffix":"",
         "impl":[""],
         "inst_ctrl":[]
-    },
-    {
-        "name":"vlb.v   v[11:7],(r[19:15])",
-        "length":"32", "dlength":"32",
-        "field":["00010", "0X", "00000", "XXXXX", "000", "XXXXX", "00001", "11"],
-        "category":"VECTOR",
-        "func_suffix":"",
-        "impl":[""],
-        "inst_ctrl":[]
     }
-
-
 ]
