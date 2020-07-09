@@ -99,6 +99,7 @@ RiscvPeThread::RiscvPeThread (FILE           *dbgfp,
   // Floating Point Register Format
   m_regs  = std::unique_ptr<DWord_t[]>(new DWord_t[32]);
   m_fregs = std::unique_ptr<DWord_t[]>(new DWord_t[32]);
+  m_vregs = (uint8_t *)malloc(sizeof(uint8_t) * get_VLENB());
 
   m_device_list = new RiscvDeviceList_t();
   RiscvSyscall_t *riscv_syscall = new RiscvSyscall_t(0, this);
@@ -1099,7 +1100,10 @@ MemResult RiscvPeThread::ConvertVirtualAddress (Addr_t *paddr, Addr_t vaddr, Mem
   CSRReadNoTrace(SYSREG_ADDR_MSTATUS, &mstatus, PrivMode::PrivMachine);
   uint8_t mprv = ExtractBitField (mstatus, SYSREG_MSTATUS_MPRV_MSB, SYSREG_MSTATUS_MPRV_LSB);
   PrivMode mpp  = static_cast<PrivMode>(ExtractBitField (mstatus, SYSREG_MSTATUS_MPP_MSB, SYSREG_MSTATUS_MPP_LSB));
-  PrivMode priv_mode = (acc_type != MemAccType::FetchMemType && mprv) ? mpp : GetPrivMode();
+  PrivMode priv_mode = ((acc_type != MemAccType::FetchMemType)
+                        && mprv) ?
+      mpp :
+      GetPrivMode();
 
   if (GetVmMode() == RiscvVmMode::Vm_Sv39 && (priv_mode == PrivMode::PrivSupervisor ||
                                               priv_mode == PrivMode::PrivUser)) {

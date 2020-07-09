@@ -270,7 +270,7 @@ MemResult EnvBase::StoreMemoryDebug (Addr_t addr, AccType *data)
 
   MemResult res = m_memory->StoreMemory<AccType> (addr, byte_data);
 
-  free (byte_data);
+  delete[] byte_data;
   return res;
 }
 
@@ -285,7 +285,7 @@ MemResult EnvBase::LoadMemoryDebug (Addr_t addr, AccType *data)
     WarnMemoryResult (res, addr);
   }
   memcpy (data, byte_data, sizeof(AccType));
-  free (byte_data);
+  delete[] byte_data;
 
   return res;
 }
@@ -476,6 +476,7 @@ void EnvBase::DebugPrint (const char *format, ...)
     vasprintf(&allocated_buffer, format, args);
 
     fprintf (m_dbgfp, "%s", allocated_buffer);
+    fflush(m_dbgfp);
 
     va_end(args);
 

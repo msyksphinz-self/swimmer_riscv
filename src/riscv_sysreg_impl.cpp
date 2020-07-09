@@ -54,6 +54,7 @@ CsrAccResult CsrEnv::Read_UTVEC (Xlen_t *data, PrivMode mode)
 template <typename Xlen_t>
 CsrAccResult CsrEnv::Read_VSTART (Xlen_t *data, PrivMode mode)
 {
+  *data = vstart.vstart;
   return CsrAccResult::Normal;
 }
 
@@ -1369,6 +1370,7 @@ CsrAccResult CsrEnv::Write_FCSR (Xlen_t data, PrivMode mode)
 template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_VSTART (Xlen_t data, PrivMode mode)
 {
+  vstart.vstart = data;
   return CsrAccResult::Normal;
 }
 
@@ -2355,6 +2357,7 @@ CsrAccResult CsrEnv::Write_TDATA3 (Xlen_t data, PrivMode mode)
 template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_VL (Xlen_t data, PrivMode mode)
 {
+  vl.vl = data;
   return CsrAccResult::Normal;
 }
 
@@ -2363,7 +2366,7 @@ template <typename Xlen_t>
 CsrAccResult CsrEnv::Write_VTYPE (Xlen_t data, PrivMode mode)
 {
   vtype.vtype = data;
-  DWord_t vl = m_pe_thread->get_VLEN() * vtype.bit_vtype.vlmul / vtype.bit_vtype.vsew;
+  DWord_t vl = m_pe_thread->get_VLEN() * (1 << vtype.bit_vtype.vlmul) / (1 << (vtype.bit_vtype.vsew+3));
   Write_VL (vl, mode);
 
   return CsrAccResult::Normal;
@@ -2408,10 +2411,13 @@ CsrEnv::CsrEnv (RiscvPeThread *env) : m_pe_thread (env)
   hbadaddr.hbadaddr   = 0;
   mimpid.mimpid       = 0;
   mhartid.Hart_ID     = 0;
+
+  mstatus.mstatus     = 0;
   mstatus.bit_mstatus.SD  = 0;  // Difficult?
   mstatus.bit_mstatus.SXL = 2;  // XLEN
   mstatus.bit_mstatus.UXL = 2;  // XLEN
   mstatus.bit_mstatus.SUM = 0;
+
   mtvec.mtvec         = 0;
   mie.mie             = 0;
   mscratch.mscratch   = 0;
@@ -2452,6 +2458,8 @@ CsrEnv::CsrEnv (RiscvPeThread *env) : m_pe_thread (env)
 
   tdata2.tdata2       = 0;
   tdata3.tdata3       = 0;
+
+  vstart.vstart = 0;
 }
 
 

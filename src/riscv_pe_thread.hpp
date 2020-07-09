@@ -345,6 +345,7 @@ class RiscvPeThread : public EnvBase
   }
 
   inline bool IsVECAvailable () {
+    return true;
     UDWord_t mstatus;
     CSRReadNoTrace (SYSREG_ADDR_MSTATUS, &mstatus, PrivMode::PrivMachine);
     return ExtractBitField (mstatus, 'V'-'A', 'V'-'A');

@@ -51,6 +51,14 @@ void InstEnv::RISCV_INST_VSETVLI (InstWord_t inst_hex)
   DWord_t rs1_val = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_VTYPE), ExtractBitField (inst_hex, 26, 20));
+
+  DWord_t old_vl;
+  m_pe_thread->CSRRead (static_cast<DWord_t>(SYSREG_ADDR_VL), &old_vl);
+
+  DWord_t new_vl = old_vl > rs1_val ? old_vl : rs1_val;
+
+  m_pe_thread->CSRWrite (static_cast<DWord_t>(SYSREG_ADDR_VL), new_vl);
+  m_pe_thread->WriteGReg<DWord_t>(rd_addr, new_vl);
 }
 
 
@@ -62,10 +70,8 @@ void InstEnv::RISCV_INST_VSETVL (InstWord_t inst_hex)
   }
 
   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
-  RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rd_addr  = ExtractRDField (inst_hex);
+  // RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
 
-  DWord_t rs1_val = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
   DWord_t rs2_val = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
 
   m_pe_thread->CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_VTYPE), rs2_val);
@@ -394,11 +400,12 @@ void InstEnv::RISCV_INST_VLE8_V(InstWord_t inst_hex)
 
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  const uint8_t  nf = 0;
+  // const uint8_t  nf = 0;
   Word_t vl; m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VL), &vl);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Word_t vstart; m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VSTART), &vstart);
-  for (int i = vstart; i < vl; i++) {
+  for (int i = vstart; i < vl / DWIDTH; i++) {
+    int elem_position_byte = i * sizeof(data_t) * 8;
     if (vm == 0) {
       const int midx = i / DWIDTH;
       const int mpos = i % DWIDTH;
@@ -408,18 +415,20 @@ void InstEnv::RISCV_INST_VLE8_V(InstWord_t inst_hex)
       }
     }
 
-    Addr_t mem_addr = mem_base_addr + i * DWIDTH;
+    Addr_t mem_addr = mem_base_addr + i * DWIDTH / 8;
     data_t  res;
     MemResult except = m_pe_thread->LoadFromBus (mem_addr, &res);
     CHECK_MEM_EXCEPTION(except, mem_addr);
 
-    m_pe_thread->WriteVReg (vd_addr, i, res);
+    m_pe_thread->WriteVReg<data_t> (vd_addr, i, res);
   }
 }
 
 
-void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
-{
+void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex) {}
+void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex) {}
+
+void InstEnv::RISCV_INST_VSE8_V(InstWord_t inst_hex) {
   const int DWIDTH = 8;
   using data_t = Byte_t;
 
@@ -433,11 +442,11 @@ void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
 
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  const uint8_t  nf = 0;
+  // const uint8_t  nf = 0;
   Word_t vl; m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VL), &vl);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Word_t vstart; m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VSTART), &vstart);
-  for (int i = vstart; i < vl; i++) {
+  for (int i = vstart; i < vl / DWIDTH; i++) {
     if (vm == 0) {
       const int midx = i / DWIDTH;
       const int mpos = i % DWIDTH;
@@ -447,7 +456,7 @@ void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
       }
     }
     data_t store_data = m_pe_thread->ReadVReg<data_t> (vs3_addr, i);
-    Addr_t mem_addr = mem_base_addr + i * DWIDTH;
+    Addr_t mem_addr = mem_base_addr + i * DWIDTH / 8;
 
     MemResult except = m_pe_thread->StoreToBus (mem_addr, store_data);
     CHECK_MEM_EXCEPTION(except, mem_addr);
@@ -456,8 +465,6 @@ void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSE8_V(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VSUXEI8_V(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VSSE8_V(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VSXEI8_V(InstWord_t inst_hex) {}

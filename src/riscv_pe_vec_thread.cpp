@@ -88,11 +88,15 @@ void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, T data)
 }
 
 
+template Byte_t   RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
+template HWord_t  RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
 template Word_t   RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
 template UWord_t  RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
 template DWord_t  RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
 template UDWord_t RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx);
 
+template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, Byte_t   data);
+template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, HWord_t  data);
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, Word_t   data);
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, UWord_t  data);
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, DWord_t  data);

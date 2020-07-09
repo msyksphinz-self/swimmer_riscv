@@ -303,7 +303,7 @@ void InstEnv::RISCV_INST_GREV (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
     int j = (i ^ rs2_val) & (m_pe_thread->GetBitModeInt()-1);
     res |= ((rs1_val >> i) & 1) << j;
   }
@@ -425,7 +425,7 @@ void InstEnv::RISCV_INST_GORCI (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
   DWord_t imm      = ExtractBitField (inst_hex, 26, 20);
 
-  int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
+  // int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
 
   DWord_t res = 0;
   if (m_pe_thread->GetBitMode() == RiscvBitMode_t::Bit32) {
@@ -470,7 +470,7 @@ void InstEnv::RISCV_INST_GREVI (InstWord_t inst_hex)
   DWord_t imm      = ExtractBitField (inst_hex, 26, 20);
 
   UDWord_t res = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
     int j = (i ^ imm) & (m_pe_thread->GetBitModeInt()-1);
     res |= ((rs1_val >> i) & 1) << j;
   }
@@ -524,7 +524,7 @@ void InstEnv::RISCV_INST_FSL (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
   UDWord_t rs3_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs3_addr));
 
-  int shamt = rs2_val & (2*m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (2*m_pe_thread->GetBitModeInt() - 1);
   UDWord_t A = rs1_val, B = rs3_val;
   if (shamt >= m_pe_thread->GetBitModeInt()) {
     shamt -= m_pe_thread->GetBitModeInt();
@@ -549,7 +549,7 @@ void InstEnv::RISCV_INST_FSR (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
   UDWord_t rs3_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs3_addr));
 
-  int shamt = rs2_val & (2*m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (2*m_pe_thread->GetBitModeInt() - 1);
   UDWord_t A = rs1_val, B = rs3_val;
   if (shamt >= m_pe_thread->GetBitModeInt()) {
     shamt -= m_pe_thread->GetBitModeInt();
@@ -572,7 +572,7 @@ void InstEnv::RISCV_INST_FSRI (InstWord_t inst_hex)
   UDWord_t rs3_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs3_addr));
   UDWord_t imm      = ExtractBitField (inst_hex, 25, 20);
 
-  int shamt = imm & (2 * m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = imm & (2 * m_pe_thread->GetBitModeInt() - 1);
   UDWord_t A = rs1_val, B = rs3_val;
   if (shamt >= m_pe_thread->GetBitModeInt()) {
     shamt -= m_pe_thread->GetBitModeInt();
@@ -593,7 +593,7 @@ void InstEnv::RISCV_INST_CLZ (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
 
   DWord_t res = m_pe_thread->GetBitModeInt();
-  for (int count = 0; count < m_pe_thread->GetBitModeInt(); count++) {
+  for (uint32_t count = 0; count < m_pe_thread->GetBitModeInt(); count++) {
     if ((rs1_val << count) >> (m_pe_thread->GetBitModeInt() - 1)) {
       res = count;
       break;
@@ -612,7 +612,7 @@ void InstEnv::RISCV_INST_CTZ (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
 
   DWord_t res = m_pe_thread->GetBitModeInt();
-  for (int count = 0; count < m_pe_thread->GetBitModeInt(); count++) {
+  for (uint32_t count = 0; count < m_pe_thread->GetBitModeInt(); count++) {
     if ((rs1_val >> count) & 1) {
       res = count;
       break;
@@ -631,7 +631,7 @@ void InstEnv::RISCV_INST_PCNT (InstWord_t inst_hex)
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
 
   int count = 0;
-  for (int index = 0; index < m_pe_thread->GetBitModeInt(); index++)
+  for (uint32_t index = 0; index < m_pe_thread->GetBitModeInt(); index++)
     count += (rs1_val >> index) & 1;
   DWord_t res = count;
 
@@ -787,7 +787,7 @@ void InstEnv::RISCV_INST_CLMUL (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++)
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++)
     if ((rs2_val >> i) & 1)
       res ^= rs1_val << i;
 
@@ -805,7 +805,7 @@ void InstEnv::RISCV_INST_CLMULR (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++)
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++)
     if ((rs2_val >> i) & 1)
       res ^= rs1_val >> (m_pe_thread->GetBitModeInt()-i-1);
 
@@ -823,7 +823,7 @@ void InstEnv::RISCV_INST_CLMULH (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 1; i < m_pe_thread->GetBitModeInt(); i++)
+  for (uint32_t i = 1; i < m_pe_thread->GetBitModeInt(); i++)
     if ((rs2_val >> i) & 1)
       res ^= rs1_val >> (m_pe_thread->GetBitModeInt()-i);
 
@@ -879,7 +879,7 @@ void InstEnv::RISCV_INST_BDEP (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
+  for (uint32_t i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
     if ((rs2_val >> i) & 1) {
       if ((rs1_val >> j) & 1)
         res |= UDWord_t(1) << i;
@@ -900,7 +900,7 @@ void InstEnv::RISCV_INST_BEXT (InstWord_t inst_hex)
   UDWord_t rs2_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs2_addr));
 
   UDWord_t res = 0;
-  for (int i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
+  for (uint32_t i = 0, j = 0; i < m_pe_thread->GetBitModeInt(); i++)
     if ((rs2_val >> i) & 1) {
       if ((rs1_val >> i) & 1)
         res |= UDWord_t(1) << j;
@@ -985,7 +985,7 @@ void InstEnv::RISCV_INST_BMATOR (InstWord_t inst_hex)
 UDWord_t pcnt(UDWord_t rs1, unsigned int xlen)
 {
   int count = 0;
-  for (int index = 0; index < xlen; index++)
+  for (uint32_t index = 0; index < xlen; index++)
     count += (rs1 >> index) & 1;
   return count;
 }
@@ -1079,7 +1079,6 @@ void InstEnv::RISCV_INST_SHFLI (InstWord_t inst_hex)
 void InstEnv::RISCV_INST_UNSHFLI (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
 
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
@@ -1098,7 +1097,6 @@ void InstEnv::RISCV_INST_UNSHFLI (InstWord_t inst_hex)
 void InstEnv::RISCV_INST_ADDIWU (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
 
   UDWord_t rs1_val  = m_pe_thread->SExtXlen (m_pe_thread->ReadGReg<UDWord_t> (rs1_addr));
@@ -1300,7 +1298,7 @@ void InstEnv::RISCV_INST_SBCLRW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
   Word_t res_32 = rs1_val & ~(UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1317,7 +1315,7 @@ void InstEnv::RISCV_INST_SBSETW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
   Word_t res_32 = rs1_val | (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1334,7 +1332,7 @@ void InstEnv::RISCV_INST_SBINVW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
   Word_t res_32 = rs1_val ^ (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1351,7 +1349,7 @@ void InstEnv::RISCV_INST_SBEXTW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
-  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
   Word_t res_32 = 1 & (rs1_val >> shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1371,7 +1369,7 @@ void InstEnv::RISCV_INST_GORCW (InstWord_t inst_hex)
   Word_t res_32 = 0;
 
   uint32_t x = rs1_val;
-  int shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = rs2_val & (m_pe_thread->GetBitModeInt() - 1);
   if (shamt &  1) x |= ((x & 0x55555555) << 1) | ((x & 0xAAAAAAAA) >> 1);
   if (shamt &  2) x |= ((x & 0x33333333) << 2) | ((x & 0xCCCCCCCC) >> 2);
   if (shamt &  4) x |= ((x & 0x0F0F0F0F) << 4) | ((x & 0xF0F0F0F0) >> 4);
@@ -1395,7 +1393,7 @@ void InstEnv::RISCV_INST_GREVW (InstWord_t inst_hex)
   UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
   UWord_t res_32 = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
     int j = (i ^ rs2_val) & (m_pe_thread->GetBitModeInt()-1);
     res_32 |= ((rs1_val >> i) & 1) << j;
   }
@@ -1477,7 +1475,7 @@ void InstEnv::RISCV_INST_SBSETIW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<Word_t> (rs1_addr);
   DWord_t imm      = ExtractBitField (inst_hex, 24, 20);
 
-  int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
   UWord_t res_32   = rs1_val | (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1493,7 +1491,7 @@ void InstEnv::RISCV_INST_SBINVIW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<Word_t> (rs1_addr);
   DWord_t imm      = ExtractBitField (inst_hex, 24, 20);
 
-  int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
   UWord_t res_32 = rs1_val ^ (UWord_t(1) << shamt);
   UDWord_t res = ExtendSign(res_32, 31);
 
@@ -1509,7 +1507,7 @@ void InstEnv::RISCV_INST_GORCIW (InstWord_t inst_hex)
   UWord_t rs1_val  = m_pe_thread->ReadGReg<Word_t> (rs1_addr);
   DWord_t imm      = ExtractBitField (inst_hex, 24, 20);
 
-  int shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
+  uint32_t shamt = imm & (m_pe_thread->GetBitModeInt() - 1);
 
   UWord_t res_32 = 0;
   UWord_t x = rs1_val;
@@ -1534,7 +1532,7 @@ void InstEnv::RISCV_INST_GREVIW (InstWord_t inst_hex)
   DWord_t imm      = ExtractBitField (inst_hex, 24, 20);
 
   UWord_t res_32 = 0;
-  for (int i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
+  for (uint32_t i = 0; i < m_pe_thread->GetBitModeInt(); i++) {
     int j = (i ^ imm) & (m_pe_thread->GetBitModeInt()-1);
     res_32 |= ((rs1_val >> i) & 1) << j;
   }
@@ -1557,7 +1555,7 @@ void InstEnv::RISCV_INST_FSLW (InstWord_t inst_hex)
 
   uint32_t actual_xlen = 32;
 
-  int shamt = rs2_val & (2 * actual_xlen - 1);
+  uint32_t shamt = rs2_val & (2 * actual_xlen - 1);
   UWord_t A = rs1_val, B = rs3_val;
   if (shamt >= actual_xlen) {
     shamt -= actual_xlen;
@@ -1584,7 +1582,7 @@ void InstEnv::RISCV_INST_FSRW (InstWord_t inst_hex)
 
   uint32_t actual_xlen = 32;
 
-  int shamt = rs2_val & ( 2 *actual_xlen - 1);
+  uint32_t shamt = rs2_val & ( 2 *actual_xlen - 1);
   UDWord_t A = rs1_val, B = rs3_val;
   if (shamt >= actual_xlen) {
     shamt -= actual_xlen;
@@ -1610,7 +1608,7 @@ void InstEnv::RISCV_INST_FSRIW (InstWord_t inst_hex)
 
   uint32_t actual_xlen = 32;
 
-  int shamt = imm & (2*actual_xlen - 1);
+  uint32_t shamt = imm & (2*actual_xlen - 1);
   UWord_t A = rs1_val, B = rs3_val;
   if (shamt >= actual_xlen) {
     shamt -= actual_xlen;
@@ -1666,11 +1664,9 @@ void InstEnv::RISCV_INST_CTZW (InstWord_t inst_hex)
 void InstEnv::RISCV_INST_PCNTW (InstWord_t inst_hex)
 {
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
-  RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
 
   UWord_t rs1_val  = m_pe_thread->ReadGReg<UWord_t> (rs1_addr);
-  UWord_t rs2_val  = m_pe_thread->ReadGReg<UWord_t> (rs2_addr);
 
   int count = 0;
   for (int index = 0; index < 32; index++)
