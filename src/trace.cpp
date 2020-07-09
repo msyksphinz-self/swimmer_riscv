@@ -35,7 +35,7 @@
 TraceInfo::TraceInfo (EnvBase *env)
   : m_pe_thread (env) {
 
-  m_max = 0;
+  // m_max = 0;
 
   m_hier_debug_in_skip = false;
   m_hier_depth     = 0;
@@ -46,21 +46,25 @@ TraceInfo::TraceInfo (EnvBase *env)
 
 void TraceInfo::clearTraceInfo ()
 {
-  m_max = 0;
+  m_trace_type.clear();
+  m_trace_size.clear();
+  m_trace_addr.clear();
+  m_trace_value.clear();
+  m_trace_memresult.clear();
 }
 
 
 TraceType TraceInfo::GetTraceType (uint32_t index) {
-  if (index < m_max) {
+  if (index < m_trace_type.size()) {
     return m_trace_type[index];
   } else {
-    m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Info. number of index is %d, and max is %d>\n", index, m_max);
+    m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Info. number of index is %d, and max is %d>\n", index, m_trace_type.size());
     return static_cast<TraceType>(-1);
   }
 }
 
 uint8_t TraceInfo::GetTraceSize (uint32_t index) {
-  if (index < m_max) {
+  if (index < m_trace_size.size()) {
     return m_trace_size[index];
   } else {
     m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Size>\n");
@@ -69,7 +73,7 @@ uint8_t TraceInfo::GetTraceSize (uint32_t index) {
 }
 
 Addr_t TraceInfo::GetTraceAddr (uint32_t index) {
-  if (index < m_max) {
+  if (index < m_trace_addr.size()) {
     return m_trace_addr[index];
   } else {
     m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Addr>\n");
@@ -78,7 +82,7 @@ Addr_t TraceInfo::GetTraceAddr (uint32_t index) {
 }
 
 DWord_t TraceInfo::GetTraceValue (uint32_t index) {
-  if (index < m_max) {
+  if (index < m_trace_value.size()) {
     return m_trace_value[index];
   } else {
     m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Value>\n");
@@ -87,10 +91,10 @@ DWord_t TraceInfo::GetTraceValue (uint32_t index) {
 }
 
 MemResult TraceInfo::GetTraceMemResult (uint32_t index) {
-  if (index < m_max) {
+  if (index < m_trace_memresult.size()) {
     return m_trace_memresult[index];
   } else {
-    m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Info. number of index is %d, and max is %d>\n", index, m_max);
+    m_pe_thread->ErrorPrint ("<Internal Error: Bad reference of Trace Info. number of index is %d, and max is %d>\n", index, m_trace_memresult.size());
     return static_cast<MemResult>(-1);
   }
 }
@@ -99,61 +103,61 @@ MemResult TraceInfo::GetTraceMemResult (uint32_t index) {
 template <typename DataType>
 void TraceInfo::RecordTrace (enum TraceType trace_type, Addr_t addr, DataType value)
 {
-  if (m_max < TRACE_MAX) {
-    m_trace_type [m_max] = trace_type;
+  // if (m_max < TRACE_MAX) {
+  m_trace_type.push_back(trace_type);
 
-    m_trace_size [m_max] = sizeof (DataType);
-    m_trace_addr [m_max] = addr;
-    m_trace_value[m_max] = value;
+  m_trace_size.push_back(sizeof(DataType));
+  m_trace_addr.push_back(addr);
+  m_trace_value.push_back(value);
 
-    m_max++;
-  } else {
-    std::cerr << "<Info: Failed to Record Trace: trace max exceeded = " << m_max << ">\n";
-    for (uint32_t idx = 0; idx < m_max; idx++) {
-      std::cerr << "<Info: TraceType = " << static_cast<uint32_t>(m_trace_type[idx]) << ">\n";
-    }
-    exit (EXIT_FAILURE);
-  }
+  // m_max++;
+  // } else {
+  //   std::cerr << "<Info: Failed to Record Trace: trace max exceeded = " << m_max << ">\n";
+  //   for (uint32_t idx = 0; idx < m_max; idx++) {
+  //     std::cerr << "<Info: TraceType = " << static_cast<uint32_t>(m_trace_type[idx]) << ">\n";
+  //   }
+  //   exit (EXIT_FAILURE);
+  // }
 }
 
 
 template <typename DataType>
 void TraceInfo::RecordMemTrace (enum TraceType trace_type, Addr_t addr, DataType value, MemResult result)
 {
-  if (m_max < TRACE_MAX) {
-    m_trace_type     [m_max] = trace_type;
+  // if (m_max < TRACE_MAX) {
+  m_trace_type.push_back(trace_type);
 
-    m_trace_size     [m_max] = sizeof (DataType);
-    m_trace_addr     [m_max] = addr;
-    m_trace_value    [m_max] = value;
-    m_trace_memresult[m_max] = result;
+  m_trace_size.push_back(sizeof (DataType));
+  m_trace_addr.push_back(addr);
+  m_trace_value.push_back(value);
+  m_trace_memresult.push_back(result);
 
-    m_max++;
-  } else {
-    std::cerr << "<Info: Failed to Record Trace: trace max exceeded = " << m_max << ">\n";
-    exit (EXIT_FAILURE);
-  }
+  // m_max++;
+  // } else {
+  //   std::cerr << "<Info: Failed to Record Trace: trace max exceeded = " << m_max << ">\n";
+  //   exit (EXIT_FAILURE);
+  // }
 }
 
 
 template <typename DataType>
 void TraceInfo::RecordVTrace (enum TraceType trace_type, Addr_t addr, DataType *value)
 {
-  if (m_max + 1 >= TRACE_MAX) {
-    std::cerr << "<<<Internal Error: RecordVTrace capacity is exceeded.>>>\n";
-    exit(EXIT_FAILURE);
-  }
-  m_trace_type [m_max] = trace_type;
-  m_trace_size [m_max] = sizeof (DataType);
-  m_trace_addr [m_max] = addr;
-  m_trace_value[m_max] = value->Get64(0);
-  m_max++;
+  // if (m_max + 1 >= TRACE_MAX) {
+  //   std::cerr << "<<<Internal Error: RecordVTrace capacity is exceeded.>>>\n";
+  //   exit(EXIT_FAILURE);
+  // }
+  m_trace_type .push_back(trace_type);
+  m_trace_size .push_back(sizeof (DataType));
+  m_trace_addr .push_back(addr);
+  m_trace_value.push_back(value->Get64(0));
+  // m_max++;
 
-  m_trace_type [m_max] = trace_type;
-  m_trace_size [m_max] = sizeof (DataType);
-  m_trace_addr [m_max] = addr;
-  m_trace_value[m_max] = value->Get64(1);
-  m_max++;
+  m_trace_type .push_back(trace_type);
+  m_trace_size .push_back(sizeof (DataType));
+  m_trace_addr .push_back(addr);
+  m_trace_value.push_back(value->Get64(1));
+  // m_max++;
 }
 
 
