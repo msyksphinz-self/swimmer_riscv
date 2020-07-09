@@ -99,7 +99,6 @@ RiscvPeThread::RiscvPeThread (FILE           *dbgfp,
   // Floating Point Register Format
   m_regs  = std::unique_ptr<DWord_t[]>(new DWord_t[32]);
   m_fregs = std::unique_ptr<DWord_t[]>(new DWord_t[32]);
-  m_vregs = (uint8_t *)malloc(sizeof(uint8_t) * get_VLENB());
 
   m_device_list = new RiscvDeviceList_t();
   RiscvSyscall_t *riscv_syscall = new RiscvSyscall_t(0, this);

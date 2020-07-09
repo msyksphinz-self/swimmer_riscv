@@ -35,7 +35,7 @@
 
 #include "inst_list_riscv.hpp"
 
-#define TRACE_MAX 64
+// #define TRACE_MAX 64
 
 using PairStackTrace = std::pair<Addr_t, std::string>;
 
@@ -87,7 +87,7 @@ class TraceInfo {
   Addr_t GetTracePhyPC (void) { return m_executed_phypc; }
 
 
-  uint32_t GetMax(void) { return m_max; }
+  uint32_t GetMax(void) { return m_trace_type.size(); }
 
   TraceType GetTraceType      (uint32_t index);
   uint8_t   GetTraceSize      (uint32_t index);
@@ -143,15 +143,15 @@ class TraceInfo {
   InstId_t m_inst_idx, m_previous_idx;
   uint32_t m_step;
 
-  uint32_t m_max;
+  // uint32_t m_max;
 
-  TraceType m_trace_type[TRACE_MAX];
+  std::vector<TraceType> m_trace_type; // [TRACE_MAX];
 
   /* for Register Read/Write */
-  uint8_t   m_trace_size     [TRACE_MAX];
-  Addr_t    m_trace_addr     [TRACE_MAX];
-  DWord_t   m_trace_value    [TRACE_MAX];
-  MemResult m_trace_memresult[TRACE_MAX];  /* Memory Access Result */
+  std::vector<uint8_t>   m_trace_size     ; // [TRACE_MAX];
+  std::vector<Addr_t>    m_trace_addr     ; // [TRACE_MAX];
+  std::vector<DWord_t>   m_trace_value    ; // [TRACE_MAX];
+  std::vector<MemResult> m_trace_memresult; // [TRACE_MAX];  /* Memory Access Result */
 
   FILE   *m_trace_hier_fp;   // Trace Hierarchy output file pointer
   std::vector<PairStackTrace *> m_hier_stack;  // Stack of Hierarchy Function Trace
