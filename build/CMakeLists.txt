@@ -49,7 +49,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/config.h.in" "${PROJECT_SOURCE_DIR}/confi
 
 include_directories ("./")
 
-add_custom_command (OUTPUT ../src/inst_decoder_riscv.cpp ../src/inst_category_riscv.cpp ../src/inst_operand_riscv.cpp ../src/inst_mnemonic_riscv.cpp ../src/inst_riscv_init.cpp ../src/inst_operand_riscv.hpp ../src/inst_riscv.hpp ../src/inst_riscv__ALU.hpp ../src/inst_riscv__FPU.hpp
+add_custom_command (OUTPUT ../src/inst_decoder_riscv.cpp ../src/inst_category_riscv.cpp ../src/inst_operand_riscv.cpp ../src/inst_mnemonic_riscv.cpp ../src/inst_riscv_init.cpp ../src/inst_operand_riscv.hpp ../src/inst_riscv.hpp ../src/inst_riscv__ALU.hpp ../src/inst_riscv__FPU.hpp ../src/inst_list_riscv.hpp
   COMMAND ruby -I../script/ ../script/gen_arch_table.rb riscv
   WORKING_DIRECTORY ../src/
   DEPENDS ../script/gen_arch_table.rb ../script/gen_decode_table.rb ../script/gen_operand_table.rb ../script/gen_inst_mnemonic.rb riscv_arch_table.rb
