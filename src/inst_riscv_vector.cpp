@@ -389,7 +389,7 @@ void InstEnv::RISCV_INST_VLE8_V(InstWord_t inst_hex)
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  m_pe_thread->MemLoadUnitStride<Byte_t>(mem_base_addr, rs1_addr, vd_addr, vm, static_cast<Byte_t>(0));
+  m_pe_thread->MemLoadUnitStride<Byte_t>(mem_base_addr, vd_addr, vm, static_cast<Byte_t>(0));
 }
 
 
@@ -405,7 +405,7 @@ void InstEnv::RISCV_INST_VLE16_V(InstWord_t inst_hex)
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  m_pe_thread->MemLoadUnitStride<HWord_t>(mem_base_addr, rs1_addr, vd_addr, vm, static_cast<HWord_t>(0));
+  m_pe_thread->MemLoadUnitStride<HWord_t>(mem_base_addr, vd_addr, vm, static_cast<HWord_t>(0));
 }
 
 
@@ -421,7 +421,7 @@ void InstEnv::RISCV_INST_VLE32_V(InstWord_t inst_hex)
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  m_pe_thread->MemLoadUnitStride<Word_t>(mem_base_addr, rs1_addr, vd_addr, vm, static_cast<Word_t>(0));
+  m_pe_thread->MemLoadUnitStride<Word_t>(mem_base_addr, vd_addr, vm, static_cast<Word_t>(0));
 }
 
 
@@ -437,7 +437,7 @@ void InstEnv::RISCV_INST_VLE64_V(InstWord_t inst_hex)
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
 
-  m_pe_thread->MemLoadUnitStride<DWord_t>(mem_base_addr, rs1_addr, vd_addr, vm, static_cast<DWord_t>(0));
+  m_pe_thread->MemLoadUnitStride<DWord_t>(mem_base_addr, vd_addr, vm, static_cast<DWord_t>(0));
 }
 
 
@@ -452,7 +452,7 @@ void InstEnv::RISCV_INST_VSE8_V(InstWord_t inst_hex)
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
-  m_pe_thread->MemStoreUnitStride<Byte_t>(mem_base_addr, rs1_addr, vs3_addr, vm, static_cast<Byte_t>(0));
+  m_pe_thread->MemStoreUnitStride<Byte_t>(mem_base_addr, vs3_addr, vm, static_cast<Byte_t>(0));
 }
 
 
@@ -467,7 +467,7 @@ void InstEnv::RISCV_INST_VSE16_V(InstWord_t inst_hex)
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
-  m_pe_thread->MemStoreUnitStride<HWord_t>(mem_base_addr, rs1_addr, vs3_addr, vm, static_cast<HWord_t>(0));
+  m_pe_thread->MemStoreUnitStride<HWord_t>(mem_base_addr, vs3_addr, vm, static_cast<HWord_t>(0));
 }
 
 
@@ -482,7 +482,7 @@ void InstEnv::RISCV_INST_VSE32_V(InstWord_t inst_hex)
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
-  m_pe_thread->MemStoreUnitStride<Word_t>(mem_base_addr, rs1_addr, vs3_addr, vm, static_cast<Word_t>(0));
+  m_pe_thread->MemStoreUnitStride<Word_t>(mem_base_addr, vs3_addr, vm, static_cast<Word_t>(0));
 }
 
 
@@ -497,27 +497,353 @@ void InstEnv::RISCV_INST_VSE64_V(InstWord_t inst_hex)
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
   bool vm = ExtractBitField(inst_hex, 25, 25);
   Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
-  m_pe_thread->MemStoreUnitStride<DWord_t>(mem_base_addr, rs1_addr, vs3_addr, vm, static_cast<DWord_t>(0));
+  m_pe_thread->MemStoreUnitStride<DWord_t>(mem_base_addr, vs3_addr, vm, static_cast<DWord_t>(0));
 }
 
 
-void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSUXEI8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSSE8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSXEI8_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLSE16_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLXSE16_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSUXEI16_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSSE16_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSXE16_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLSE32_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLXEI32_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSUXEI32_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSSE32_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSXEI32_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLSE64_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VLXE64_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSUXE64_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSSE64_V(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VSXE64_V(InstWord_t inst_hex) {}
+void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemLoadStrided<Byte_t>(mem_base_addr, rs2_val, vd_addr, vm, static_cast<Byte_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLSE16_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemLoadStrided<HWord_t>(mem_base_addr, rs2_val, vd_addr, vm, static_cast<HWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLSE32_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemLoadStrided<Word_t>(mem_base_addr, rs2_val, vd_addr, vm, static_cast<Word_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLSE64_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemLoadStrided<DWord_t>(mem_base_addr, rs2_val, vd_addr, vm, static_cast<DWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSSE8_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemStoreStrided<Byte_t>(mem_base_addr, rs2_val, vs3_addr, vm, static_cast<Byte_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSSE16_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemStoreStrided<HWord_t>(mem_base_addr, rs2_val, vs3_addr, vm, static_cast<HWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSSE32_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemStoreStrided<Word_t>(mem_base_addr, rs2_val, vs3_addr, vm, static_cast<Word_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSSE64_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+  DWord_t rs2_val      = m_pe_thread->ReadGReg<DWord_t> (rs2_addr);
+
+  m_pe_thread->MemStoreStrided<DWord_t>(mem_base_addr, rs2_val, vs3_addr, vm, static_cast<DWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+
+  m_pe_thread->MemLoadIndexStrided<Byte_t>(mem_base_addr, vs2_addr, vd_addr, vm, static_cast<Byte_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLXEI16_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+
+  m_pe_thread->MemLoadIndexStrided<HWord_t>(mem_base_addr, vs2_addr, vd_addr, vm, static_cast<HWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLXEI32_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+
+  m_pe_thread->MemLoadIndexStrided<Word_t>(mem_base_addr, vs2_addr, vd_addr, vm, static_cast<Word_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VLXEI64_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr = m_pe_thread->ReadGReg<Addr_t> (rs1_addr);
+
+  m_pe_thread->MemLoadIndexStrided<DWord_t>(mem_base_addr, vs2_addr, vd_addr, vm, static_cast<DWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSXEI8_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<Byte_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<Byte_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSXEI16_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<HWord_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<HWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSXEI32_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<Word_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<Word_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSXEI64_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<DWord_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<DWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSUXEI8_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<Byte_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<Byte_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSUXEI16_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<HWord_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<HWord_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSUXEI32_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<Word_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<Word_t>(0));
+}
+
+
+void InstEnv::RISCV_INST_VSUXEI64_V(InstWord_t inst_hex)
+{
+  if (!m_pe_thread->IsVECAvailable ()) {
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
+    return;
+  }
+
+  const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
+  const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+  Addr_t mem_base_addr  = m_pe_thread->ReadGReg<DWord_t> (rs1_addr);
+
+  m_pe_thread->MemStoreIndexStrided<DWord_t>(mem_base_addr, vs2_addr, vs3_addr, vm, static_cast<DWord_t>(0));
+}

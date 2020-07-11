@@ -515,11 +515,17 @@ class RiscvPeThread : public EnvBase
   int32_t get_SLEN()  { return m_slen; }
 
   template <class T>
-  void MemLoadUnitStride(Addr_t mem_base_addr,
-                         const RegAddr_t rs1_addr, const RegAddr_t vd_addr,
-                         bool vm, T type);
+  void MemLoadUnitStride(const Addr_t mem_base_addr, const RegAddr_t vd_addr, bool vm, T type);
   template <class T>
-  void MemStoreUnitStride(Addr_t mem_base_addr,
-                          const RegAddr_t rs1_addr, const RegAddr_t vs3_addr,
-                          bool vm, T type);
+  void MemStoreUnitStride(const Addr_t mem_base_addr, const RegAddr_t vs3_addr, bool vm, T type);
+
+  template <class T>
+  void MemLoadStrided(const Addr_t mem_base_addr, const DWord_t rs2_val, const RegAddr_t vd_addr, bool vm, T type);
+  template <class T>
+  void MemStoreStrided(const Addr_t mem_base_addr, const DWord_t rs2_val, const RegAddr_t vs3_addr, bool vm, T type);
+
+  template <class T>
+  void MemLoadIndexStrided(const Addr_t mem_base_addr, const RegAddr_t vs2_addr, const RegAddr_t vd_addr, bool vm, T type);
+  template <class T>
+  void MemStoreIndexStrided(const Addr_t mem_base_addr, const RegAddr_t vs2_addr, const RegAddr_t vs3_addr, bool vm, T type);
 };
