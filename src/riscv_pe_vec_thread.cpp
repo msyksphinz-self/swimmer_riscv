@@ -64,10 +64,7 @@ class RiscvClint_t;
 template <class T>
 T RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx)
 {
-  T value = *((reinterpret_cast<T*>(m_vregs)) + reg_idx * get_VLENB() + elem_idx);
-  // if (IsDebugTrace() == true) {
-  //   GetTrace()->RecordTrace (TraceType::VRegRead, reg_idx, elem_idx, value);
-  // }
+  T value = *((reinterpret_cast<T*>(m_vregs.get())) + reg_idx * get_VLENB() + elem_idx);
   return value;
 }
 
@@ -81,10 +78,83 @@ T RiscvPeThread::ReadVReg (RegAddr_t reg_idx, uint32_t elem_idx)
 template <class T>
 void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, T data)
 {
-  // if (IsDebugTrace() == true) {
-  //   GetTrace()->RecordTrace (TraceType::VRegWrite, reg, data);
-  // }
-  *((reinterpret_cast<T*>(m_vregs)) + reg_idx * get_VLENB() + elem_idx) = data;
+  *((reinterpret_cast<T*>(m_vregs.get())) + reg_idx * get_VLENB() + elem_idx) = data;
+}
+
+
+#define CHECK_MEM_EXCEPTION(cause, addr) \
+    if (cause == MemResult::MemMisAlign) { \
+      CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_VSTART), i); \
+      GenerateException (ExceptCode::Except_LoadAddrMisalign, addr); \
+      return; \
+    } \
+    if (cause == MemResult::MemTlbError) { \
+      CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_VSTART), i); \
+      GenerateException (ExceptCode::Except_LoadPageFault, addr); \
+      return; \
+    } \
+    if (cause == MemResult::MemNotDefined) { \
+      CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_VSTART), i); \
+      GenerateException (ExceptCode::Except_LoadAccessFault, addr); \
+      return; \
+    } \
+
+
+
+template <class T>
+void RiscvPeThread::MemLoadUnitStride(Addr_t mem_base_addr,
+                                      const RegAddr_t rs1_addr, const RegAddr_t vd_addr,
+                                      bool vm, T type) {
+  const int DWIDTH = sizeof(T) * 8;
+  Word_t vl;
+  CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VL), &vl);
+  Word_t vstart; CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VSTART), &vstart);
+  for (int i = vstart; i < vl; i++) {
+    // int elem_position_byte = i * sizeof(T) * 8;
+    if (vm == 0) {
+      const int midx = i / DWIDTH;
+      const int mpos = i % DWIDTH;
+      bool skip = ((ReadVReg<T>(0, midx) >> mpos) & 0x1) == 0;
+      if (skip) {
+        continue;
+      }
+    }
+
+    Addr_t mem_addr = mem_base_addr + i * DWIDTH / 8;
+    T  res;
+    MemResult except = LoadFromBus (mem_addr, &res);
+    CHECK_MEM_EXCEPTION(except, mem_addr);
+
+    WriteVReg<T> (vd_addr, i, res);
+  }
+}
+
+
+template <class T>
+void RiscvPeThread::MemStoreUnitStride(Addr_t mem_base_addr,
+                                       const RegAddr_t rs1_addr, const RegAddr_t vs3_addr,
+                                       bool vm, T type) {
+  const int DWIDTH = sizeof(T) * 8;
+  Word_t vl;
+  CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VL), &vl);
+  Word_t vstart; CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VSTART), &vstart);
+  for (int i = vstart; i < vl; i++) {
+    if (vm == 0) {
+      const int midx = i / DWIDTH;
+      const int mpos = i % DWIDTH;
+      bool skip = ((ReadVReg<T>(0, midx) >> mpos) & 0x1) == 0;
+      if (skip) {
+        continue;
+      }
+    }
+    T store_data = ReadVReg<T> (vs3_addr, i);
+    Addr_t mem_addr = mem_base_addr + i * DWIDTH / 8;
+
+    MemResult except = StoreToBus (mem_addr, store_data);
+    CHECK_MEM_EXCEPTION(except, mem_addr);
+
+  }
+
 }
 
 
@@ -101,3 +171,13 @@ template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, Wo
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, UWord_t  data);
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, DWord_t  data);
 template void RiscvPeThread::WriteVReg (RegAddr_t reg_idx, uint32_t elem_idx, UDWord_t data);
+
+template void RiscvPeThread::MemLoadUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vd_addr, bool vm, Byte_t  type);
+template void RiscvPeThread::MemLoadUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vd_addr, bool vm, HWord_t type);
+template void RiscvPeThread::MemLoadUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vd_addr, bool vm, Word_t  type);
+template void RiscvPeThread::MemLoadUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vd_addr, bool vm, DWord_t type);
+
+template void RiscvPeThread::MemStoreUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vs3_addr, bool vm, Byte_t  type);
+template void RiscvPeThread::MemStoreUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vs3_addr, bool vm, HWord_t type);
+template void RiscvPeThread::MemStoreUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vs3_addr, bool vm, Word_t  type);
+template void RiscvPeThread::MemStoreUnitStride(Addr_t mem_base_addr, const RegAddr_t rs1_addr, const RegAddr_t vs3_addr, bool vm, DWord_t type);

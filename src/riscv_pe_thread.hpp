@@ -149,8 +149,7 @@ class RiscvPeThread : public EnvBase
   RiscvDec *m_ptr_riscv_dec;
   std::unique_ptr<DWord_t []> m_regs;   // general register
   std::unique_ptr<DWord_t []> m_fregs;  // floating point registers
-  // std::unique_ptr<uint8_t []> m_vregs;  // Vector Registers
-  uint8_t* m_vregs;
+  std::unique_ptr<uint8_t []> m_vregs;  // Vector Registers
   std::unique_ptr<CsrEnv>  m_csr_env;   // CSR system register information
   std::unique_ptr<RiscvPageTable> m_riscv_page_table;   // Page Table for RISC-V
   Addr_t m_load_reservation;
@@ -515,4 +514,12 @@ class RiscvPeThread : public EnvBase
   int32_t get_VLENB() { return m_vlen / 8; }
   int32_t get_SLEN()  { return m_slen; }
 
+  template <class T>
+  void MemLoadUnitStride(Addr_t mem_base_addr,
+                         const RegAddr_t rs1_addr, const RegAddr_t vd_addr,
+                         bool vm, T type);
+  template <class T>
+  void MemStoreUnitStride(Addr_t mem_base_addr,
+                          const RegAddr_t rs1_addr, const RegAddr_t vs3_addr,
+                          bool vm, T type);
 };
