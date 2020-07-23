@@ -25,25 +25,19 @@
  *   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
-#include <gmpxx.h>
-#include <iostream>
-#include <iomanip>
-#include "inst_list_riscv.hpp"
-#include "dec_utils_riscv.hpp"
-#include "softfloat.h"
-#include "riscv_pe_thread.hpp"
 #include "inst_riscv.hpp"
-#include "riscv_sysreg_impl.hpp"
-#include "inst_ops.hpp"
-#include "riscv_sysreg_bitdef.hpp"
+#include "dec_utils_riscv.hpp"
+
+#define REQUIRE_VEC \
+  if (!m_pe_thread->IsVECAvailable ()) { \
+    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0); \
+    return; \
+  }
+
 
 void InstEnv::RISCV_INST_VSETVLI (InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   RegAddr_t rd_addr  = ExtractRDField (inst_hex);
@@ -74,10 +68,7 @@ void InstEnv::RISCV_INST_VSETVLI (InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSETVL (InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
   // RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
@@ -88,7 +79,22 @@ void InstEnv::RISCV_INST_VSETVL (InstWord_t inst_hex)
 }
 
 
-void InstEnv::RISCV_INST_VADD_VV(InstWord_t inst_hex) {}
+void InstEnv::RISCV_INST_VADD_VV(InstWord_t inst_hex)
+{
+  REQUIRE_VEC;
+
+  RegAddr_t vs1_addr = ExtractR1Field (inst_hex);
+  RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
+  RegAddr_t vd_addr  = ExtractRDField (inst_hex);
+
+  bool vm = ExtractBitField(inst_hex, 25, 25);
+
+  m_pe_thread->VecExecInt2Op<DWord_t, DWord_t> (vm, vs1_addr, vs2_addr,
+                                                vd_addr,
+                                                [](DWord_t op1, DWord_t op2) { return op1 + op2; });
+}
+
+
 void InstEnv::RISCV_INST_VSUB_VV(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VRSUB_VV(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VMINU_VV(InstWord_t inst_hex) {}
@@ -344,7 +350,6 @@ void InstEnv::RISCV_INST_VFREDMAX_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VFSGNJ_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VFSGNJN_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VFSGNJX_VF(InstWord_t inst_hex) {}
-void InstEnv::RISCV_INST_VRFUNARY0_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VFMV_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VMFEQ_VF(InstWord_t inst_hex) {}
 void InstEnv::RISCV_INST_VMFLE_VF(InstWord_t inst_hex) {}
@@ -379,10 +384,7 @@ void InstEnv::RISCV_INST_VFWNMSAC_VF(InstWord_t inst_hex) {}
 
 void InstEnv::RISCV_INST_VLE8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
@@ -395,10 +397,7 @@ void InstEnv::RISCV_INST_VLE8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLE16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
@@ -411,10 +410,7 @@ void InstEnv::RISCV_INST_VLE16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLE32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
@@ -427,10 +423,7 @@ void InstEnv::RISCV_INST_VLE32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLE64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vd_addr  = ExtractRDField (inst_hex);
@@ -443,10 +436,7 @@ void InstEnv::RISCV_INST_VLE64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSE8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
@@ -458,10 +448,7 @@ void InstEnv::RISCV_INST_VSE8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSE16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
@@ -473,10 +460,7 @@ void InstEnv::RISCV_INST_VSE16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSE32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
@@ -488,10 +472,7 @@ void InstEnv::RISCV_INST_VSE32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSE64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs3_addr = ExtractRDField (inst_hex);
@@ -503,10 +484,7 @@ void InstEnv::RISCV_INST_VSE64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -521,10 +499,7 @@ void InstEnv::RISCV_INST_VLSE8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLSE16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -539,10 +514,7 @@ void InstEnv::RISCV_INST_VLSE16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLSE32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -557,10 +529,7 @@ void InstEnv::RISCV_INST_VLSE32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLSE64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -575,10 +544,7 @@ void InstEnv::RISCV_INST_VLSE64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSSE8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -593,10 +559,7 @@ void InstEnv::RISCV_INST_VSSE8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSSE16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -611,10 +574,7 @@ void InstEnv::RISCV_INST_VSSE16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSSE32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -629,10 +589,7 @@ void InstEnv::RISCV_INST_VSSE32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSSE64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t rs2_addr = ExtractR2Field (inst_hex);
@@ -647,10 +604,7 @@ void InstEnv::RISCV_INST_VSSE64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -664,10 +618,7 @@ void InstEnv::RISCV_INST_VLXEI8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLXEI16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -681,10 +632,7 @@ void InstEnv::RISCV_INST_VLXEI16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLXEI32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -698,10 +646,7 @@ void InstEnv::RISCV_INST_VLXEI32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VLXEI64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -715,10 +660,7 @@ void InstEnv::RISCV_INST_VLXEI64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSXEI8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -732,10 +674,7 @@ void InstEnv::RISCV_INST_VSXEI8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSXEI16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -749,10 +688,7 @@ void InstEnv::RISCV_INST_VSXEI16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSXEI32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -766,10 +702,7 @@ void InstEnv::RISCV_INST_VSXEI32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSXEI64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -783,10 +716,7 @@ void InstEnv::RISCV_INST_VSXEI64_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSUXEI8_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -800,10 +730,7 @@ void InstEnv::RISCV_INST_VSUXEI8_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSUXEI16_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -817,10 +744,7 @@ void InstEnv::RISCV_INST_VSUXEI16_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSUXEI32_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);
@@ -834,10 +758,7 @@ void InstEnv::RISCV_INST_VSUXEI32_V(InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VSUXEI64_V(InstWord_t inst_hex)
 {
-  if (!m_pe_thread->IsVECAvailable ()) {
-    m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0);
-    return;
-  }
+  REQUIRE_VEC;
 
   const RegAddr_t rs1_addr = ExtractR1Field (inst_hex);
   const RegAddr_t vs2_addr = ExtractR2Field (inst_hex);

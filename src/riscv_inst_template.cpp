@@ -205,3 +205,31 @@ void RiscvPeThread::Func_R_F (InstWord_t inst_hex, Func func)
   WriteGReg<Dst_t> (rd_addr, res);
   CSRWrite (static_cast<Addr_t>(SYSREG_ADDR_FFLAGS), fflags);
 }
+
+
+template <typename Dst_t, typename Src_t, typename Func>
+void RiscvPeThread::VecExecInt2Op(bool vm,
+                                  RegAddr_t vs1_addr, RegAddr_t vs2_addr, RegAddr_t vd_addr,
+                                  Func func)
+{
+  const int DWIDTH = sizeof(DWord_t) * 8;
+  Word_t vl;
+  CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VL), &vl);
+  Word_t vstart; CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VSTART), &vstart);
+  for (int i = vstart; i < vl; i++) {
+    if (vm == 0) {
+      const int midx = i / DWIDTH;
+      const int mpos = i % DWIDTH;
+      bool skip = ((ReadVReg<DWord_t>(0, midx) >> mpos) & 0x1) == 0;
+      if (skip) {
+        continue;
+      }
+    }
+    Src_t vs1_val = ReadVReg<Src_t> (vs1_addr, i);
+    Src_t vs2_val = ReadVReg<Src_t> (vs2_addr, i);
+
+    Dst_t res = func(vs1_val, vs2_val);
+
+    WriteVReg<Dst_t> (vd_addr, i, res);
+  }
+}

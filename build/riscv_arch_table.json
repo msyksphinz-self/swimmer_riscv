@@ -1875,7 +1875,7 @@
     // RVV : Vector Extension
     //
     {
-        "name":"vsetvli r[11:7],r[19:15],h[30:20]",
+        "name":"vsetvli    r[11:7],r[19:15],h[30:20]",
         "length":"32", "dlength":"32",
         "field":["0XXXX", "XX", "XXXXX", "XXXXX", "111", "XXXXX", "10101", "11"],
         "category":"VECTOR",
@@ -1884,7 +1884,7 @@
         "inst_ctrl":[]
     },
     {
-        "name":"vsetvl  r[11:7],r[19:15],r[24:20]",
+        "name":"vsetvl     r[11:7],r[19:15],r[24:20]",
         "length":"32", "dlength":"32",
         "field":["10000", "00", "XXXXX", "XXXXX", "111", "XXXXX", "10101", "11"],
         "category":"VECTOR",

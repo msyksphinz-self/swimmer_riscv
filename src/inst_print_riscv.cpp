@@ -100,6 +100,8 @@ void RiscvPeThread::PrintInst (uint32_t inst_hex, InstId_t inst_idx,
         case operandType::operandTypeSign       : divide_base = 16; break;
         case operandType::operandTypeUnSign     : divide_base = 16; break;
         case operandType::operandTypeFreg       : divide_base = 10; break;
+        case operandType::operandTypeVreg       : divide_base = 10; break;
+        case operandType::operandTypeVmask      : divide_base = 10; break;
         default                                 : divide_base = 10; break;
       }
       for (uint32_t i = 0, tmp_operand_bit = operand_bit; i < length_field; i++) {
@@ -116,16 +118,24 @@ void RiscvPeThread::PrintInst (uint32_t inst_hex, InstId_t inst_idx,
         case operandType::operandTypeSign        : sprintf (str_head, "0x"); str_head +=2; break;
         case operandType::operandTypeUnSign      : sprintf (str_head, "0x"); str_head +=2; break;
         case operandType::operandTypeFreg        : sprintf (str_head, "f");  str_head +=1; break;
+        case operandType::operandTypeVreg        : sprintf (str_head, "v");  str_head +=1; break;
+        case operandType::operandTypeVmask       :
+          if (operand_bit == 0) {
+            sprintf (str_head, ",v0.t");  str_head +=5;
+          }
+          break;
         default                                  : break;
       }
 
-      for (int i = length_field - 1; i >= 0; i--) {
-        if (divide_base == 16) {
-          str_head[0] = (disp_array[i] < 10) ? disp_array[i] + 0x30 : disp_array[i] + 0x57;
-        } else if (divide_base <= 10) {
-          str_head[0] = disp_array[i] + 0x30;
+      if (type != operandType::operandTypeVmask) {
+        for (int i = length_field - 1; i >= 0; i--) {
+          if (divide_base == 16) {
+            str_head[0] = (disp_array[i] < 10) ? disp_array[i] + 0x30 : disp_array[i] + 0x57;
+          } else if (divide_base <= 10) {
+            str_head[0] = disp_array[i] + 0x30;
+          }
+          str_head ++;
         }
-        str_head ++;
       }
     } else {
       str_head[0] = inst_str[0];

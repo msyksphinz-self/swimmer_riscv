@@ -528,4 +528,10 @@ class RiscvPeThread : public EnvBase
   void MemLoadIndexStrided(const Addr_t mem_base_addr, const RegAddr_t vs2_addr, const RegAddr_t vd_addr, bool vm, T type);
   template <class T>
   void MemStoreIndexStrided(const Addr_t mem_base_addr, const RegAddr_t vs2_addr, const RegAddr_t vs3_addr, bool vm, T type);
+
+  template <typename Dst_t, typename Src_t, typename Func>
+  void VecExecInt2Op(bool vm,
+                     RegAddr_t vs1_addr, RegAddr_t vs2_addr, RegAddr_t vd_addr,
+                     Func func);
+
 };

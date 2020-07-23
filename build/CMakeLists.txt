@@ -52,7 +52,7 @@ include_directories ("./")
 add_custom_command (OUTPUT ../src/inst_decoder_riscv.cpp ../src/inst_category_riscv.cpp ../src/inst_operand_riscv.cpp ../src/inst_mnemonic_riscv.cpp ../src/inst_riscv_init.cpp ../src/inst_operand_riscv.hpp ../src/inst_riscv.hpp ../src/inst_riscv__ALU.hpp ../src/inst_riscv__FPU.hpp ../src/inst_list_riscv.hpp
   COMMAND ruby -I../script/ ../script/gen_arch_table.rb riscv
   WORKING_DIRECTORY ../src/
-  DEPENDS ../script/gen_arch_table.rb ../script/gen_decode_table.rb ../script/gen_operand_table.rb ../script/gen_inst_mnemonic.rb riscv_arch_table.rb
+  DEPENDS ../script/gen_arch_table.rb ../script/gen_decode_table.rb ../script/gen_operand_table.rb ../script/gen_inst_mnemonic.rb riscv_arch_table.rb *.json
 )
 
 add_custom_command (OUTPUT ../src/riscv_sysreg_rw.cpp ../src/riscv_sysreg_impl.hpp ../src/riscv_sysreg_str.cpp ../src/riscv_sysreg_str.hpp
@@ -80,7 +80,6 @@ add_library (riscv_cedar
   ../src/inst_riscv_init.cpp
   ../src/inst_decoder_riscv.cpp
   ../src/inst_riscv.cpp
-  ../src/inst_riscv_vector.cpp
   ../src/inst_ops_riscv.cpp
   ../src/inst_operand_riscv.cpp
   ../src/dec_utils_riscv.cpp

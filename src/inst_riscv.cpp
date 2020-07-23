@@ -44,6 +44,8 @@
 #include "inst_riscv__BIT.cpp"
 #include "inst_riscv_bit.cpp"
 
+#include "inst_riscv_vector.cpp"
+
 InstEnv::InstEnv (RiscvPeThread *env)
 {
   m_pe_thread = env;

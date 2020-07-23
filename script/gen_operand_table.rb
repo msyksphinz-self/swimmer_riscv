@@ -52,6 +52,7 @@ def gen_operand_table()
   operand_type_array.push(["mr", "operandTypeRoundMode"])
   operand_type_array.push(["cr", "operandTypeCompactReg"])
   operand_type_array.push(["cf", "operandTypeCompactFReg"])
+  operand_type_array.push(["vm", "operandTypeVmask"])
 
   inst_operand_h_fp = File.open("inst_operand_" + $arch_name + ".hpp", 'w');
 
