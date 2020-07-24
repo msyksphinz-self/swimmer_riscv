@@ -3,7 +3,6 @@
 
     {"name":"vadd.vv      v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00000", "0X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
     {"name":"vsub.vv      v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00001", "0X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
-    {"name":"vrsub.vv     v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00001", "1X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
     {"name":"vminu.vv     v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00010", "0X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
     {"name":"vmin.vv      v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00010", "1X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
     {"name":"vmaxu.vv     v[11:7],v[24:20],v[19:15]vm[25:25]", "length":"32", "dlength":"128", "field": ["00011", "0X", "XXXXX", "XXXXX", "000", "XXXXX", "10101", "11"], "category":"VEC", "func_suffix":"", "impl":[""], "inst_ctrl":[""]},
