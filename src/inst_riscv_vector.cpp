@@ -65,9 +65,52 @@
                                                   [](Word_t op1, Word_t op2) { return op; }); \
       break; \
     case RvvSEW::SEW_64BIT: \
-      m_pe_thread->VecExecInt2Op<HWord_t, HWord_t> (vm, vs1_addr, vs2_addr, \
+      m_pe_thread->VecExecInt2Op<DWord_t, DWord_t> (vm, vs1_addr, vs2_addr, \
                                                     vd_addr, \
-                                                    [](Word_t op1, Word_t op2) { return op; }); \
+                                                    [](DWord_t op1, DWord_t op2) { return op; }); \
+      break; \
+    default: \
+      m_pe_thread->DebugPrint("Unsupported SEW."); \
+      m_pe_thread->GenerateException (ExceptCode::Except_IllegalInst, 0); \
+      return; \
+  } \
+                                                \
+  return;
+
+
+#define VI_VV_LOOP_U(op)                          \
+  REQUIRE_VEC; \
+\
+  RegAddr_t vs1_addr = ExtractR1Field (inst_hex); \
+  RegAddr_t vs2_addr = ExtractR2Field (inst_hex); \
+  RegAddr_t vd_addr  = ExtractRDField (inst_hex); \
+                                                  \
+  bool vm = ExtractBitField(inst_hex, 25, 25);    \
+                                                  \
+  int vtype;                                                            \
+  m_pe_thread->CSRRead (static_cast<Addr_t>(SYSREG_ADDR_VTYPE), &vtype); \
+  RvvSEW sew = static_cast<RvvSEW>((vtype >> 2) & 0x7);                 \
+                                                                        \
+  switch(sew) {                                                         \
+    case RvvSEW::SEW_8BIT:                                              \
+      m_pe_thread->VecExecInt2Op<UByte_t, UByte_t> (vm, vs1_addr, vs2_addr, \
+                                                    vd_addr,                \
+                                                    [](UByte_t op1, UByte_t op2) { return op; }); \
+      break; \
+    case RvvSEW::SEW_16BIT: \
+      m_pe_thread->VecExecInt2Op<UHWord_t, UHWord_t> (vm, vs1_addr, vs2_addr, \
+                                                      vd_addr, \
+                                                      [](UHWord_t op1, UHWord_t op2) { return op; }); \
+      break; \
+    case RvvSEW::SEW_32BIT: \
+      m_pe_thread->VecExecInt2Op<UWord_t, UWord_t> (vm, vs1_addr, vs2_addr, \
+                                                    vd_addr, \
+                                                    [](UWord_t op1, UWord_t op2) { return op; }); \
+      break; \
+    case RvvSEW::SEW_64BIT: \
+      m_pe_thread->VecExecInt2Op<UDWord_t, UDWord_t> (vm, vs1_addr, vs2_addr, \
+                                                      vd_addr, \
+                                                      [](UDWord_t op1, UDWord_t op2) { return op; }); \
       break; \
     default: \
       m_pe_thread->DebugPrint("Unsupported SEW."); \
@@ -125,9 +168,9 @@ void InstEnv::RISCV_INST_VSETVL (InstWord_t inst_hex)
 
 void InstEnv::RISCV_INST_VADD_VV(InstWord_t inst_hex)  { VI_VV_LOOP(op1 + op2); }
 void InstEnv::RISCV_INST_VSUB_VV(InstWord_t inst_hex)  { VI_VV_LOOP(op1 - op2); }
-void InstEnv::RISCV_INST_VMINU_VV(InstWord_t inst_hex) { VI_VV_LOOP(op1 < op2 ? op1 : op2); }
+void InstEnv::RISCV_INST_VMINU_VV(InstWord_t inst_hex) { VI_VV_LOOP_U(op1 < op2 ? op1 : op2); }
 void InstEnv::RISCV_INST_VMIN_VV(InstWord_t inst_hex)  { VI_VV_LOOP(op1 < op2 ? op1 : op2); }
-void InstEnv::RISCV_INST_VMAXU_VV(InstWord_t inst_hex) { VI_VV_LOOP(op1 > op2 ? op1 : op2); }
+void InstEnv::RISCV_INST_VMAXU_VV(InstWord_t inst_hex) { VI_VV_LOOP_U(op1 > op2 ? op1 : op2); }
 void InstEnv::RISCV_INST_VMAX_VV(InstWord_t inst_hex)  { VI_VV_LOOP(op1 > op2 ? op1 : op2); }
 void InstEnv::RISCV_INST_VAND_VV(InstWord_t inst_hex)  { VI_VV_LOOP(op1 & op2); }
 void InstEnv::RISCV_INST_VOR_VV(InstWord_t inst_hex)   { VI_VV_LOOP(op1 | op2); }
